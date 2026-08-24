@@ -45,6 +45,11 @@ defmodule PumbleAutomation.Contract.Pumble.ManifestTest do
            ]
 
     assert rendered["id"] == "test-client-id"
+    assert rendered["name"] == "workflow-automation"
+    assert rendered["displayName"] == "Workflow Automation"
+    assert rendered["bot"] == true
+    assert rendered["botTitle"] == "Workflow Automation Bot"
+    assert rendered["socketMode"] == false
     assert json =~ "test-client-id"
   end
 

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "matrix": ["M-1", "M-2", "M-3", "M-4", "M-5", "M-6", "M-7", "M-10"],
+    "matrix": ["M-1", "M-2", "M-3", "M-4", "M-5", "M-6", "M-7", "M-10", "M-13"],
     "source": "docs/evidence/pumble_source_matrix.md",
     "fields_sanitized": true,
     "status": "SUPPORTED",
@@ -10,6 +10,10 @@
   "required_top_level_keys": [
     "id",
     "name",
+    "displayName",
+    "bot",
+    "botTitle",
+    "socketMode",
     "description",
     "redirectUrls",
     "scopes",

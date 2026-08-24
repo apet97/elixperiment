@@ -269,7 +269,7 @@ defmodule PumbleAutomationWeb.SettingsLive.Index do
     <.card id="settings-manifest">
       <:header>Manifest</:header>
       <.list>
-        <:item title="App">{@manifest.name}</:item>
+        <:item title="App">{@manifest.display_name}</:item>
         <:item title="Callback">{@manifest.callback_url}</:item>
         <:item title="Slash command">{@manifest.slash_command.display_name}</:item>
         <:item title="Global shortcut">{@manifest.global_shortcut.display_name}</:item>

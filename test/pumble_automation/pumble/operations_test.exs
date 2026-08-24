@@ -343,6 +343,9 @@ defmodule PumbleAutomation.Pumble.OperationsTest do
       manifest = Manifest.build()
       rendered = Manifest.render(manifest)
 
+      assert rendered["name"] == "workflow-automation"
+      assert rendered["displayName"] == "Workflow Automation"
+      assert rendered["bot"] == true
       assert [%{"command" => "/workflow"}] = rendered["slashCommands"]
 
       assert [

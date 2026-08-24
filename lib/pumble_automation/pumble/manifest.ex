@@ -44,6 +44,10 @@ defmodule PumbleAutomation.Pumble.Manifest do
   @type t :: %__MODULE__{
           id: String.t(),
           name: String.t(),
+          display_name: String.t(),
+          bot: boolean(),
+          bot_title: String.t(),
+          socket_mode: boolean(),
           description: String.t(),
           slash_command: entry_point(),
           global_shortcut: entry_point(),
@@ -56,11 +60,15 @@ defmodule PumbleAutomation.Pumble.Manifest do
           user_scopes: [String.t()]
         }
 
-  @enforce_keys [:id, :name, :callback_url]
+  @enforce_keys [:id, :name, :display_name, :callback_url]
   defstruct [
     :id,
     :name,
+    :display_name,
     :callback_url,
+    bot: true,
+    bot_title: "Workflow Automation Bot",
+    socket_mode: false,
     description: "Build and run Pumble workflows.",
     slash_command: nil,
     global_shortcut: nil,
@@ -87,7 +95,8 @@ defmodule PumbleAutomation.Pumble.Manifest do
 
     %__MODULE__{
       id: Keyword.fetch!(pumble, :client_id),
-      name: "Pumble Workflow Automation",
+      name: "workflow-automation",
+      display_name: "Workflow Automation",
       callback_url: callback_url,
       slash_command: entry_point(@slash_command, callback_url),
       global_shortcut: entry_point(@global_shortcut, callback_url),
@@ -111,6 +120,10 @@ defmodule PumbleAutomation.Pumble.Manifest do
     %{
       "id" => manifest.id,
       "name" => manifest.name,
+      "displayName" => manifest.display_name,
+      "bot" => manifest.bot,
+      "botTitle" => manifest.bot_title,
+      "socketMode" => manifest.socket_mode,
       "description" => manifest.description,
       "redirectUrls" => manifest.redirect_urls,
       "scopes" => %{

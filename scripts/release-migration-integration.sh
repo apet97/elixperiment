@@ -102,6 +102,7 @@ run_migrate() {
     PUMBLE_CLIENT_SECRET=release-test-client-secret \
     PUMBLE_APP_KEY=release-test-application-key \
     PUMBLE_SIGNING_SECRET=release-test-signing-secret \
+    PUMBLE_BOT_SCOPES=messages:write \
     ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA \
     ENCRYPTION_KEY_VERSION=1 \
     "$migrate_bin"

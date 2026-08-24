@@ -626,6 +626,7 @@ are proven.
 | M-10 | Secrets are stripped before serving or publication | `prepareForServing` destructures out `appKey`, `clientSecret`, and `signingSecret` and spreads only the remainder | `SUPPORTED` | `G02` 8.1; `G05` 4.4. SDK source: `core/util/ManifestProcessor.ts`, `prepareForServing()` — `const {appKey, clientSecret, signingSecret, ...removedSecrets} = manifest`. Note `id` (the client ID) is **not** stripped |
 | M-11 | Runtime workflows cannot register new command or shortcut names | The manifest is static and is synced by the CLI or the developer console | `INFERRED` (plan 4.2) | `G05` 1.4, 4.3 |
 | M-12 | Marketplace launch link and listing behavior | `listingUrl?`, `helpUrl?`, `welcomeMessage?`, `offlineMessage?` are all declared optional `string` fields on the manifest type, and **the SDK does nothing with any of them** — they are passed through `prepareForServing` untouched and never read by the runtime. Their behavior is entirely server-side. | `SUPPORTED` (the fields exist and are inert client-side) / `PROBE REQUIRED` (runtime behavior) | `G05` 4.3; `PR-13`. SDK source: `core/types/types.ts`, `AddonManifest`; absence of any other reference in the tree |
+| M-13 | Registration identity and bot mode | `name`, `displayName`, and `bot` are required by the Pumble manifest payload. This product also renders `botTitle` and explicitly disables development-only `socketMode`. | `SUPPORTED` | `G05` 4.3, manifest payload table and manual-create example |
 
 ---
 

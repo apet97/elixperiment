@@ -15,6 +15,7 @@ defmodule PumbleAutomation.ConfigTest do
     PUMBLE_CLIENT_SECRET
     PUMBLE_APP_KEY
     PUMBLE_SIGNING_SECRET
+    PUMBLE_BOT_SCOPES
     ENCRYPTION_KEY
   )
 
@@ -28,6 +29,7 @@ defmodule PumbleAutomation.ConfigTest do
       "PUMBLE_CLIENT_SECRET" => String.duplicate("c", 32),
       "PUMBLE_APP_KEY" => String.duplicate("k", 32),
       "PUMBLE_SIGNING_SECRET" => String.duplicate("g", 32),
+      "PUMBLE_BOT_SCOPES" => "messages:read,messages:write",
       "ENCRYPTION_KEY" => Base.encode64(:binary.copy(<<7>>, 32), padding: false)
     }
   end
@@ -184,6 +186,52 @@ defmodule PumbleAutomation.ConfigTest do
     end
   end
 
+  describe "fetch_pumble_scopes!/3" do
+    test "parses catalog scopes in the configured order" do
+      env = %{"PUMBLE_BOT_SCOPES" => " messages:read, messages:write "}
+
+      assert Config.fetch_pumble_scopes!(env, "PUMBLE_BOT_SCOPES", required: true) ==
+               ["messages:read", "messages:write"]
+    end
+
+    test "requires a nonempty bot scope list" do
+      for env <- [%{}, %{"PUMBLE_BOT_SCOPES" => "   "}] do
+        message =
+          assert_error(fn ->
+            Config.fetch_pumble_scopes!(env, "PUMBLE_BOT_SCOPES", required: true)
+          end)
+
+        assert message =~ "PUMBLE_BOT_SCOPES is missing"
+      end
+    end
+
+    test "allows an unset or empty optional user scope list" do
+      assert Config.fetch_pumble_scopes!(%{}, "PUMBLE_USER_SCOPES") == []
+
+      assert Config.fetch_pumble_scopes!(%{"PUMBLE_USER_SCOPES" => "  "}, "PUMBLE_USER_SCOPES") ==
+               []
+    end
+
+    test "refuses unknown, duplicate, and blank entries without echoing values" do
+      for value <- [
+            "messages:read,#{@sentinel}",
+            "messages:read,messages:read",
+            "messages:read,,messages:write",
+            ",messages:read",
+            "messages:read,"
+          ] do
+        message =
+          assert_error(fn ->
+            Config.fetch_pumble_scopes!(%{"PUMBLE_BOT_SCOPES" => value}, "PUMBLE_BOT_SCOPES")
+          end)
+
+        assert message =~ "PUMBLE_BOT_SCOPES is invalid"
+        refute message =~ value
+        refute message =~ @sentinel
+      end
+    end
+  end
+
   describe "fetch_encryption_key_version!/1" do
     test "defaults to the first version" do
       assert Config.fetch_encryption_key_version!(%{}) == 1
@@ -276,6 +324,8 @@ defmodule PumbleAutomation.ConfigTest do
       assert settings.pool_size == 10
       assert settings.port == 4000
       assert settings.public_url.url == "https://automation.example.com"
+      assert settings.pumble_bot_scopes == ["messages:read", "messages:write"]
+      assert settings.pumble_user_scopes == []
       assert byte_size(settings.encryption_key) == 32
       assert settings.encryption_key_version == 1
       assert settings.queue_concurrency == Config.queue_defaults()
@@ -300,7 +350,9 @@ defmodule PumbleAutomation.ConfigTest do
           "ENCRYPTION_KEY_VERSION" => "3",
           "QUEUE_CONCURRENCY_EXECUTIONS" => "40",
           "OUTBOUND_HTTP_TIMEOUT_MS" => "5000",
-          "DNS_CLUSTER_QUERY" => "app.internal"
+          "DNS_CLUSTER_QUERY" => "app.internal",
+          "PUMBLE_BOT_SCOPES" => "messages:write,reaction:write",
+          "PUMBLE_USER_SCOPES" => "user:read"
         })
 
       settings = Config.load_prod!(env)
@@ -313,6 +365,8 @@ defmodule PumbleAutomation.ConfigTest do
       assert settings.queue_concurrency[:executions] == 40
       assert settings.limits.outbound_http_timeout_ms == 5_000
       assert settings.dns_cluster_query == "app.internal"
+      assert settings.pumble_bot_scopes == ["messages:write", "reaction:write"]
+      assert settings.pumble_user_scopes == ["user:read"]
     end
 
     test "LOG_LEVEL is configurable without echoing an invalid value" do

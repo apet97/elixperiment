@@ -14,6 +14,8 @@ defmodule PumbleAutomation.Config do
   release fails to boot instead of starting with unsafe defaults.
   """
 
+  alias PumbleAutomation.Pumble.Scopes
+
   @queue_defaults [ingress: 20, executions: 20, schedules: 2, maintenance: 2]
   @encryption_key_bytes 32
   # One byte of every ciphertext envelope names the key that sealed it, so a
@@ -53,6 +55,8 @@ defmodule PumbleAutomation.Config do
       pumble_client_secret: fetch_secret!(env, "PUMBLE_CLIENT_SECRET", @min_secret_length),
       pumble_app_key: fetch_secret!(env, "PUMBLE_APP_KEY", @min_secret_length),
       pumble_signing_secret: fetch_secret!(env, "PUMBLE_SIGNING_SECRET", @min_secret_length),
+      pumble_bot_scopes: fetch_pumble_scopes!(env, "PUMBLE_BOT_SCOPES", required: true),
+      pumble_user_scopes: fetch_pumble_scopes!(env, "PUMBLE_USER_SCOPES"),
       encryption_key: fetch_base64_key!(env, "ENCRYPTION_KEY", @encryption_key_bytes),
       encryption_key_version: fetch_encryption_key_version!(env),
       encryption_legacy_keys: fetch_encryption_legacy_keys!(env),
@@ -198,6 +202,30 @@ defmodule PumbleAutomation.Config do
     case Base.decode64(value, padding: false) do
       {:ok, key} when byte_size(key) == bytes -> key
       _other -> raise ArgumentError, invalid_message(name, expected)
+    end
+  end
+
+  @doc """
+  Parses a comma-separated Pumble scope list against the closed scope catalog.
+
+  Whitespace around a scope is ignored, but blank entries and duplicates are
+  refused. An optional unset or blank variable produces an empty list. Pass
+  `required: true` when the deployment must explicitly request at least one
+  scope.
+  """
+  @spec fetch_pumble_scopes!(map(), String.t(), keyword()) :: [String.t()]
+  def fetch_pumble_scopes!(env, name, opts \\ []) do
+    required? = Keyword.get(opts, :required, false)
+
+    case optional_string(env, name) do
+      nil when required? ->
+        raise ArgumentError, missing_message(name)
+
+      nil ->
+        []
+
+      value ->
+        parse_pumble_scopes!(name, value)
     end
   end
 
@@ -356,6 +384,18 @@ defmodule PumbleAutomation.Config do
 
       Map.put(acc, version, key)
     end)
+  end
+
+  defp parse_pumble_scopes!(name, value) do
+    scopes = value |> String.split(",", trim: false) |> Enum.map(&String.trim/1)
+    expected = "unique, non-blank, comma-separated names from the Pumble scope catalog"
+
+    if Enum.any?(scopes, &(&1 == "")) or Enum.uniq(scopes) != scopes or
+         Enum.any?(scopes, &(&1 not in Scopes.catalog())) do
+      raise ArgumentError, invalid_message(name, expected)
+    end
+
+    scopes
   end
 
   defp parse_legacy_entry!(name, entry, expected) do

@@ -61,7 +61,9 @@ if config_env() == :prod do
       client_id: settings.pumble_client_id,
       client_secret: settings.pumble_client_secret,
       app_key: settings.pumble_app_key,
-      signing_secret: settings.pumble_signing_secret
+      signing_secret: settings.pumble_signing_secret,
+      bot_scopes: settings.pumble_bot_scopes,
+      user_scopes: settings.pumble_user_scopes
     ],
     encryption: [
       key: settings.encryption_key,

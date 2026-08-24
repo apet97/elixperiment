@@ -28,6 +28,10 @@ unverified because no deployment target or authority was supplied.
 ## What this release already implements
 
 - Strict runtime config. Missing required variables refuse boot in production.
+- `PUMBLE_BOT_SCOPES` is a required, nonempty comma-separated least-privilege
+  grant chosen by the deployer. `PUMBLE_USER_SCOPES` is optional and empty by
+  default. Both reject blank entries, duplicates, and names outside the closed
+  Pumble scope catalog; changing either set requires reinstalling the app.
 - `PUBLIC_BASE_URL` is the canonical host. It is the base of OAuth redirects
   and the Pumble callback URL.
 - Pumble callbacks enter `POST /pumble/callbacks` only. The reverse proxy must

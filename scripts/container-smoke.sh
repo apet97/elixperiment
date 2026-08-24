@@ -218,6 +218,7 @@ runtime_env=(
   --env "PUMBLE_CLIENT_SECRET=release-test-client-secret"
   --env "PUMBLE_APP_KEY=release-test-application-key"
   --env "PUMBLE_SIGNING_SECRET=release-test-signing-secret"
+  --env "PUMBLE_BOT_SCOPES=messages:write"
   --env "ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   --env "ENCRYPTION_KEY_VERSION=1"
 )
