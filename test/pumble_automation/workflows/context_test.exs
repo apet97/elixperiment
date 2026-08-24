@@ -9,7 +9,10 @@ defmodule PumbleAutomation.WorkflowsTest do
   alias PumbleAutomation.Scope
   alias PumbleAutomation.Workflows
   alias PumbleAutomation.Workflows.Definition
+  alias PumbleAutomation.Workflows.Definition.Trigger
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.StarterTemplates
+  alias PumbleAutomation.Workflows.TriggerBinding
   alias PumbleAutomation.Workflows.Workflow
 
   setup do
@@ -130,6 +133,95 @@ defmodule PumbleAutomation.WorkflowsTest do
       assert row.trigger_summary == "Pumble · New message"
       assert row.validation_state == "draft"
       refute Map.has_key?(row, :draft_definition)
+    end
+
+    test "keeps the live alias searchable while identifying a pending draft alias", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      workflow =
+        drafted_workflow(installation_id, %{
+          slug: "live-route",
+          draft_definition: Definition.encode(manual_definition("live-route", [delay_node()]))
+        })
+
+      assert {:ok, activation} = Workflows.activate_workflow(scope, workflow.id, 0)
+
+      assert {:ok, saved} =
+               Workflows.update_draft(
+                 scope,
+                 workflow.id,
+                 manual_definition("pending-route", [delay_node()]),
+                 activation.workflow.draft_revision
+               )
+
+      assert saved.status == "active"
+      assert saved.slug == "pending-route"
+
+      assert {:ok, %{entries: [live_row], total: 1}} =
+               Workflows.list_workflow_index(scope, q: "live-route")
+
+      assert live_row.live_alias == "live-route"
+      assert live_row.pending_draft_alias == "pending-route"
+      assert is_nil(live_row.editable_alias)
+      assert live_row.trigger_summary == "Manual · live-route"
+
+      assert {:ok, %{entries: [pending_row], total: 1}} =
+               Workflows.list_workflow_index(scope, q: "pending-route")
+
+      assert pending_row.id == workflow.id
+    end
+
+    test "keeps an archived binding immutable but presents its aliases as non-live", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      workflow =
+        drafted_workflow(installation_id, %{
+          slug: "live-route",
+          draft_definition: Definition.encode(manual_definition("live-route", [delay_node()]))
+        })
+
+      assert {:ok, activation} = Workflows.activate_workflow(scope, workflow.id, 0)
+
+      assert {:ok, _saved} =
+               Workflows.update_draft(
+                 scope,
+                 workflow.id,
+                 manual_definition("pending-route", [delay_node()]),
+                 activation.workflow.draft_revision
+               )
+
+      binding_before =
+        Repo.one!(
+          from binding in TriggerBinding,
+            where: binding.workflow_version_id == ^activation.version.id
+        )
+
+      assert {:ok, archived} = Workflows.archive_workflow(scope, workflow.id)
+      assert archived.active_version_id == activation.version.id
+      assert Repo.get!(TriggerBinding, binding_before.id) == binding_before
+
+      assert {:ok, %{entries: [row], total: 1}} =
+               Workflows.list_workflow_index(scope,
+                 include_archived: true,
+                 q: "live-route"
+               )
+
+      assert row.status == "archived"
+      assert row.validation_state == "draft"
+      assert is_nil(row.live_alias)
+      assert is_nil(row.pending_draft_alias)
+      assert row.editable_alias == "pending-route"
+      assert row.trigger_summary == "Manual · live-route"
+
+      assert {:ok, %{entries: [pending], total: 1}} =
+               Workflows.list_workflow_index(scope,
+                 include_archived: true,
+                 q: "pending-route"
+               )
+
+      assert pending.id == workflow.id
     end
 
     test "costs two queries however many rows it returns", %{
@@ -254,6 +346,82 @@ defmodule PumbleAutomation.WorkflowsTest do
       assert {:ok, stored} = Workflow.draft(created)
       assert stored.trigger.id == definition.trigger.id
     end
+
+    test "uses one alias for a manual draft and its workflow row", %{scope: scope} do
+      assert {:ok, created} =
+               Workflows.create_workflow(scope, %{
+                 name: "Deploy",
+                 slug: "deploy",
+                 definition: StarterTemplates.blank()
+               })
+
+      assert created.slug == "deploy"
+      assert {:ok, stored} = Workflow.draft(created)
+      assert stored.trigger.type == :manual
+      assert stored.trigger.config.manual_alias == "deploy"
+    end
+
+    test "does not persist a manual alias for a non-manual draft", %{scope: scope} do
+      assert {:ok, definition} = StarterTemplates.fetch("welcome")
+
+      assert {:ok, created} =
+               Workflows.create_workflow(scope, %{
+                 name: "Welcome",
+                 slug: "misleading",
+                 definition: definition
+               })
+
+      assert is_nil(created.slug)
+      assert {:ok, stored} = Workflow.draft(created)
+      assert stored.trigger.type == :pumble_event
+    end
+
+    test "reports an invalid manual alias as validation, not a collision", %{scope: scope} do
+      assert {:error, %Error{class: :validation, code: :invalid_manual_alias} = error} =
+               Workflows.create_workflow(scope, %{
+                 name: "Deploy",
+                 slug: "Not valid",
+                 definition: StarterTemplates.blank()
+               })
+
+      assert error.message == ManualAlias.message()
+      assert {:ok, []} = Workflows.list_workflows(scope)
+    end
+
+    test "normalizes explicit, struct, and raw manual aliases identically", %{scope: scope} do
+      cases = [
+        {"Explicit", %{slug: "  explicit-route  ", definition: StarterTemplates.blank()},
+         "explicit-route"},
+        {"Struct", %{definition: manual_definition("  struct-route  ")}, "struct-route"},
+        {"Raw", %{definition: Definition.encode(manual_definition("  raw-route  "))}, "raw-route"}
+      ]
+
+      for {name, attrs, expected_alias} <- cases do
+        assert {:ok, created} = Workflows.create_workflow(scope, Map.put(attrs, :name, name))
+        assert created.slug == expected_alias
+        assert {:ok, stored} = Workflow.draft(created)
+        assert stored.trigger.config.manual_alias == expected_alias
+      end
+    end
+
+    test "returns the same typed error for explicit, struct, and raw invalid aliases", %{
+      scope: scope
+    } do
+      cases = [
+        {"Explicit", %{slug: "Not valid", definition: StarterTemplates.blank()}},
+        {"Struct", %{definition: manual_definition("Not valid")}},
+        {"Raw", %{definition: Definition.encode(manual_definition("Not valid"))}}
+      ]
+
+      for {name, attrs} <- cases do
+        assert {:error, %Error{class: :validation, code: :invalid_manual_alias} = error} =
+                 Workflows.create_workflow(scope, Map.put(attrs, :name, name))
+
+        assert error.message == ManualAlias.message()
+      end
+
+      assert {:ok, []} = Workflows.list_workflows(scope)
+    end
   end
 
   describe "duplicate_workflow/2" do
@@ -334,6 +502,139 @@ defmodule PumbleAutomation.WorkflowsTest do
       assert error.details.current_revision == 1
     end
 
+    test "changes the workflow slug with a manual trigger alias", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      mine =
+        drafted_workflow(installation_id, %{
+          slug: "old-alias",
+          draft_definition: Definition.encode(manual_definition("old-alias"))
+        })
+
+      assert {:ok, saved} =
+               Workflows.update_draft(scope, mine.id, manual_definition("new-alias"), 0)
+
+      assert saved.slug == "new-alias"
+      assert {:ok, stored} = Workflow.draft(saved)
+      assert stored.trigger.config.manual_alias == "new-alias"
+    end
+
+    test "normalizes struct and raw draft aliases identically", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      cases = [
+        {"struct-route", manual_definition("  struct-route  ")},
+        {"raw-route", Definition.encode(manual_definition("  raw-route  "))}
+      ]
+
+      for {expected_alias, input} <- cases do
+        mine =
+          drafted_workflow(installation_id, %{
+            slug: "old-#{expected_alias}",
+            draft_definition: Definition.encode(manual_definition("old-#{expected_alias}"))
+          })
+
+        assert {:ok, saved} = Workflows.update_draft(scope, mine.id, input, 0)
+        assert saved.slug == expected_alias
+        assert {:ok, stored} = Workflow.draft(saved)
+        assert stored.trigger.config.manual_alias == expected_alias
+      end
+    end
+
+    test "clears the workflow slug when the trigger is no longer manual", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      mine =
+        drafted_workflow(installation_id, %{
+          slug: "deploy",
+          draft_definition: Definition.encode(manual_definition("deploy"))
+        })
+
+      assert {:ok, saved} = Workflows.update_draft(scope, mine.id, definition(), 0)
+
+      assert is_nil(saved.slug)
+      assert {:ok, stored} = Workflow.draft(saved)
+      assert stored.trigger.type == :pumble_event
+    end
+
+    test "returns slug_taken without changing either alias", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      _taken =
+        drafted_workflow(installation_id, %{
+          slug: "deploy",
+          draft_definition: Definition.encode(manual_definition("deploy"))
+        })
+
+      mine =
+        drafted_workflow(installation_id, %{
+          slug: "release",
+          draft_definition: Definition.encode(manual_definition("release"))
+        })
+
+      assert {:error, %Error{class: :conflict, code: :slug_taken}} =
+               Workflows.update_draft(scope, mine.id, manual_definition("deploy"), 0)
+
+      stored = Repo.get!(Workflow, mine.id)
+      assert stored.slug == "release"
+      assert stored.draft_revision == 0
+      assert {:ok, definition} = Workflow.draft(stored)
+      assert definition.trigger.config.manual_alias == "release"
+    end
+
+    test "reports a locally invalid draft alias without claiming it is taken", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      inputs = [
+        manual_definition("Not valid"),
+        Definition.encode(manual_definition("Not valid"))
+      ]
+
+      for {input, index} <- Enum.with_index(inputs, 1) do
+        original_alias = "release-#{index}"
+
+        mine =
+          drafted_workflow(installation_id, %{
+            slug: original_alias,
+            draft_definition: Definition.encode(manual_definition(original_alias))
+          })
+
+        assert {:error, %Error{class: :validation, code: :invalid_manual_alias} = error} =
+                 Workflows.update_draft(scope, mine.id, input, 0)
+
+        assert error.message == ManualAlias.message()
+        assert Repo.get!(Workflow, mine.id).slug == original_alias
+      end
+    end
+
+    test "a stale alias edit changes neither the draft nor the slug", %{
+      scope: scope,
+      installation_id: installation_id
+    } do
+      mine =
+        drafted_workflow(installation_id, %{
+          slug: "old-alias",
+          draft_definition: Definition.encode(manual_definition("old-alias"))
+        })
+
+      assert {:ok, _saved} =
+               Workflows.update_draft(scope, mine.id, manual_definition("winner"), 0)
+
+      assert {:error, %Error{class: :conflict, code: :draft_revision_conflict}} =
+               Workflows.update_draft(scope, mine.id, manual_definition("stale"), 0)
+
+      stored = Repo.get!(Workflow, mine.id)
+      assert stored.slug == "winner"
+      assert stored.draft_revision == 1
+      assert {:ok, definition} = Workflow.draft(stored)
+      assert definition.trigger.config.manual_alias == "winner"
+    end
+
     test "answers not_found across workspaces", %{
       other_scope: other_scope,
       installation_id: installation_id
@@ -351,6 +652,13 @@ defmodule PumbleAutomation.WorkflowsTest do
       assert {:error, %Error{class: :permission}} =
                Workflows.update_draft(viewer, mine.id, definition(), 0)
     end
+  end
+
+  defp manual_definition(alias_name, steps \\ []) do
+    Definition.new(
+      Trigger.new(:manual, %{manual_alias: alias_name, slash_command: true}),
+      steps
+    )
   end
 
   describe "archive_workflow/2" do

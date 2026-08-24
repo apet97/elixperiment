@@ -20,6 +20,7 @@ defmodule PumbleAutomation.Workflows.ValidatorStructureTest do
   alias PumbleAutomation.Workflows.Definition.ManualTestConfig
   alias PumbleAutomation.Workflows.Definition.Trigger
   alias PumbleAutomation.Workflows.Limits
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.Node
   alias PumbleAutomation.Workflows.Node.Predicate
   alias PumbleAutomation.Workflows.Node.StopConfig
@@ -125,6 +126,20 @@ defmodule PumbleAutomation.Workflows.ValidatorStructureTest do
 
       assert [trigger_issue] = Validator.validate(with_trigger(trigger))
       assert trigger_issue.path == "/trigger/id"
+    end
+
+    test "an in-memory manual alias uses the shared format and length contract" do
+      for {alias_name, code} <- [
+            {"Not valid", :invalid_format},
+            {String.duplicate("a", ManualAlias.max_length() + 1), :value_too_long}
+          ] do
+        trigger = Trigger.new(:manual, %{manual_alias: alias_name})
+
+        assert [issue] = Validator.validate(with_trigger(trigger))
+        assert issue.code == code
+        assert issue.path == "/trigger/config/manual_alias"
+        assert issue.message == ManualAlias.message()
+      end
     end
   end
 

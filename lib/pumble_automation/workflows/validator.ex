@@ -178,6 +178,7 @@ defmodule PumbleAutomation.Workflows.Validator do
     http_url_not_absolute: "A URL must begin with https://.",
     invalid_config: "This step type does not take this kind of configuration.",
     invalid_connection_id: "This is not a connection identifier.",
+    invalid_format: "This value has an invalid format.",
     invalid_id: "This is not a valid identifier.",
     invalid_run_at: "This is not a date and time.",
     invalid_secret_name: "This is not a secret name.",
@@ -736,7 +737,28 @@ defmodule PumbleAutomation.Workflows.Validator do
 
   defp declared_issues(value, :string, opts, context, path) when is_binary(value) do
     max = Keyword.get(opts, :max_length, Limits.max_string_length())
-    if byte_size(value) > max, do: [error(:value_too_long, path, context)], else: []
+    format = Keyword.get(opts, :format)
+
+    cond do
+      byte_size(value) > max ->
+        [
+          field_error(
+            :value_too_long,
+            Keyword.get(opts, :max_length_message),
+            path,
+            context
+          )
+        ]
+
+      not String.valid?(value) ->
+        [error(:invalid_type, path, context)]
+
+      match?(%Regex{}, format) and not Regex.match?(format, value) ->
+        [field_error(:invalid_format, Keyword.get(opts, :format_message), path, context)]
+
+      true ->
+        []
+    end
   end
 
   defp declared_issues(value, :integer, opts, context, path) when is_integer(value) do
@@ -886,6 +908,12 @@ defmodule PumbleAutomation.Workflows.Validator do
 
   defp error(code, path, context) do
     ValidationIssue.error(code, path, message(code), context.node_id)
+  end
+
+  defp field_error(code, nil, path, context), do: error(code, path, context)
+
+  defp field_error(code, field_message, path, context) when is_binary(field_message) do
+    ValidationIssue.error(code, path, field_message, context.node_id)
   end
 
   defp warning(code, path, context) do

@@ -13,6 +13,8 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
   alias PumbleAutomation.Scope
   alias PumbleAutomation.Workflows
   alias PumbleAutomation.Workflows.Definition
+  alias PumbleAutomation.Workflows.Definition.Trigger
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.Workflow
   alias PumbleAutomationWeb.BrowserSession
 
@@ -164,6 +166,123 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
       refute has_element?(view, "#workflow-#{alpha.id}")
     end
 
+    test "an active card separates its live and pending draft aliases", %{conn: conn} do
+      %{session_token: token, installation: installation, member: member} =
+        InstallationsFixtures.install(role: "editor")
+
+      scope = Scope.new(member)
+      live = manual_definition("live-route")
+
+      workflow =
+        drafted_workflow(installation.id, %{
+          slug: "live-route",
+          draft_definition: Definition.encode(live)
+        })
+
+      assert {:ok, activation} = Workflows.activate_workflow(scope, workflow.id, 0)
+
+      assert {:ok, _saved} =
+               Workflows.update_draft(
+                 scope,
+                 workflow.id,
+                 manual_definition("next-route"),
+                 activation.workflow.draft_revision
+               )
+
+      {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows")
+
+      assert has_element?(view, "#workflow-live-alias-#{workflow.id}", "Live /live-route")
+
+      assert has_element?(
+               view,
+               "#workflow-pending-alias-#{workflow.id}",
+               "Pending draft /next-route"
+             )
+
+      view
+      |> form("#workflow-filter-form", filter: %{q: "live-route"})
+      |> render_change()
+
+      assert has_element?(view, "#workflow-#{workflow.id}")
+    end
+
+    test "an archived card searches its historical binding without labeling it live", %{
+      conn: conn
+    } do
+      %{session_token: token, installation: installation, member: member} =
+        InstallationsFixtures.install(role: "editor")
+
+      scope = Scope.new(member)
+
+      workflow =
+        drafted_workflow(installation.id, %{
+          slug: "live-route",
+          draft_definition: Definition.encode(manual_definition("live-route"))
+        })
+
+      assert {:ok, activation} = Workflows.activate_workflow(scope, workflow.id, 0)
+
+      assert {:ok, _saved} =
+               Workflows.update_draft(
+                 scope,
+                 workflow.id,
+                 manual_definition("next-route"),
+                 activation.workflow.draft_revision
+               )
+
+      assert {:ok, _archived} = Workflows.archive_workflow(scope, workflow.id)
+
+      {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows?status=archived")
+
+      assert has_element?(
+               view,
+               "#workflow-#{workflow.id}[data-status=archived][data-validation=draft]"
+             )
+
+      refute has_element?(view, "#workflow-live-alias-#{workflow.id}")
+      refute has_element?(view, "#workflow-pending-alias-#{workflow.id}")
+      assert has_element?(view, "#workflow-editable-alias-#{workflow.id}", "Archived /next-route")
+
+      view
+      |> form("#workflow-filter-form", filter: %{q: "live-route", status: "archived"})
+      |> render_change()
+
+      assert has_element?(view, "#workflow-#{workflow.id}")
+    end
+
+    test "draft and inactive cards label aliases as non-live", %{conn: conn} do
+      %{session_token: token, installation: installation} =
+        InstallationsFixtures.install(role: "editor")
+
+      draft =
+        drafted_workflow(installation.id, %{
+          name: "Draft route",
+          slug: "draft-route",
+          draft_definition: Definition.encode(manual_definition("draft-route"))
+        })
+
+      inactive =
+        drafted_workflow(installation.id, %{
+          name: "Inactive route",
+          slug: "inactive-route",
+          status: "inactive",
+          draft_definition: Definition.encode(manual_definition("inactive-route"))
+        })
+
+      {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows")
+
+      assert has_element?(view, "#workflow-editable-alias-#{draft.id}", "Draft /draft-route")
+
+      assert has_element?(
+               view,
+               "#workflow-editable-alias-#{inactive.id}",
+               "Inactive /inactive-route"
+             )
+
+      refute has_element?(view, "#workflow-live-alias-#{draft.id}")
+      refute has_element?(view, "#workflow-live-alias-#{inactive.id}")
+    end
+
     test "pagination walks a second page", %{conn: conn} do
       %{session_token: token, installation: installation} =
         InstallationsFixtures.install(role: "editor")
@@ -189,16 +308,27 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
 
   describe "create and duplicate ids" do
     test "an editor can create a blank draft and find it", %{conn: conn} do
-      %{session_token: token} = InstallationsFixtures.install(role: "editor")
+      %{session_token: token, member: member} = InstallationsFixtures.install(role: "editor")
 
       {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows")
 
       view |> element("#create-workflow-action") |> render_click()
       assert has_element?(view, "#workflow-create-form")
+      assert has_element?(view, ~s(#workflow_slug[maxlength="64"]))
+      assert has_element?(view, ~s(#workflow_slug[pattern="[a-z0-9][a-z0-9_-]*"]))
+      assert has_element?(view, ~s(#workflow_slug[aria-describedby~="workflow-slug-help"]))
+      assert has_element?(view, "#workflow-slug-help", ManualAlias.message())
 
       view
-      |> form("#workflow-create-form", workflow: %{name: "Nightly digest", template: "blank"})
+      |> form("#workflow-create-form",
+        workflow: %{name: "Nightly digest", slug: "nightly", template: "blank"}
+      )
       |> render_submit()
+
+      assert {:ok, [created]} = Workflows.list_workflows(Scope.new(member))
+      assert created.slug == "nightly"
+      assert {:ok, definition} = Workflow.draft(created)
+      assert definition.trigger.config.manual_alias == "nightly"
 
       {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows")
       html = render(view)
@@ -214,6 +344,14 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
       {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows/new")
 
       view
+      |> form("#workflow-create-form",
+        workflow: %{name: "Welcome one", template: "welcome"}
+      )
+      |> render_change()
+
+      refute has_element?(view, "#workflow_slug")
+
+      view
       |> form("#workflow-create-form", workflow: %{name: "Welcome one", template: "welcome"})
       |> render_submit()
 
@@ -224,8 +362,12 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
       |> render_submit()
 
       assert {:ok, [second, first]} = Workflows.list_workflows(scope)
+      assert is_nil(first.slug)
+      assert is_nil(second.slug)
       assert {:ok, first_def} = Workflow.draft(first)
       assert {:ok, second_def} = Workflow.draft(second)
+      assert first_def.trigger.type == :pumble_event
+      assert second_def.trigger.type == :pumble_event
       assert first_def.trigger.id != second_def.trigger.id
 
       assert MapSet.disjoint?(
@@ -276,6 +418,30 @@ defmodule PumbleAutomationWeb.WorkflowLive.IndexTest do
       assert html =~ "scheduled"
       assert html =~ "The workflow is not valid."
     end
+
+    test "an invalid manual alias gets actionable validation copy", %{conn: conn} do
+      %{session_token: token, member: member} = InstallationsFixtures.install(role: "editor")
+
+      {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows/new")
+
+      html =
+        view
+        |> form("#workflow-create-form",
+          workflow: %{name: "Deploy", slug: "Not valid", template: "blank"}
+        )
+        |> render_submit()
+
+      assert html =~ ManualAlias.message()
+      assert has_element?(view, "#workflow-create-form")
+      assert {:ok, []} = Workflows.list_workflows(Scope.new(member))
+    end
+  end
+
+  defp manual_definition(alias_name) do
+    Definition.new(
+      Trigger.new(:manual, %{manual_alias: alias_name, slash_command: true}),
+      [delay_node()]
+    )
   end
 
   describe "deactivate conflict" do

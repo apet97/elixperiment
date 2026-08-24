@@ -42,6 +42,7 @@ defmodule PumbleAutomation.Workflows.Workflow do
   alias PumbleAutomation.Repo
   alias PumbleAutomation.Workflows.Definition
   alias PumbleAutomation.Workflows.Limits
+  alias PumbleAutomation.Workflows.ManualAlias
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -50,8 +51,8 @@ defmodule PumbleAutomation.Workflows.Workflow do
 
   @name_max 120
   @description_max 2000
-  @slug_max 64
-  @slug_format ~r/\A[a-z0-9][a-z0-9_-]*\z/
+  @slug_max ManualAlias.max_length()
+  @slug_format ManualAlias.format()
 
   @fields ~w(installation_id name slug description draft_definition draft_revision status
              active_version_id created_by_member_id updated_by_member_id archived_at)a
@@ -121,7 +122,9 @@ defmodule PumbleAutomation.Workflows.Workflow do
   `definition` is either a `PumbleAutomation.Workflows.Definition` or the plain
   map one decodes from. Either way it is decoded and re-encoded before the
   write, so what is stored is the canonical shape and a malformed draft is
-  refused before it reaches the database.
+  refused before it reaches the database. The same compare-and-swap projects a
+  manual trigger's normalized alias onto `:slug`, or clears `:slug` for any
+  other trigger, so draft routing and the workflow row cannot diverge.
 
   Returns the updated workflow with its new revision, or:
 
@@ -139,8 +142,9 @@ defmodule PumbleAutomation.Workflows.Workflow do
   def save_draft(%__MODULE__{} = workflow, definition, expected_revision, opts \\ [])
       when is_integer(expected_revision) and expected_revision >= 0 do
     with {:ok, encoded} <- encode_definition(definition),
+         {encoded, slug} <- align_manual_alias(encoded),
          :ok <- Limits.check_size(encoded) do
-      compare_and_swap(workflow, encoded, expected_revision, opts)
+      compare_and_swap(workflow, encoded, slug, expected_revision, opts)
     end
   end
 
@@ -160,30 +164,73 @@ defmodule PumbleAutomation.Workflows.Workflow do
 
   def draft(%__MODULE__{draft_definition: raw}), do: Definition.decode(raw)
 
-  defp compare_and_swap(workflow, encoded, expected_revision, opts) do
-    updates =
-      [
-        draft_definition: encoded,
-        draft_revision: expected_revision + 1,
-        updated_at: DateTime.utc_now()
-      ]
+  defp compare_and_swap(workflow, encoded, slug, expected_revision, opts) do
+    attrs =
+      %{draft_definition: encoded, slug: slug}
       |> put_updater(Keyword.get(opts, :updated_by_member_id))
 
-    query =
-      from w in __MODULE__,
-        where:
-          w.id == ^workflow.id and w.installation_id == ^workflow.installation_id and
-            w.draft_revision == ^expected_revision,
-        select: w
+    changeset =
+      %{workflow | draft_revision: expected_revision}
+      |> changeset(attrs)
+      |> put_change(:updated_at, DateTime.utc_now())
+      |> optimistic_lock(:draft_revision)
+      |> put_tenant_filter(workflow.installation_id)
 
-    case Repo.update_all(query, set: updates) do
-      {1, [updated]} -> {:ok, updated}
-      {0, _rows} -> {:error, conflict(workflow, expected_revision)}
+    case Repo.update(changeset, stale_error_field: :draft_revision) do
+      {:ok, updated} -> {:ok, updated}
+      {:error, changeset} -> save_error(changeset, workflow, expected_revision)
     end
   end
 
-  defp put_updater(updates, nil), do: updates
-  defp put_updater(updates, member_id), do: Keyword.put(updates, :updated_by_member_id, member_id)
+  defp put_updater(attrs, nil), do: attrs
+  defp put_updater(attrs, member_id), do: Map.put(attrs, :updated_by_member_id, member_id)
+
+  defp put_tenant_filter(changeset, installation_id) do
+    %{changeset | filters: Map.put(changeset.filters, :installation_id, installation_id)}
+  end
+
+  defp save_error(changeset, workflow, expected_revision) do
+    cond do
+      stale?(changeset) ->
+        {:error, conflict(workflow, expected_revision)}
+
+      violated?(changeset, "workflows_installation_id_slug_index") ->
+        {:error,
+         Error.new(:conflict, :slug_taken,
+           message: "Another workflow in this workspace already uses that name."
+         )}
+
+      Keyword.has_key?(changeset.errors, :slug) ->
+        {:error, ManualAlias.invalid_error()}
+
+      true ->
+        {:error,
+         Error.new(:validation, :invalid_definition,
+           message: "The workflow definition is not valid.",
+           details: %{fields: Enum.map(changeset.errors, fn {field, _error} -> field end)}
+         )}
+    end
+  end
+
+  defp stale?(changeset) do
+    Enum.any?(changeset.errors, fn
+      {:draft_revision, {_message, opts}} -> Keyword.get(opts, :stale, false)
+      _error -> false
+    end)
+  end
+
+  defp violated?(changeset, constraint_name) do
+    Enum.any?(changeset.errors, fn {_field, {_message, opts}} ->
+      Keyword.get(opts, :constraint_name) == constraint_name
+    end)
+  end
+
+  defp align_manual_alias(%{"trigger" => %{"type" => "manual", "config" => config}} = encoded) do
+    manual_alias = config |> Map.get("manual_alias") |> ManualAlias.normalize()
+    {put_in(encoded, ["trigger", "config", "manual_alias"], manual_alias), manual_alias}
+  end
+
+  defp align_manual_alias(encoded), do: {encoded, nil}
 
   defp conflict(workflow, expected_revision) do
     query =
@@ -206,16 +253,17 @@ defmodule PumbleAutomation.Workflows.Workflow do
   end
 
   defp encode_definition(%Definition{} = definition) do
-    case Definition.validate_limits(definition) do
-      :ok -> {:ok, Definition.encode(definition)}
-      {:error, %Error{}} = error -> error
-    end
+    definition
+    |> Definition.encode()
+    |> encode_definition()
   end
 
   defp encode_definition(raw) when is_map(raw) do
-    case Definition.decode(raw) do
+    normalized = ManualAlias.normalize_definition(raw)
+
+    case Definition.decode(normalized) do
       {:ok, definition} -> {:ok, Definition.encode(definition)}
-      {:error, %Error{}} = error -> error
+      {:error, %Error{} = error} -> {:error, ManualAlias.translate_definition_error(error)}
     end
   end
 

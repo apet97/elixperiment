@@ -8,6 +8,7 @@ defmodule PumbleAutomation.Workflows.DefinitionTest do
   alias PumbleAutomation.Error
   alias PumbleAutomation.Workflows.Definition
   alias PumbleAutomation.Workflows.Definition.Trigger
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.Node
 
   describe "encode/1 and decode/1" do
@@ -48,6 +49,8 @@ defmodule PumbleAutomation.Workflows.DefinitionTest do
         assert decoded.trigger == trigger
       end
     end
+
+    test "manual aliases use the workflow slug syntax", do: assert_manual_alias_syntax()
 
     test "encodes to the shape of Section 15.1" do
       encoded = definition([message_node()]) |> Definition.encode()
@@ -93,6 +96,20 @@ defmodule PumbleAutomation.Workflows.DefinitionTest do
 
       assert {:ok, decoded} = round_trip(definition([node]))
       assert [%Node{config: %{idempotency_header: "Idempotency-Key"}}] = decoded.steps
+    end
+  end
+
+  defp assert_manual_alias_syntax do
+    for alias_name <- ["Deploy", "-deploy", "deploy now", String.duplicate("a", 65)] do
+      raw =
+        Definition.new(Trigger.new(:manual, %{manual_alias: alias_name}), [])
+        |> Definition.encode()
+
+      assert {:error, %Error{code: :invalid_definition} = error} = Definition.decode(raw)
+
+      assert [%{path: "/trigger/config/manual_alias"} = issue] = error.details.issues
+      assert issue.reason in [:invalid_format, :too_long]
+      assert issue.message == ManualAlias.message()
     end
   end
 

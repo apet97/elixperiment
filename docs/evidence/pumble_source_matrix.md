@@ -1,6 +1,6 @@
 # Pumble source-evidence matrix (P0-T03)
 
-Date: 2026-08-15. Task: `P0-T03` of
+Date: 2026-08-15. Last verified: 2026-08-25. Task: `P0-T03` of
 the [historical implementation plan](../archive/planning/implementation-plan.md).
 
 This matrix converts the supplied Pumble corpus into a traceable protocol
@@ -26,6 +26,7 @@ record for the Elixir/Phoenix port. Every row that the product contract
 | `G05` | Supplied snapshot: `05-cli-examples-docs-and-deployment.md` (not stored in this repository) |
 | `SDK` | Public [Pumble Node SDK at commit `36bb7ed`](https://github.com/CAKE-com/pumble-node-sdk/tree/36bb7edf091b9d24b39d6e70302ebbb3a1759fe3). Row citations use `SDK source:` with a path relative to that root plus the function name. |
 | `SDKDOC` | Markdown documentation shipped inside the same SDK repository (`docs/`). Cited as `SDK docs:`. This is vendor documentation, not executable source, and never proves server behavior. |
+| `CLI` | Published `pumble-cli` 1.1.11 package (`dist/`) and its matching public [source at commit `4ba6ff9`](https://github.com/CAKE-com/pumble-node-sdk/tree/4ba6ff96bec4abebd345d891effd33568d20e802/pumble-cli). Row citations name the published file first and the source path when useful. |
 
 ## Corpus limits (read before using any row)
 
@@ -621,7 +622,7 @@ are proven.
 | M-5 | Event subscription URL and list | `eventSubscriptions: {url, events?}` — `url` required, `events` optional | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `type ManifestEvents` |
 | M-6 | Block interaction and view action endpoints | `blockInteraction: {url}`, `viewAction: {url}`, both optional | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `AddonManifest`; served shape in `core/util/ManifestProcessor.ts`, `prepareForServing()` (handlers are stripped, only `url` survives) |
 | M-7 | Dynamic menus | `dynamicMenus: [{url, onAction}]`; the served form keeps exactly `url` and `onAction` | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `type DynamicMenu`; `ManifestProcessor.prepareForServing()` |
-| M-8 | Default Home view | `defaultHomeView: {enabled, blocks}` | `SUPPORTED` (guide) — the SDK's `AddonManifest` has an open index signature (`[key: string]: unknown`) and does not type this field, so source neither confirms nor denies it | `G05` 1.7, 3.8. SDK source: `core/types/types.ts`, `AddonManifest` |
+| M-8 | Default Home view | `defaultHomeView: {enabled, blocks}` must be a non-null object for the current manifest-update endpoint. This product sends the neutral disabled value `{enabled: false, blocks: []}`. | `SUPPORTED` (current CLI and bounded live update rejection). Published CLI 1.1.11 types the field as required and sends the supplied manifest directly with `PUT`. During the bounded 2026-08-24/25 validation, the authorized sacrificial developer API rejected an otherwise complete update that omitted the field with HTTP 400/code `400000` and `must not be null`. The prose manifest guide at the matching source commit calls the field optional and shows `null`; that prose conflicts with the executable client contract and observed update endpoint. This evidence proves the accepted input shape requirement, not Home-tab rendering behavior. | CLI: `dist/types.d.ts`, `type AddonManifest`; `dist/services/PumbleApiClient.js`, `updateApp()`; matching source: `src/types.ts` and `src/services/PumbleApiClient.ts`. Bounded live developer-API probe; no identifier or credential retained. |
 | M-9 | Redirect URLs must be absolute HTTPS in production | Stated in the guides. The SDK resolves relative redirect URLs against a host at serve time (`ADDON_HOST` when set, otherwise `https://<req.hostname>`), so a relative entry becomes absolute HTTPS in the served manifest. | `SUPPORTED` | `G05` 4.4. SDK source: `core/util/ManifestProcessor.ts`, `getAbsoluteUrl()`; host selection in `core/adapters/http/AddonHttpListener.ts`, `serveManifest()` |
 | M-10 | Secrets are stripped before serving or publication | `prepareForServing` destructures out `appKey`, `clientSecret`, and `signingSecret` and spreads only the remainder | `SUPPORTED` | `G02` 8.1; `G05` 4.4. SDK source: `core/util/ManifestProcessor.ts`, `prepareForServing()` — `const {appKey, clientSecret, signingSecret, ...removedSecrets} = manifest`. Note `id` (the client ID) is **not** stripped |
 | M-11 | Runtime workflows cannot register new command or shortcut names | The manifest is static and is synced by the CLI or the developer console | `INFERRED` (plan 4.2) | `G05` 1.4, 4.3 |

@@ -50,6 +50,8 @@ defmodule PumbleAutomation.Workflows.Definition.ManualConfig do
   string.
   """
 
+  alias PumbleAutomation.Workflows.ManualAlias
+
   @type t :: %__MODULE__{
           manual_alias: String.t() | nil,
           slash_command: boolean(),
@@ -66,7 +68,11 @@ defmodule PumbleAutomation.Workflows.Definition.ManualConfig do
   @spec fields() :: [{atom(), term(), keyword()}]
   def fields do
     [
-      {:manual_alias, :string, max_length: 64},
+      {:manual_alias, :string,
+       max_length: ManualAlias.max_length(),
+       max_length_message: ManualAlias.message(),
+       format: ManualAlias.format(),
+       format_message: ManualAlias.message()},
       {:slash_command, :boolean, default: true},
       {:global_shortcut, :boolean, default: false},
       {:message_shortcut, :boolean, default: false}

@@ -83,6 +83,9 @@ defmodule PumbleAutomation.Workflows do
   alias PumbleAutomation.Workflows.Activation
   alias PumbleAutomation.Workflows.Clone
   alias PumbleAutomation.Workflows.Definition
+  alias PumbleAutomation.Workflows.Definition.ManualConfig
+  alias PumbleAutomation.Workflows.Definition.Trigger
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.Schedule
   alias PumbleAutomation.Workflows.StarterTemplates
   alias PumbleAutomation.Workflows.TriggerBinding
@@ -150,17 +153,19 @@ defmodule PumbleAutomation.Workflows do
   `attrs` carries `:name`, and optionally `:slug`, `:description`, and
   `:definition`. The tenant and the author come from the scope and cannot be
   overridden by the caller; a `:installation_id` in `attrs` is dropped. A
-  definition, when present, is encoded through `Definition` before insert.
+  definition, when present, is encoded through `Definition` before insert. A
+  manual definition receives the same normalized alias in its trigger and row;
+  a non-manual definition cannot retain a misleading row alias.
   """
   @spec create_workflow(Scope.t(), map()) :: {:ok, Workflow.t()} | {:error, Error.t()}
   def create_workflow(%Scope{} = scope, attrs) when is_map(attrs) do
     with :ok <- Policy.authorize(scope, :manage_workflows),
-         {:ok, draft} <- optional_draft(attrs) do
+         {:ok, draft, slug} <- creation_draft_and_slug(attrs) do
       changeset =
         Workflow.changeset(%Workflow{}, %{
           installation_id: scope.installation_id,
           name: attr(attrs, :name),
-          slug: blank_to_nil(attr(attrs, :slug)),
+          slug: slug,
           description: blank_to_nil(attr(attrs, :description)),
           status: "draft",
           draft_definition: draft,
@@ -501,10 +506,19 @@ defmodule PumbleAutomation.Workflows do
     else
       pattern = "%" <> escape_like(trimmed) <> "%"
 
+      active_aliases =
+        from binding in TriggerBinding,
+          where: binding.installation_id == parent_as(:workflow).installation_id,
+          where: binding.workflow_version_id == parent_as(:workflow).active_version_id,
+          where: binding.enabled == true,
+          where: fragment("coalesce(?, '') ILIKE ? ESCAPE ?", binding.alias, ^pattern, "\\")
+
       from(w in query,
+        as: :workflow,
         where:
           fragment("? ILIKE ? ESCAPE ?", w.name, ^pattern, "\\") or
-            fragment("coalesce(?, '') ILIKE ? ESCAPE ?", w.slug, ^pattern, "\\")
+            fragment("coalesce(?, '') ILIKE ? ESCAPE ?", w.slug, ^pattern, "\\") or
+            exists(active_aliases)
       )
     end
   end
@@ -519,11 +533,39 @@ defmodule PumbleAutomation.Workflows do
   end
 
   defp decorate_index_row(row) do
+    live_alias = live_alias(row)
+    draft_alias = row.draft_alias || row.slug
+    live_binding? = live_binding?(row)
+
     row
     |> Map.put(:trigger_summary, trigger_summary(row))
-    |> Map.put(:validation_state, validation_state(row))
+    |> Map.put(:validation_state, validation_state(row, live_binding?))
+    |> Map.put(:live_alias, live_alias)
+    |> Map.put(:pending_draft_alias, pending_draft_alias(live_binding?, live_alias, draft_alias))
+    |> Map.put(:editable_alias, editable_alias(live_binding?, draft_alias))
     |> Map.update!(:occupying_count, &occupying_count/1)
   end
+
+  defp live_binding?(%{status: "active", binding_kind: kind})
+       when is_binary(kind) and kind != "",
+       do: true
+
+  defp live_binding?(_row), do: false
+
+  defp live_alias(%{status: "active", binding_kind: "manual", binding_alias: alias_name})
+       when is_binary(alias_name) and alias_name != "",
+       do: alias_name
+
+  defp live_alias(_row), do: nil
+
+  defp pending_draft_alias(true, live_alias, draft_alias)
+       when is_binary(draft_alias) and draft_alias != "" and draft_alias != live_alias,
+       do: draft_alias
+
+  defp pending_draft_alias(_live_binding?, _live_alias, _draft_alias), do: nil
+
+  defp editable_alias(true, _draft_alias), do: nil
+  defp editable_alias(false, draft_alias), do: draft_alias
 
   defp occupying_count(count) when is_integer(count) and count >= 0, do: count
   defp occupying_count(_count), do: 0
@@ -565,23 +607,30 @@ defmodule PumbleAutomation.Workflows do
   defp schedule_label(other) when is_binary(other), do: other
   defp schedule_label(_other), do: "Clock"
 
-  defp validation_state(%{status: "active"}), do: "live"
-  defp validation_state(%{has_draft: true}), do: "draft"
-  defp validation_state(_row), do: "empty"
+  defp validation_state(_row, true), do: "live"
+  defp validation_state(%{has_draft: true}, false), do: "draft"
+  defp validation_state(_row, false), do: "empty"
 
-  defp optional_draft(attrs) do
+  defp creation_draft_and_slug(attrs) do
+    slug = ManualAlias.normalize(attr(attrs, :slug))
+
+    with {:ok, definition} <- optional_definition(attrs, slug) do
+      align_creation_alias(definition, slug)
+    end
+  end
+
+  defp optional_definition(attrs, explicit_slug) do
     case attr(attrs, :definition) do
       nil ->
         {:ok, nil}
 
       %Definition{} = definition ->
-        {:ok, Definition.encode(definition)}
+        definition
+        |> Definition.encode()
+        |> decode_creation_definition(explicit_slug)
 
       raw when is_map(raw) ->
-        case Definition.decode(raw) do
-          {:ok, definition} -> {:ok, Definition.encode(definition)}
-          {:error, %Error{}} = error -> error
-        end
+        decode_creation_definition(raw, explicit_slug)
 
       _other ->
         {:error,
@@ -589,6 +638,47 @@ defmodule PumbleAutomation.Workflows do
            message: "The workflow definition is not valid."
          )}
     end
+  end
+
+  defp decode_creation_definition(raw, explicit_slug) do
+    prepared =
+      raw
+      |> put_explicit_manual_alias(explicit_slug)
+      |> ManualAlias.normalize_definition()
+
+    case Definition.decode(prepared) do
+      {:ok, definition} -> {:ok, definition}
+      {:error, %Error{} = error} -> {:error, ManualAlias.translate_definition_error(error)}
+    end
+  end
+
+  defp put_explicit_manual_alias(raw, nil), do: raw
+
+  defp put_explicit_manual_alias(
+         %{"trigger" => %{"type" => "manual", "config" => %{} = config}} = raw,
+         alias_name
+       )
+       when not is_struct(config) do
+    put_in(raw, ["trigger", "config", "manual_alias"], alias_name)
+  end
+
+  defp put_explicit_manual_alias(raw, _alias_name), do: raw
+
+  defp align_creation_alias(nil, slug), do: {:ok, nil, slug}
+
+  defp align_creation_alias(
+         %Definition{
+           trigger: %Trigger{type: :manual, config: %ManualConfig{} = config} = trigger
+         } = definition,
+         slug
+       ) do
+    manual_alias = slug || ManualAlias.normalize(config.manual_alias)
+    trigger = %{trigger | config: %{config | manual_alias: manual_alias}}
+    {:ok, Definition.encode(%{definition | trigger: trigger}), manual_alias}
+  end
+
+  defp align_creation_alias(%Definition{} = definition, _slug) do
+    {:ok, Definition.encode(definition), nil}
   end
 
   defp clone_definition(source) do
@@ -736,15 +826,20 @@ defmodule PumbleAutomation.Workflows do
   end
 
   defp changeset_error(%Ecto.Changeset{data: %Workflow{}} = changeset) do
-    if Keyword.has_key?(changeset.errors, :slug) do
-      Error.new(:conflict, :slug_taken,
-        message: "Another workflow in this workspace already uses that name."
-      )
-    else
-      Error.new(:validation, :invalid_workflow,
-        message: "The workflow is not valid.",
-        details: %{fields: Enum.map(changeset.errors, fn {field, _error} -> field end)}
-      )
+    cond do
+      violated?(changeset, "workflows_installation_id_slug_index") ->
+        Error.new(:conflict, :slug_taken,
+          message: "Another workflow in this workspace already uses that name."
+        )
+
+      Keyword.has_key?(changeset.errors, :slug) ->
+        ManualAlias.invalid_error()
+
+      true ->
+        Error.new(:validation, :invalid_workflow,
+          message: "The workflow is not valid.",
+          details: %{fields: Enum.map(changeset.errors, fn {field, _error} -> field end)}
+        )
     end
   end
 
@@ -753,6 +848,12 @@ defmodule PumbleAutomation.Workflows do
       message: "The change could not be recorded and was not applied.",
       details: %{fields: Enum.map(changeset.errors, fn {field, _error} -> field end)}
     )
+  end
+
+  defp violated?(changeset, constraint_name) do
+    Enum.any?(changeset.errors, fn {_field, {_message, opts}} ->
+      Keyword.get(opts, :constraint_name) == constraint_name
+    end)
   end
 
   defp unexpected(reason) do

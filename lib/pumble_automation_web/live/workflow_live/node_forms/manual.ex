@@ -2,7 +2,7 @@ defmodule PumbleAutomationWeb.WorkflowLive.NodeForms.Manual do
   @moduledoc false
   use PumbleAutomationWeb, :html
 
-  import PumbleAutomationWeb.FormComponents
+  alias PumbleAutomation.Workflows.ManualAlias
 
   attr :form, :any, required: true
   attr :can_manage, :boolean, required: true
@@ -11,12 +11,16 @@ defmodule PumbleAutomationWeb.WorkflowLive.NodeForms.Manual do
   def fields(assigns) do
     ~H"""
     <div id={"#{@form_id}-manual"}>
-      <.field_hint text="The alias is what a person types or picks. It must stay unique in this workspace." />
+      <p id={"#{@form_id}-manual-alias-help"} class="mb-3 text-sm text-muted">
+        {ManualAlias.message()} It must stay unique in this workspace.
+      </p>
       <.input
         field={@form[:manual_alias]}
         type="text"
         label="Alias"
-        maxlength="64"
+        maxlength={ManualAlias.max_length()}
+        pattern={ManualAlias.html_pattern()}
+        describedby={"#{@form_id}-manual-alias-help"}
         disabled={not @can_manage}
       />
       <.input

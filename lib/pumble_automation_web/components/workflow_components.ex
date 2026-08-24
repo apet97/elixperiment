@@ -4,6 +4,8 @@ defmodule PumbleAutomationWeb.WorkflowComponents do
   """
   use PumbleAutomationWeb, :html
 
+  alias PumbleAutomation.Workflows.ManualAlias
+
   attr :form, :any, required: true
 
   def filter_bar(assigns) do
@@ -54,7 +56,36 @@ defmodule PumbleAutomationWeb.WorkflowComponents do
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-base font-semibold text-ink">{@workflow.name}</h2>
-          <p :if={@workflow.slug} class="mt-0.5 font-mono text-xs text-muted">/{@workflow.slug}</p>
+          <div
+            :if={@workflow.live_alias || @workflow.pending_draft_alias || @workflow.editable_alias}
+            id={"workflow-aliases-#{@workflow.id}"}
+            class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs"
+          >
+            <p
+              :if={@workflow.live_alias}
+              id={"workflow-live-alias-#{@workflow.id}"}
+              class="text-ink"
+            >
+              <span class="font-medium">Live</span>
+              <span class="font-mono">/{@workflow.live_alias}</span>
+            </p>
+            <p
+              :if={@workflow.pending_draft_alias}
+              id={"workflow-pending-alias-#{@workflow.id}"}
+              class="text-muted"
+            >
+              <span class="font-medium">Pending draft</span>
+              <span class="font-mono">/{@workflow.pending_draft_alias}</span>
+            </p>
+            <p
+              :if={@workflow.editable_alias}
+              id={"workflow-editable-alias-#{@workflow.id}"}
+              class="text-muted"
+            >
+              <span class="font-medium">{alias_state_label(@workflow.status)}</span>
+              <span class="font-mono">/{@workflow.editable_alias}</span>
+            </p>
+          </div>
         </div>
         <div class="flex flex-wrap gap-2">
           <.status_badge
@@ -143,7 +174,23 @@ defmodule PumbleAutomationWeb.WorkflowComponents do
 
       <.form for={@form} id="workflow-create-form" phx-change="validate" phx-submit="create">
         <.input field={@form[:name]} type="text" label="Name" required />
-        <.input field={@form[:slug]} type="text" label="Manual alias" placeholder="optional" />
+        <.input
+          :if={to_string(@form[:template].value) == "blank"}
+          field={@form[:slug]}
+          type="text"
+          label="Manual alias"
+          placeholder="optional"
+          maxlength={ManualAlias.max_length()}
+          pattern={ManualAlias.html_pattern()}
+          describedby="workflow-slug-help"
+        />
+        <p
+          :if={to_string(@form[:template].value) == "blank"}
+          id="workflow-slug-help"
+          class="-mt-1 mb-3 text-xs text-muted"
+        >
+          {ManualAlias.message()}
+        </p>
         <.input field={@form[:description]} type="textarea" label="Description" />
 
         <fieldset id="workflow-template-picker" class="mb-4">
@@ -187,6 +234,11 @@ defmodule PumbleAutomationWeb.WorkflowComponents do
     </.modal>
     """
   end
+
+  defp alias_state_label("draft"), do: "Draft"
+  defp alias_state_label("inactive"), do: "Inactive"
+  defp alias_state_label("archived"), do: "Archived"
+  defp alias_state_label(_status), do: "Saved"
 
   attr :confirm, :map, required: true
 

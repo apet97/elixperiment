@@ -14,6 +14,7 @@ defmodule PumbleAutomationWeb.WorkflowLive.NodeFormsTest do
   alias PumbleAutomation.Workflows
   alias PumbleAutomation.Workflows.Definition
   alias PumbleAutomation.Workflows.Definition.Trigger
+  alias PumbleAutomation.Workflows.ManualAlias
   alias PumbleAutomation.Workflows.Node
   alias PumbleAutomation.Workflows.Workflow
   alias PumbleAutomationWeb.BrowserSession
@@ -432,8 +433,35 @@ defmodule PumbleAutomationWeb.WorkflowLive.NodeFormsTest do
 
       view |> element("#editor-save") |> render_click()
       assert {:ok, saved} = Workflows.get_workflow(Scope.new(member), workflow.id)
+      assert saved.slug == "deploy"
       assert {:ok, definition} = Workflow.draft(saved)
       assert definition.trigger.config.manual_alias == "deploy"
+    end
+
+    test "a manual trigger rejects aliases outside the route syntax", %{conn: conn} do
+      %{session_token: token, installation: installation} =
+        InstallationsFixtures.install(role: "editor")
+
+      trigger = Trigger.new(:manual, %{slash_command: true, manual_alias: "run"})
+      workflow = workflow_from(installation.id, Definition.new(trigger, [stop_node()]))
+      {:ok, view, _html} = live(log_in(conn, token), ~p"/workflows/#{workflow.id}/edit")
+
+      assert has_element?(view, ~s(#trigger-form-fields_manual_alias[maxlength="64"]))
+
+      assert has_element?(
+               view,
+               ~s(#trigger-form-fields_manual_alias[pattern="[a-z0-9][a-z0-9_-]*"])
+             )
+
+      html =
+        view
+        |> form("#trigger-form-form", %{
+          "config" => %{"manual_alias" => "Not valid", "slash_command" => "true"}
+        })
+        |> render_change()
+
+      assert has_element?(view, "#trigger-form-issues [data-code=invalid_format]")
+      assert html =~ ManualAlias.message()
     end
 
     test "a webhook trigger persists", %{conn: conn} do

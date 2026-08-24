@@ -26,7 +26,8 @@ defmodule PumbleAutomation.Workflows.Node.Config do
     * `{:list, {:struct, module}}` — an ordered list of nested configurations.
 
   Options: `:required` (default `false`), `:default` (default `nil`),
-  `:max_length` for strings, `:min` and `:max` for integers.
+  `:max_length`, `:max_length_message`, `:format`, and `:format_message` for
+  strings, and `:min` and `:max` for integers.
 
   ## Bounds
 
@@ -168,10 +169,21 @@ defmodule PumbleAutomation.Workflows.Node.Config do
     max =
       min(Keyword.get(opts, :max_length, Limits.max_string_length()), Limits.max_string_length())
 
+    format = Keyword.get(opts, :format)
+
     cond do
-      byte_size(value) > max -> {:error, [issue(path, :too_long, "is too long")]}
-      not String.valid?(value) -> {:error, [issue(path, :invalid_type, "must be valid text")]}
-      true -> {:ok, value}
+      byte_size(value) > max ->
+        {:error, [issue(path, :too_long, Keyword.get(opts, :max_length_message, "is too long"))]}
+
+      not String.valid?(value) ->
+        {:error, [issue(path, :invalid_type, "must be valid text")]}
+
+      match?(%Regex{}, format) and not Regex.match?(format, value) ->
+        {:error,
+         [issue(path, :invalid_format, Keyword.get(opts, :format_message, "has invalid format"))]}
+
+      true ->
+        {:ok, value}
     end
   end
 

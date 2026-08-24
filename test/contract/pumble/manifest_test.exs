@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Contract.Pumble.ManifestTest do
   @moduledoc """
-  Rendered manifest keys match matrix M-1..M-8 and M-10. Secrets cannot appear.
+  Rendered manifest keys match matrix M-1..M-8, M-10, and M-13. Secrets cannot appear.
   """
 
   use ExUnit.Case, async: true
@@ -56,7 +56,10 @@ defmodule PumbleAutomation.Contract.Pumble.ManifestTest do
 
   test "matrix M-rows named by the catalog exist in the source matrix" do
     matrix = File.read!("docs/evidence/pumble_source_matrix.md")
+    spec = PumbleFake.fixture("manifest/served.json")
     [entry] = Enum.filter(PumbleFake.catalog()["fixtures"], &(&1["kind"] == "manifest"))
+
+    assert entry["source"]["matrix"] == spec["_meta"]["matrix"]
 
     for row <- entry["source"]["matrix"] do
       assert matrix =~ "| #{row} |", "source matrix is missing #{row}"
