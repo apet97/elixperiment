@@ -1,0 +1,9 @@
+{
+  "messageType": "PUMBLE_EVENT",
+  "eventType": "NEW_MESSAGE",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"mId\":\"M_FAKE001\",\"wId\":\"W_FAKE001\",\"cId\":\"C_FAKE001\",\"trId\":\"TR_FAKE001\",\"stc\":\"false\",\"trMt\":\"thread root text\",\"aId\":\"U_FAKE001\",\"tx\":\"deploy the release please\",\"bl\":[],\"ty\":\"NEW_MESSAGE\",\"ts\":\"2026-01-01T00:00:00Z\",\"tsm\":1767225600000,\"st\":\"\",\"rid\":\"RID_FAKE001\",\"f\":[],\"lId\":\"L_FAKE001\",\"att\":{},\"md\":[],\"mc\":[],\"mu\":[],\"au\":[],\"e\":false,\"eph\":false}"
+}

@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "matrix": ["A-16"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "PROBE",
+    "value_status": "PROBE",
+    "live_probe": "PR-15",
+    "note": "Error JSON field names are a fixture hypothesis. Only the non-success status is proven."
+  },
+  "description": "A rejected exchange. The status and the field names are a fixture hypothesis pending PR-15; only the rejection itself is proven.",
+  "status": 400,
+  "body": {
+    "error": "invalid_grant",
+    "error_description": "The authorization code is no longer valid."
+  }
+}

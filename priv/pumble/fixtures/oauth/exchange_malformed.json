@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "matrix": ["A-16"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "JSON that parses but omits workspaceId, which the flow requires. PR-15 is still open on the real error shape, so this is a fixture hypothesis; see docs/evidence/identity_live_probes.md.",
+  "status": 200,
+  "body": {
+    "accessToken": "FAKE_USER_ACCESS_TOKEN_0003",
+    "botToken": "FAKE_BOT_ACCESS_TOKEN_0003",
+    "userId": "U_FAKE003",
+    "botId": "B_FAKE003"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "matrix": ["A-13", "H-1", "H-2", "H-5"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "request_status": "SUPPORTED",
+    "response_status": "INFERRED",
+    "live_probe": null
+  },
+  "request": {
+    "method": "GET",
+    "path": "/v1/workspace",
+    "required_headers": ["token", "x-app-token", "accept"],
+    "forbidden_headers": ["authorization"]
+  },
+  "response": {
+    "status": 200,
+    "body": {}
+  }
+}

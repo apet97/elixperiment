@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "matrix": ["A-4", "H-1", "H-2", "H-5"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "request_status": "SUPPORTED",
+    "response_status": "INFERRED",
+    "note": "Create body carries the other participants only; the caller is implied by the credential.",
+    "live_probe": null
+  },
+  "request": {
+    "method": "POST",
+    "path": "/v1/channels/direct",
+    "required_headers": ["token", "x-app-token", "accept"],
+    "forbidden_headers": ["authorization"],
+    "json_body": {"participantIds": ["U_FAKE001"]}
+  },
+  "response": {
+    "status": 200,
+    "body": {"channel": {"id": "D_FAKE001"}}
+  }
+}

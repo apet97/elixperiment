@@ -1,0 +1,12 @@
+{
+  "messageType": "VIEW_ACTION",
+  "workspaceId": "W_FAKE001",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "viewActionType": "SUBMIT",
+  "view": {
+    "id": "VIEW_FAKE001",
+    "type": "MODAL"
+  },
+  "triggerId": "TRIG_FAKE001"
+}

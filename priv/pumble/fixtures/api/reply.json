@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "matrix": ["A-2", "H-1", "H-2", "H-5"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "request_status": "SUPPORTED",
+    "response_status": "EMPTY_2XX",
+    "live_probe": null
+  },
+  "request": {
+    "method": "POST",
+    "path": "/v1/channels/C_FAKE001/messages/M_FAKE001",
+    "required_headers": ["token", "x-app-token", "accept"],
+    "forbidden_headers": ["authorization"],
+    "json_body": {"text": "in thread"}
+  },
+  "response": {
+    "status": 200,
+    "raw_body": ""
+  }
+}

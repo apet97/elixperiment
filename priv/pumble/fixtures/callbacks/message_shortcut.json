@@ -1,0 +1,10 @@
+{
+  "messageType": "SHORTCUT",
+  "type": "ON_MESSAGE",
+  "shortcut": "run_workflow_on_message",
+  "messageId": "M_FAKE001",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "workspaceId": "W_FAKE001",
+  "triggerId": "TRIG_FAKE001"
+}

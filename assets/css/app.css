@@ -1,0 +1,168 @@
+/* See the Tailwind configuration guide for advanced usage
+   https://tailwindcss.com/docs/configuration */
+
+@import "tailwindcss" source(none);
+@import "phoenix-colocated/pumble_automation/colocated.css";
+@source "../css";
+@source "../js";
+@source "../../lib/pumble_automation_web";
+/* Required for Tailwind to automatically pick up changes in colocated CSS files in dev */
+@source "../../_build/dev/phoenix-colocated/pumble_automation/*/";
+
+/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
+   The heroicons installation itself is managed by your mix.exs */
+@plugin "../vendor/heroicons";
+
+/*
+  Design tokens. Cool metal canvas, patina signal, copper focus.
+  The copper ring is the signature: keyboard focus is how the product announces itself.
+  Status always carries a text label; color is never the only signal.
+*/
+@theme {
+  --color-canvas: #dce4e8;
+  --color-surface: #f3f7f8;
+  --color-raised: #ffffff;
+  --color-ink: #152028;
+  --color-muted: #4e5d67;
+  --color-line: #c3ced4;
+  --color-signal: #1f6f78;
+  --color-signal-strong: #15555c;
+  --color-focus: #c45c26;
+  --color-ok: #2c6b4a;
+  --color-warn: #8a5a12;
+  --color-danger: #8f2d2d;
+  --color-info: #1f6f78;
+  --font-sans: "Trebuchet MS", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+}
+
+html[data-theme="dark"] {
+  --color-canvas: #10181d;
+  --color-surface: #182228;
+  --color-raised: #1e2a31;
+  --color-ink: #e7eef1;
+  --color-muted: #9aadb8;
+  --color-line: #2d3d46;
+  --color-signal: #5fb3bc;
+  --color-signal-strong: #8fd0d6;
+  --color-focus: #e08a4f;
+  --color-ok: #7dba96;
+  --color-warn: #d4a04a;
+  --color-danger: #e07a7a;
+  --color-info: #5fb3bc;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --color-canvas: #10181d;
+    --color-surface: #182228;
+    --color-raised: #1e2a31;
+    --color-ink: #e7eef1;
+    --color-muted: #9aadb8;
+    --color-line: #2d3d46;
+    --color-signal: #5fb3bc;
+    --color-signal-strong: #8fd0d6;
+    --color-focus: #e08a4f;
+    --color-ok: #7dba96;
+    --color-warn: #d4a04a;
+    --color-danger: #e07a7a;
+    --color-info: #5fb3bc;
+  }
+}
+
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+[data-phx-session], [data-phx-teleported-src] { display: contents }
+
+html {
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.pa-skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  border-radius: var(--radius-md);
+  background: var(--color-raised);
+  padding: 0.5rem 0.75rem;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.pa-skip:focus {
+  top: 1rem;
+}
+
+.pa-rail {
+  position: relative;
+}
+
+.pa-rail::before {
+  content: "";
+  display: none;
+  position: absolute;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.15rem;
+  width: 2px;
+  background: var(--color-signal);
+  opacity: 0.35;
+}
+
+@media (min-width: 64rem) {
+  .pa-rail::before {
+    display: block;
+  }
+}
+
+.pa-rail-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--color-signal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 20%, transparent);
+}
+
+/* Viewport matrix (P12-T08): 360 mobile, 768 tablet, 1280 desktop.
+   Below lg (1024px), identity and navigation use a compact grid above content. */
+.pa-state {
+  min-height: 10rem;
+}
+
+.pa-break {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

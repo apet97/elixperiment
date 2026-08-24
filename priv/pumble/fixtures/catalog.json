@@ -1,0 +1,693 @@
+{
+  "version": 1,
+  "convention": "Every identifier is obviously fake (FAKE_*, *_FAKE001, example.invalid). No live token, workspace id, or signing secret is stored.",
+  "source_document": "docs/evidence/pumble_source_matrix.md",
+  "fixtures": [
+    {
+      "path": "callbacks/event_new_message.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "E-1"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "automation_event",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "NEW_MESSAGE"
+      }
+    },
+    {
+      "path": "callbacks/event_updated_message.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "E-2"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "automation_event",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "UPDATED_MESSAGE"
+      }
+    },
+    {
+      "path": "callbacks/event_reaction_added.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "E-3"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "automation_event",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "REACTION_ADDED"
+      }
+    },
+    {
+      "path": "callbacks/event_channel_created.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "E-4"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "automation_event",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "CHANNEL_CREATED"
+      }
+    },
+    {
+      "path": "callbacks/event_workspace_user_joined.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "E-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "automation_event",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "WORKSPACE_USER_JOINED"
+      }
+    },
+    {
+      "path": "callbacks/event_app_uninstalled.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "L-1"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "lifecycle_command",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "APP_UNINSTALLED"
+      }
+    },
+    {
+      "path": "callbacks/event_app_unauthorized.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-1",
+          "L-2"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "event",
+        "normalizer": "lifecycle_command",
+        "response": {
+          "encoding": "text",
+          "status": 200,
+          "body": "ok"
+        },
+        "type": "APP_UNAUTHORIZED"
+      }
+    },
+    {
+      "path": "callbacks/slash_command.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-2",
+          "I-3"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "slash_command",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/global_shortcut.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-3",
+          "M-4",
+          "I-4"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "global_shortcut",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/message_shortcut.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-4",
+          "M-4",
+          "I-4"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "message_shortcut",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/block_interaction_view.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-5",
+          "I-5",
+          "X-6"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "block_interaction",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/block_interaction_message.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-6",
+          "I-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "block_interaction",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/block_interaction_ephemeral_message.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-7",
+          "I-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "block_interaction",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        }
+      }
+    },
+    {
+      "path": "callbacks/view_action_submit.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-8",
+          "I-6"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "view_action",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        },
+        "type": "SUBMIT"
+      }
+    },
+    {
+      "path": "callbacks/view_action_close.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-8",
+          "I-6"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "view_action",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 200,
+          "body": {}
+        },
+        "type": "CLOSE"
+      }
+    },
+    {
+      "path": "callbacks/dynamic_menu.json",
+      "kind": "callback",
+      "source": {
+        "matrix": [
+          "C-9",
+          "K-4",
+          "I-7"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "classifier_kind": "dynamic_menu",
+        "normalizer": "interaction_command",
+        "response": {
+          "encoding": "json",
+          "status": 400,
+          "body": {
+            "message": "This add-on offers no dynamic menu options."
+          }
+        }
+      }
+    },
+    {
+      "path": "oauth/exchange_success.json",
+      "kind": "oauth",
+      "source": {
+        "matrix": [
+          "A-16"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "note": "A complete grant."
+    },
+    {
+      "path": "oauth/exchange_success_without_bot_token.json",
+      "kind": "oauth",
+      "source": {
+        "matrix": [
+          "A-16"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "note": "Grant missing botToken."
+    },
+    {
+      "path": "oauth/exchange_error.json",
+      "kind": "oauth",
+      "source": {
+        "matrix": [
+          "A-16"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "PROBE",
+      "value_status": "PROBE",
+      "live_probe": "PR-15",
+      "note": "Error JSON field names are a hypothesis."
+    },
+    {
+      "path": "oauth/exchange_malformed.json",
+      "kind": "oauth",
+      "source": {
+        "matrix": [
+          "A-16"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "note": "200 JSON missing workspaceId."
+    },
+    {
+      "path": "oauth/exchange_not_json.json",
+      "kind": "oauth",
+      "source": {
+        "matrix": [
+          "A-16"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "note": "200 HTML."
+    },
+    {
+      "path": "signatures/valid.json",
+      "kind": "signature",
+      "source": {
+        "matrix": [
+          "H-7",
+          "H-9",
+          "H-10"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "verify": "accepted"
+      }
+    },
+    {
+      "path": "signatures/invalid.json",
+      "kind": "signature",
+      "source": {
+        "matrix": [
+          "H-7",
+          "H-9",
+          "H-10"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null,
+      "expected": {
+        "verify": "refused"
+      }
+    },
+    {
+      "path": "api/get_profile.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-14",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/get_workspace_info.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-13",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/post_message.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-1",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/reply.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-2",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/get_direct_channel.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-4",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/create_direct_channel.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-4",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/add_reaction.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-5",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/remove_reaction.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-6",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "api/publish_home_view.json",
+      "kind": "api_request",
+      "source": {
+        "matrix": [
+          "A-15",
+          "H-1",
+          "H-2",
+          "H-5"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    },
+    {
+      "path": "manifest/served.json",
+      "kind": "manifest",
+      "source": {
+        "matrix": [
+          "M-1",
+          "M-2",
+          "M-3",
+          "M-4",
+          "M-5",
+          "M-6",
+          "M-7",
+          "M-10"
+        ],
+        "document": "docs/evidence/pumble_source_matrix.md"
+      },
+      "fields_sanitized": true,
+      "shape_status": "SUPPORTED",
+      "value_status": "INFERRED",
+      "live_probe": null
+    }
+  ]
+}

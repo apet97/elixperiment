@@ -1,0 +1,10 @@
+{
+  "messageType": "SLASH_COMMAND",
+  "slashCommand": "/workflow",
+  "text": "run nightly-report",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "threadRootId": "TR_FAKE001",
+  "workspaceId": "W_FAKE001",
+  "triggerId": "TRIG_FAKE001"
+}

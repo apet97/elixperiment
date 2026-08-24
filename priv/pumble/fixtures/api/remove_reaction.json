@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "matrix": ["A-6", "H-1", "H-2", "H-5"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "request_status": "SUPPORTED",
+    "response_status": "EMPTY_2XX",
+    "note": "DELETE with a JSON body is the vendor client's only form (A-6). Query-param DELETE remains PR-17.",
+    "live_probe": null
+  },
+  "request": {
+    "method": "DELETE",
+    "path": "/v1/messages/M_FAKE001/reactions",
+    "required_headers": ["token", "x-app-token", "accept"],
+    "forbidden_headers": ["authorization"],
+    "json_body": {"code": ":tada:"}
+  },
+  "response": {
+    "status": 200,
+    "raw_body": ""
+  }
+}

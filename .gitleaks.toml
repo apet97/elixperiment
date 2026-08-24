@@ -1,0 +1,32 @@
+# Secret-scan allowlist for the P2-selected scanner (gitleaks).
+# Default rules stay on. These entries are documented false positives from
+# P13-T07, not a blanket skip of high/critical findings.
+title = "pumble-automation"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Build, Hex, and gitignored verify artifacts are not repository source. Git scans already skip them."
+paths = [
+  '''(^|/)_build/''',
+  '''(^|/)deps/''',
+  '''(^|/)tmp/'''
+]
+
+[[allowlists]]
+description = "Phoenix local Endpoint secret_key_base placeholders. Production reads SECRET_KEY_BASE from the environment in config/runtime.exs and refuses to boot without it."
+condition = "AND"
+paths = [
+  '''(^|/)config/(dev|test)\.exs$'''
+]
+regexTarget = "line"
+regexes = [
+  '''secret_key_base:'''
+]
+
+[[allowlists]]
+description = "Ephemeral http.test.local CA for the SafeHttp TLS harness. Not a production credential."
+paths = [
+  '''(^|/)test/support/http_test_server\.ex$'''
+]

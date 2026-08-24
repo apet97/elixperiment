@@ -1,0 +1,9 @@
+{
+  "messageType": "PUMBLE_EVENT",
+  "eventType": "REACTION_ADDED",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"wId\":\"W_FAKE001\",\"cId\":\"C_FAKE001\",\"mId\":\"M_FAKE001\",\"mat\":\"U_FAKE002\",\"uId\":\"U_FAKE001\",\"rc\":\"thumbsup\",\"ty\":\"REACTION_ADDED\",\"rid\":\"RID_FAKE003\"}"
+}

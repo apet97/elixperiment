@@ -1,0 +1,9 @@
+{
+  "messageType": "APP_EVENT",
+  "eventType": "APP_UNINSTALLED",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"id\":\"EVT_FAKE001\",\"app\":\"APP_FAKE001\",\"workspace\":\"W_FAKE001\",\"installedBy\":\"U_FAKE001\",\"botUser\":\"U_FAKE_BOT\",\"uninstalledAt\":1767225600000}"
+}

@@ -1,0 +1,16 @@
+{
+  "messageType": "BLOCK_INTERACTION",
+  "workspaceId": "W_FAKE001",
+  "userId": "U_FAKE001",
+  "sourceType": "VIEW",
+  "sourceId": "VIEW_FAKE001",
+  "actionType": "BUTTON",
+  "onAction": "approve_step",
+  "payload": "approve",
+  "view": {
+    "id": "VIEW_FAKE001",
+    "type": "MODAL"
+  },
+  "triggerId": "TRIG_FAKE001",
+  "loadingTimeout": 0
+}

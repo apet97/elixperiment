@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # gitleaks needs the history to scan commits, not only the tree.
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Match the version used by verify.sh and its tested allowlist syntax.
+          GITLEAKS_VERSION: 8.30.1
+
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        # Matches the PostgreSQL major version the application targets, and the
+        # credentials in config/test.exs.
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Elixir and OTP
+        uses: erlef/setup-beam@v1
+        with:
+          # .tool-versions is the single source of truth for the toolchain.
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Cache deps and _build
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock', '.tool-versions') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Cache Dialyzer PLTs
+        uses: actions/cache@v4
+        with:
+          path: priv/plts
+          # The PLT depends on the toolchain and the dependency set, not on
+          # application code, so it is cached on its own key. A rebuild costs
+          # minutes; _build changes on every commit and would evict it.
+          key: ${{ runner.os }}-plt-${{ hashFiles('mix.lock', '.tool-versions') }}
+          restore-keys: ${{ runner.os }}-plt-
+
+      - name: Fetch dependencies
+        run: mix deps.get --check-locked
+
+      - name: Install asset tooling
+        # Downloads the tailwind and esbuild binaries. Kept out of verify.sh so
+        # that the verification steps are identical locally and in CI.
+        run: mix assets.setup
+
+      - name: Install gitleaks
+        # verify.sh requires the binary. The dedicated secret-scan job still
+        # scans git history with gitleaks-action.
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.74.0
+          cache: true
+
+      - name: Verify
+        # The same script a developer runs locally. No step needs a Pumble or
+        # production secret, so no test is skipped for a missing one. `pipefail`
+        # keeps the script's exit status after the pipe into `tee`.
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p tmp
+          ./scripts/verify.sh 2>&1 | tee tmp/verify-output.log
+
+      - name: Upload verification report
+        # Recorded on failure too, because that is when the output is needed.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-output
+          path: tmp/verify-output.log
+          if-no-files-found: error
+
+      - name: Upload offline acceptance receipt
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-acceptance-receipt
+          path: tmp/offline_acceptance_receipt.json
+          if-no-files-found: error

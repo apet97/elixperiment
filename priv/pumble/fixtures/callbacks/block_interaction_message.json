@@ -1,0 +1,13 @@
+{
+  "messageType": "BLOCK_INTERACTION",
+  "workspaceId": "W_FAKE001",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "sourceType": "MESSAGE",
+  "sourceId": "M_FAKE001",
+  "actionType": "BUTTON",
+  "onAction": "approve_step",
+  "payload": "approve",
+  "triggerId": "TRIG_FAKE001",
+  "loadingTimeout": 0
+}

@@ -1,0 +1,9 @@
+{
+  "messageType": "PUMBLE_EVENT",
+  "eventType": "UPDATED_MESSAGE",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"mId\":\"M_FAKE001\",\"wId\":\"W_FAKE001\",\"cId\":\"C_FAKE001\",\"trId\":\"TR_FAKE001\",\"aId\":\"U_FAKE001\",\"tx\":\"deploy the release please (edited)\",\"ty\":\"UPDATED_MESSAGE\",\"ts\":\"2026-01-01T00:05:00Z\",\"tsm\":1767225900000,\"rid\":\"RID_FAKE002\",\"e\":true,\"eph\":false}"
+}

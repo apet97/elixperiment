@@ -1,0 +1,9 @@
+{
+  "messageType": "PUMBLE_EVENT",
+  "eventType": "WORKSPACE_USER_JOINED",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"uN\":\"Fake Person\",\"uE\":\"fake.person@example.invalid\",\"uId\":\"U_FAKE003\",\"afp\":\"https://example.invalid/avatar-full.png\",\"asp\":\"https://example.invalid/avatar-small.png\",\"wId\":\"W_FAKE001\",\"ty\":\"WORKSPACE_USER_JOINED\",\"tz\":\"Europe/Belgrade\",\"sts\":\"\",\"pt\":\"Release Manager\",\"pp\":\"\",\"cs\":{\"st\":\"\",\"co\":\"\",\"ex\":\"\",\"ea\":\"\",\"su\":false},\"rid\":\"RID_FAKE005\",\"st\":\"ACTIVE\",\"ro\":\"MEMBER\",\"au\":\"\",\"ib\":\"U_FAKE001\"}"
+}

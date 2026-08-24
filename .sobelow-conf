@@ -1,0 +1,21 @@
+# Sobelow configuration. Used by `mix sobelow --config`, which scripts/verify.sh
+# and CI both run.
+#
+# `exit: "low"` makes any finding at or above low confidence fail the command, so
+# a new finding blocks the build instead of printing a warning nobody reads.
+#
+# `ignore` is empty. Content-Security-Policy is set on the browser pipeline in
+# `lib/pumble_automation_web/router.ex` and on every response by
+# `PumbleAutomationWeb.Plugs.SecurityHeaders`.
+[
+  verbose: false,
+  private: false,
+  skip: false,
+  router: nil,
+  exit: "low",
+  format: "txt",
+  out: nil,
+  threshold: :low,
+  ignore: [],
+  ignore_files: []
+]

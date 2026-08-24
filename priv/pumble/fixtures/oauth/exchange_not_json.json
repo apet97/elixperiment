@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "matrix": ["A-16"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "A 200 whose body is not JSON at all, which is what an intercepting proxy or a maintenance page produces. Stored as text because the response is not JSON.",
+  "status": 200,
+  "body_text": "<html>maintenance</html>"
+}

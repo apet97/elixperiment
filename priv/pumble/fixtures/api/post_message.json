@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "matrix": ["A-1", "H-1", "H-2", "H-5"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "request_status": "SUPPORTED",
+    "response_status": "EMPTY_2XX",
+    "note": "Empty 2xx is a documented client success. A message-create response schema has not been live-recorded.",
+    "live_probe": null
+  },
+  "request": {
+    "method": "POST",
+    "path": "/v1/channels/C_FAKE001/messages",
+    "required_headers": ["token", "x-app-token", "accept"],
+    "forbidden_headers": ["authorization"],
+    "json_body": {"text": "hello"}
+  },
+  "response": {
+    "status": 200,
+    "raw_body": ""
+  }
+}

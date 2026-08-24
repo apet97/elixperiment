@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "matrix": ["A-16"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "A complete token exchange response (A-16). Every identifier is obviously fake.",
+  "status": 200,
+  "body": {
+    "accessToken": "FAKE_USER_ACCESS_TOKEN_0001",
+    "botToken": "FAKE_BOT_ACCESS_TOKEN_0001",
+    "userId": "U_FAKE001",
+    "botId": "B_FAKE001",
+    "workspaceId": "W_FAKE001"
+  }
+}

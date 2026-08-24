@@ -1,0 +1,13 @@
+{
+  "messageType": "BLOCK_INTERACTION",
+  "workspaceId": "W_FAKE001",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "sourceType": "EPHEMERAL_MESSAGE",
+  "sourceId": "M_FAKE002",
+  "actionType": "SELECT",
+  "onAction": "pick_workflow",
+  "payload": "WF_FAKE001",
+  "triggerId": "TRIG_FAKE001",
+  "loadingTimeout": 0
+}

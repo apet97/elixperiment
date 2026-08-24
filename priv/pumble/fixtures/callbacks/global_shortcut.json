@@ -1,0 +1,9 @@
+{
+  "messageType": "SHORTCUT",
+  "type": "GLOBAL",
+  "shortcut": "run_workflow",
+  "userId": "U_FAKE001",
+  "channelId": "C_FAKE001",
+  "workspaceId": "W_FAKE001",
+  "triggerId": "TRIG_FAKE001"
+}

@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "matrix": ["A-16"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "A grant that carried no bot token and no bot id. An install or reinstall must refuse it; nothing may be written.",
+  "status": 200,
+  "body": {
+    "accessToken": "FAKE_USER_ACCESS_TOKEN_0002",
+    "userId": "U_FAKE002",
+    "workspaceId": "W_FAKE001"
+  }
+}

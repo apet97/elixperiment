@@ -1,0 +1,8 @@
+{
+  "messageType": "DYNAMIC_MENU",
+  "onAction": "pick_workflow",
+  "query": "nightly",
+  "workspaceId": "W_FAKE001",
+  "userId": "U_FAKE001",
+  "triggerId": "TRIG_FAKE001"
+}

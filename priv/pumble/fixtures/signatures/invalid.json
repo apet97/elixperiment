@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "matrix": ["H-7", "H-9", "H-10"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "The same body, timestamp, and secret as valid.json with the final hexadecimal character of the signature changed. Still 64 lowercase hexadecimal characters, so it is well formed and must be refused by the comparison rather than by the format check.",
+  "signing_secret": "FAKE_SIGNING_SECRET_NOT_A_REAL_ONE",
+  "timestamp": "1767225600000",
+  "body": "{\"type\":\"NEW_MESSAGE\",\"aId\":\"U_FAKE001\",\"cId\":\"C_FAKE001\",\"mId\":\"M_FAKE001\",\"tx\":\"hello\"}",
+  "signature": "63af10ddc871233a9d40f0cf6b589eecb716532f05cc4d883f397d70be467a4a",
+  "expect": "refused",
+  "note": "Fake secret and fake ids only."
+}

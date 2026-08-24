@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "matrix": ["H-7", "H-9", "H-10"],
+    "source": "docs/evidence/pumble_source_matrix.md",
+    "fields_sanitized": true,
+    "shape_status": "SUPPORTED",
+    "value_status": "INFERRED",
+    "live_probe": null
+  },
+  "description": "A correctly signed Pumble callback. The signature is HMAC-SHA256 of \"<timestamp>:<body>\" under signing_secret, lowercase hex, per evidence H-7 and H-9.",
+  "signing_secret": "FAKE_SIGNING_SECRET_NOT_A_REAL_ONE",
+  "timestamp": "1767225600000",
+  "body": "{\"type\":\"NEW_MESSAGE\",\"aId\":\"U_FAKE001\",\"cId\":\"C_FAKE001\",\"mId\":\"M_FAKE001\",\"tx\":\"hello\"}",
+  "signature": "63af10ddc871233a9d40f0cf6b589eecb716532f05cc4d883f397d70be467a41",
+  "expect": "accepted",
+  "note": "The body is a JSON string field, never a separate file: a trailing newline added by an editor would change the signed bytes and silently invalidate the signature. Every id is obviously fake."
+}

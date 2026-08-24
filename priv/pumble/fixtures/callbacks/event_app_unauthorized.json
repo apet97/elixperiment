@@ -1,0 +1,9 @@
+{
+  "messageType": "APP_EVENT",
+  "eventType": "APP_UNAUTHORIZED",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"id\":\"EVT_FAKE002\",\"app\":\"APP_FAKE001\",\"appInstallation\":\"INST_FAKE001\",\"workspaceUser\":\"U_FAKE001\",\"workspace\":\"W_FAKE001\",\"grantedScopes\":[\"messages:read\",\"messages:write\"],\"accessGranted\":false}"
+}

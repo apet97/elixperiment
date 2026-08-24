@@ -1,0 +1,9 @@
+{
+  "messageType": "PUMBLE_EVENT",
+  "eventType": "CHANNEL_CREATED",
+  "workspaceId": "W_FAKE001",
+  "workspaceUserIds": [
+    "U_FAKE001"
+  ],
+  "body": "{\"wId\":\"W_FAKE001\",\"cId\":\"C_FAKE002\",\"cN\":\"release-train\",\"cU\":[\"U_FAKE001\",\"U_FAKE002\"],\"cT\":\"PUBLIC\",\"ty\":\"CHANNEL_CREATED\",\"rid\":\"RID_FAKE004\"}"
+}
