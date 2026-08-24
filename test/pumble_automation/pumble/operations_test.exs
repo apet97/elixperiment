@@ -346,6 +346,7 @@ defmodule PumbleAutomation.Pumble.OperationsTest do
       assert rendered["name"] == "workflow-automation"
       assert rendered["displayName"] == "Workflow Automation"
       assert rendered["bot"] == true
+      assert rendered["defaultHomeView"] == %{"enabled" => false, "blocks" => []}
       assert [%{"command" => "/workflow"}] = rendered["slashCommands"]
 
       assert [

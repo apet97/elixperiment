@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "matrix": ["M-1", "M-2", "M-3", "M-4", "M-5", "M-6", "M-7", "M-10", "M-13"],
+    "matrix": ["M-1", "M-2", "M-3", "M-4", "M-5", "M-6", "M-7", "M-8", "M-10", "M-13"],
     "source": "docs/evidence/pumble_source_matrix.md",
     "fields_sanitized": true,
     "status": "SUPPORTED",
-    "note": "Required and forbidden keys of a served manifest. Values are rendered from application config. The one dynamic menu is the fixed workflow picker; defaultHomeView is omitted.",
+    "note": "Required and forbidden keys of a served manifest. Values are rendered from application config. The one dynamic menu is the fixed workflow picker; the disabled default Home view satisfies Pumble's non-null update contract without adding a product surface.",
     "live_probe": null
   },
   "required_top_level_keys": [
@@ -22,10 +22,11 @@
     "eventSubscriptions",
     "blockInteraction",
     "viewAction",
-    "dynamicMenus"
+    "dynamicMenus",
+    "defaultHomeView"
   ],
   "forbidden_keys": ["appKey", "clientSecret", "signingSecret"],
-  "product_omitted_keys": ["defaultHomeView"],
+  "product_omitted_keys": [],
   "events": [
     "NEW_MESSAGE",
     "UPDATED_MESSAGE",

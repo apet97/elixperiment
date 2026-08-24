@@ -53,6 +53,7 @@ defmodule PumbleAutomation.Pumble.Manifest do
           global_shortcut: entry_point(),
           message_shortcut: entry_point(),
           dynamic_menu: %{on_action: String.t(), url: String.t()},
+          default_home_view: %{enabled: boolean(), blocks: [map()]},
           callback_url: String.t(),
           redirect_urls: [String.t()],
           events: [String.t()],
@@ -74,6 +75,7 @@ defmodule PumbleAutomation.Pumble.Manifest do
     global_shortcut: nil,
     message_shortcut: nil,
     dynamic_menu: nil,
+    default_home_view: %{enabled: false, blocks: []},
     redirect_urls: [],
     events: [],
     bot_scopes: [],
@@ -145,7 +147,11 @@ defmodule PumbleAutomation.Pumble.Manifest do
       "viewAction" => %{"url" => manifest.callback_url},
       "dynamicMenus" => [
         %{"url" => manifest.dynamic_menu.url, "onAction" => manifest.dynamic_menu.on_action}
-      ]
+      ],
+      "defaultHomeView" => %{
+        "enabled" => manifest.default_home_view.enabled,
+        "blocks" => manifest.default_home_view.blocks
+      }
     }
   end
 

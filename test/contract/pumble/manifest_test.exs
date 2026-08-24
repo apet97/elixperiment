@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Contract.Pumble.ManifestTest do
   @moduledoc """
-  Rendered manifest keys match matrix M-1..M-7 and M-10. Secrets cannot appear.
+  Rendered manifest keys match matrix M-1..M-8 and M-10. Secrets cannot appear.
   """
 
   use ExUnit.Case, async: true
@@ -50,6 +50,7 @@ defmodule PumbleAutomation.Contract.Pumble.ManifestTest do
     assert rendered["bot"] == true
     assert rendered["botTitle"] == "Workflow Automation Bot"
     assert rendered["socketMode"] == false
+    assert rendered["defaultHomeView"] == %{"enabled" => false, "blocks" => []}
     assert json =~ "test-client-id"
   end
 
