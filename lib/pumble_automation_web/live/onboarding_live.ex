@@ -190,11 +190,15 @@ defmodule PumbleAutomationWeb.OnboardingLive do
       <div id="scope-status" class="space-y-3">
         <.status_badge id="installation-status" tone={@tone} label={@label} />
         <.list>
-          <:item title="Granted bot scopes">{scope_text(@installation.bot_scopes)}</:item>
-          <:item title="Granted user scopes">{scope_text(@installation.user_scopes)}</:item>
-          <:item title="Requested bot scopes">{scope_text(@requested_bot)}</:item>
-          <:item title="Requested user scopes">{scope_text(@requested_user)}</:item>
+          <:item title="Recorded install bot scopes">{scope_text(@installation.bot_scopes)}</:item>
+          <:item title="Recorded install user scopes">{scope_text(@installation.user_scopes)}</:item>
+          <:item title="Current requested bot scopes">{scope_text(@requested_bot)}</:item>
+          <:item title="Current requested user scopes">{scope_text(@requested_user)}</:item>
         </.list>
+        <p id="scope-status-note" class="text-sm text-muted">
+          Pumble's OAuth response does not include a granted-scope list. The recorded install
+          scopes are the request snapshot, not provider-confirmed grants.
+        </p>
       </div>
     </.card>
     """

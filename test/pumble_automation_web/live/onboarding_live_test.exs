@@ -96,6 +96,10 @@ defmodule PumbleAutomationWeb.OnboardingLiveTest do
       assert has_element?(view, "#supported-capabilities")
       assert has_element?(view, "#pumble-setup")
       assert has_element?(view, "#pumble-home-state[data-status=pending_certification]")
+      assert has_element?(view, "#scope-status", "Recorded install bot scopes")
+      assert has_element?(view, "#scope-status", "Current requested bot scopes")
+      assert has_element?(view, "#scope-status-note", "not provider-confirmed grants")
+      refute has_element?(view, "#scope-status", "Granted bot scopes")
       refute_secrets(html)
     end
 
