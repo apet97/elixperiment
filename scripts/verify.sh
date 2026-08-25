@@ -37,6 +37,11 @@ cd "$(dirname "$0")/.."
 
 mkdir -p tmp
 
+offline_receipt="${PWD}/tmp/offline_acceptance_receipt.json"
+if [[ -e "$offline_receipt" ]]; then
+  unlink "$offline_receipt"
+fi
+
 step() {
   printf '\n==> %s\n' "$1"
 }
@@ -119,7 +124,33 @@ step "16/19 assembled-release migration integration"
 
 step "17/19 candidate-bound hardened container smoke"
 require_cmd docker
-./scripts/container-smoke.sh "$container_image"
+container_image_result="${PWD}/tmp/container-smoke-image-id"
+if [[ -e "$container_image_result" ]]; then
+  unlink "$container_image_result"
+fi
+./scripts/container-smoke.sh "$container_image" "$container_image_result"
+
+container_image_id=$(<"$container_image_result")
+
+if [[ ! "$container_image_id" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+  printf 'verify.sh: container smoke produced a non-canonical Docker image ID\n' >&2
+  exit 1
+fi
+
+if [[ "$(docker image inspect --format '{{.Id}}' "$container_image_id")" != "$container_image_id" ]]; then
+  printf 'verify.sh: container image ID could not be resolved after smoke\n' >&2
+  exit 1
+fi
+
+if [[ "$(docker image inspect --format '{{.Id}}' "$container_image")" != "$container_image_id" ]]; then
+  printf 'verify.sh: container image tag changed after smoke\n' >&2
+  exit 1
+fi
+
+if [[ "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$container_image_id")" != "$candidate_sha" ]]; then
+  printf 'verify.sh: container image ID is not bound to the tested commit\n' >&2
+  exit 1
+fi
 
 step "18/19 final clean candidate checkout"
 require_clean_tree
@@ -129,6 +160,8 @@ export VERIFY_GATES="clean-tree,format,compile,forbid-skip,migrate-empty,assets,
 export VERIFY_WORKING_TREE_STATUS="clean"
 export VERIFY_DOCKER_STATUS="smoke_passed"
 export VERIFY_CONTAINER_REVISION="$candidate_sha"
+export VERIFY_CONTAINER_IMAGE_ID="$container_image_id"
+export VERIFY_CONTAINER_IMAGE_TAG="$container_image"
 
 step "19/19 offline receipt (tmp/offline_acceptance_receipt.json)"
 mix run scripts/write_offline_receipt.exs

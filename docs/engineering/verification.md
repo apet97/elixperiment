@@ -59,9 +59,9 @@ clean checkout and uploads `tmp/offline_acceptance_receipt.json`.
 | 14 | `gitleaks detect --no-git --redact` | secret scan; missing `gitleaks` is failure |
 | 15 | `mix assets.deploy` + `MIX_ENV=prod mix release` | release does not assemble |
 | 16 | `scripts/release-migration-integration.sh` | assembled release cannot migrate safely |
-| 17 | `scripts/container-smoke.sh` | image is not bound to `HEAD`, hardened, migratable, or healthy |
+| 17 | `scripts/container-smoke.sh` plus immutable-ID binding | image is not bound to `HEAD`, hardened, migratable, healthy, or resolvable by its canonical local image ID |
 | 18 | Final clean-tree check | a gate changed candidate files |
-| 19 | Receipt write | exact SHA, container revision, or test counts cannot be recorded |
+| 19 | Receipt write | exact SHA, local image ID, container revision, or test counts cannot be validated and recorded |
 
 A known flaky test blocks the candidate. Do not rerun until green as a substitute
 for a fix. EXPLAIN fixtures assert an index-backed plan with sequential scans
@@ -70,8 +70,11 @@ disabled; named indexes are asserted from `pg_indexes`.
 ## Receipt
 
 Path: `tmp/offline_acceptance_receipt.json` (gitignored via `/tmp/`).
+The gate removes any previous receipt before gate 1. The writer validates the
+complete payload and then installs it atomically, so a failed run cannot leave
+an older success at the canonical path.
 
-Required keys (`schema_version` 2):
+Required keys (`schema_version` 3):
 
 - `git_sha`
 - `lockfile_sha256`
@@ -82,12 +85,18 @@ Required keys (`schema_version` 2):
 - `doctest_count`
 - `live_certification` (always `"excluded"`)
 - `docker` (must be `"smoke_passed"`)
+- `container_image_id` (canonical `sha256:<64 lowercase hex>` local image ID)
 - `container_revision` (must equal `git_sha`)
 - `working_tree` (must be `"clean"`)
 - `gates_passed`
 
-The receipt corresponds to a clean `HEAD`, its `mix.lock`, and the OCI revision
-label that the hardened container smoke tested. It is not a Pumble live proof.
+The receipt corresponds to a clean `HEAD`, its `mix.lock`, and the local image
+ID captured immediately after the image build. The hardened smoke uses that
+immutable ID for every inspection, scan, migration, and runtime probe. Before
+writing the receipt, the writer verifies that the immutable ID still resolves,
+the tested tag still resolves to that ID, and the ID's OCI revision label equals `git_sha`.
+A local image ID is not a registry digest. The receipt is not a Pumble live
+proof.
 
 ## Bounded read-only Pumble preflight
 

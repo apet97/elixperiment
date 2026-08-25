@@ -28,6 +28,7 @@ git_sha=$(git rev-parse HEAD)
 short_sha=${git_sha:0:12}
 release_version=$(awk -F'"' '/^[[:space:]]*version: "/ {print $2; exit}' mix.exs)
 image=${1:-"pumble-automation:smoke-${short_sha}"}
+result_file=${2:-}
 partition="_container_${$}_${RANDOM}"
 database="pumble_automation_test${partition}"
 container_name="pumble-automation-smoke-${$}-${RANDOM}"
@@ -35,6 +36,22 @@ canary_file="${repo_root}/.env.container-smoke-canary"
 canary="container-smoke-canary-${$}-${RANDOM}-must-not-ship"
 canary_created=false
 database_created=false
+result_tmp=
+
+if [[ -n "$result_file" ]]; then
+  case "$result_file" in
+    "$repo_root"/tmp/*) ;;
+    *)
+      printf 'container-smoke: result path must be under repository tmp/\n' >&2
+      exit 1
+      ;;
+  esac
+
+  if [[ -e "$result_file" ]]; then
+    printf 'container-smoke: refusing to overwrite result file\n' >&2
+    exit 1
+  fi
+fi
 
 case "$partition" in
   _container_[0-9]*_[0-9]*) ;;
@@ -57,6 +74,10 @@ cleanup() {
 
   if [[ "$canary_created" == true && "$canary_file" == "$repo_root/.env.container-smoke-canary" ]]; then
     unlink "$canary_file" >/dev/null 2>&1 || true
+  fi
+
+  if [[ -n "$result_tmp" && -f "$result_tmp" ]]; then
+    unlink "$result_tmp" >/dev/null 2>&1 || true
   fi
 
   exit "$status"
@@ -95,10 +116,17 @@ else
     .
 fi
 
-actual_revision=$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$image")
-actual_version=$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$image")
-configured_user=$(docker image inspect --format '{{ .Config.User }}' "$image")
-configured_entrypoint=$(docker image inspect --format '{{ json .Config.Entrypoint }}' "$image")
+image_id=$(docker image inspect --format '{{.Id}}' "$image")
+
+[[ "$image_id" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+  printf 'container-smoke: build produced a non-canonical Docker image ID\n' >&2
+  exit 1
+}
+
+actual_revision=$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$image_id")
+actual_version=$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$image_id")
+configured_user=$(docker image inspect --format '{{ .Config.User }}' "$image_id")
+configured_entrypoint=$(docker image inspect --format '{{ json .Config.Entrypoint }}' "$image_id")
 
 [[ "$actual_revision" == "$git_sha" ]] || {
   printf 'container-smoke: image revision label is not the tested commit\n' >&2
@@ -120,18 +148,18 @@ configured_entrypoint=$(docker image inspect --format '{{ json .Config.Entrypoin
   exit 1
 }
 
-if docker image inspect "$image" | grep -F -q -- "$canary" || \
-   docker history --no-trunc "$image" | grep -F -q -- "$canary"; then
+if docker image inspect "$image_id" | grep -F -q -- "$canary" || \
+   docker history --no-trunc "$image_id" | grep -F -q -- "$canary"; then
   printf 'container-smoke: canary reached image metadata or history\n' >&2
   exit 1
 fi
 
-printf '%s' "$canary" | docker run --rm --interactive --entrypoint /bin/sh "$image" -c '
+printf '%s' "$canary" | docker run --rm --interactive --entrypoint /bin/sh "$image_id" -c '
   needle=$(cat)
   ! grep -R -F -q -- "$needle" /app 2>/dev/null
 '
 
-docker run --rm --entrypoint /bin/sh "$image" -c '
+docker run --rm --entrypoint /bin/sh "$image_id" -c '
   test ! -e /app/mix.exs
   test ! -d /app/assets
   test ! -d /app/config
@@ -155,7 +183,7 @@ scan_json=$(
     --no-progress \
     --skip-version-check \
     --format json \
-    "$image"
+    "$image_id"
 )
 
 fixable_high=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" and (.FixedVersion // "") != "")] | length' <<<"$scan_json")
@@ -241,7 +269,7 @@ if ! docker run --rm \
     "${runtime_network[@]}" \
     "${runtime_hardening[@]}" \
     "${runtime_env[@]}" \
-    "$image" \
+    "$image_id" \
     /app/bin/pumble_automation eval '
       <<_digest::binary-size(32)>> = :crypto.hash(:sha256, "container-crypto-probe")
       :ok = :ssl.start()
@@ -264,7 +292,7 @@ docker run --rm \
   "${runtime_network[@]}" \
   "${runtime_hardening[@]}" \
   "${runtime_env[@]}" \
-  "$image" \
+  "$image_id" \
   /app/bin/migrate >/dev/null
 
 docker run --detach \
@@ -273,7 +301,7 @@ docker run --detach \
   "${runtime_hardening[@]}" \
   "${runtime_env[@]}" \
   --publish 127.0.0.1::4000 \
-  "$image" >/dev/null
+  "$image_id" >/dev/null
 
 container_uid=$(docker exec "$container_name" id -u)
 [[ "$container_uid" == "10001" ]] || {
@@ -319,5 +347,13 @@ done
   exit 1
 }
 
-printf 'container-smoke: PASS image=%s revision=%s uid=10001 read_only=true crypto=verified tls=verified tzdata=present health=200/200\n' \
-  "$image" "$git_sha"
+if [[ -n "$result_file" ]]; then
+  result_tmp=$(mktemp "${result_file}.tmp.XXXXXX")
+  chmod 600 "$result_tmp"
+  printf '%s\n' "$image_id" >"$result_tmp"
+  mv "$result_tmp" "$result_file"
+  result_tmp=
+fi
+
+printf 'container-smoke: PASS image=%s image_id=%s revision=%s uid=10001 read_only=true crypto=verified tls=verified tzdata=present health=200/200\n' \
+  "$image" "$image_id" "$git_sha"
