@@ -5,8 +5,9 @@ become `received_events` rows. It does not change ADR-0006. Delivery remains
 **at-least-once**. This application **does not claim exactly-once** delivery,
 exactly one job attempt, or exactly one remote effect.
 
-Plan sources: Section 17.1, Section 18, P8-T02. Probe evidence: `PR-01`
-(open), matrix rows `I-1` to `I-9`.
+Implementation sources: `PumbleAutomation.Ingress.Deduplication`, the receipt
+schemas and migrations, and the ingress deduplication tests. Probe evidence:
+`PR-01` (open), matrix rows `I-1` to `I-9`.
 
 The stored key is `PumbleAutomation.Ingress.Deduplication`. The
 `:delivery_key` on a normalized Pumble struct is still the `I-9` byte digest
@@ -65,9 +66,9 @@ limitation: two different events that hash to the same `I-9` digest inside one
 bucket collapse. SHA-256 makes that a documentation point, not an expected
 operational failure.
 
-Webhook deliveries **without** `Idempotency-Key` do not use this window.
-P8-T02 requires them to be distinct even when the body repeats. Section 17.1's
-"endpoint + body + time bucket" alternative is not used.
+Webhook deliveries **without** `Idempotency-Key` do not use this window. They
+remain distinct even when the body repeats; the "endpoint + body + time bucket"
+alternative is not used.
 
 ## Execution crash windows
 

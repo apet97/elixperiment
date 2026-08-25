@@ -177,7 +177,7 @@ defmodule PumbleAutomation.Workflows.ScheduleTest do
     end
 
     test "does not claim a zone that looks right actually exists" do
-      # Deliberate: shape only until Phase 11. See the module documentation.
+      # Deliberate: shape only at this schema boundary. See the module documentation.
       assert Schedule.valid_timezone?("Europe/Atlantis")
     end
 

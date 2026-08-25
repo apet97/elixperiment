@@ -48,7 +48,7 @@ defmodule PumbleAutomation.Observability.TelemetryTest do
   end
 
   describe "catalog and documentation" do
-    test "every Section 32 metric has a source event and is documented" do
+    test "every product metric has a source event and is documented" do
       docs = File.read!("docs/operations/metrics.md")
       events = Telemetry.events()
 

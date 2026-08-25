@@ -15,7 +15,8 @@ defmodule PumbleAutomation.Executions.RetryPolicy do
   `PumbleAutomation.Pumble.Client.retry_safety/1` says repeating the call
   cannot duplicate work; otherwise the execution pauses.
 
-  Default attempts are five. Backoff follows Section 30 with full jitter.
+  Default attempts are five. Backoff follows the documented error-class policy
+  with full jitter.
   A valid `Retry-After` replaces that delay, clamped to the same bounds the
   Pumble error classifier already uses.
   """
@@ -48,7 +49,7 @@ defmodule PumbleAutomation.Executions.RetryPolicy do
           delay_seconds: non_neg_integer() | nil
         }
 
-  @doc "Section 30 error classes plus the classifier extras this policy names."
+  @doc "Error classes plus the classifier extras this policy names."
   @spec classes() :: [String.t()]
   def classes do
     Enum.sort(@retry_classes ++ @uncertain_classes ++ @cancel_classes ++ @permanent_classes)
@@ -58,7 +59,7 @@ defmodule PumbleAutomation.Executions.RetryPolicy do
   @spec max_attempts() :: pos_integer()
   def max_attempts, do: Limits.get(:retries)
 
-  @doc "The Section 30 backoff ceilings, in seconds, after attempts 1..5."
+  @doc "Backoff ceilings, in seconds, after attempts 1..5."
   @spec schedule() :: [pos_integer()]
   def schedule, do: @schedule
 

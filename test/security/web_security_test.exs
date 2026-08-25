@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Security.WebSecurityTest do
   @moduledoc """
   Browser and HTTP security: headers, cookies, CSRF, Host allowlist, CORS
   denial, open redirects, body caps, production debug surfaces, and the
-  P13-T05 revoked-installation sign-in decision.
+  revoked-installation sign-in decision.
   """
 
   use PumbleAutomationWeb.ConnCase, async: true
@@ -54,7 +54,7 @@ defmodule PumbleAutomation.Security.WebSecurityTest do
       assert cookie.same_site == "Lax"
     end
 
-    test "the browser session cookie keeps the P3 attributes on sign-in", %{conn: conn} do
+    test "the browser session cookie keeps its security attributes on sign-in", %{conn: conn} do
       %{session_token: token} = InstallationsFixtures.install()
 
       conn =
@@ -284,7 +284,7 @@ defmodule PumbleAutomation.Security.WebSecurityTest do
     end
   end
 
-  describe "revoked installation sign-in (P13-T05)" do
+  describe "revoked installation sign-in" do
     test "a new session on a revoked tenant still resolves and does not restore the bot token" do
       %{member: member, installation: installation} = InstallationsFixtures.install()
 

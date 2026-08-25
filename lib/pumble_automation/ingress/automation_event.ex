@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Ingress.AutomationEvent do
   @moduledoc """
-  One normalized provider event, as plan Section 12.3 specifies it.
+  One normalized provider event for workflow matching.
 
   This is the only event shape workflow matching is allowed to see. It is a
   value: building one writes nothing and reads nothing, so it can be produced in
@@ -12,7 +12,7 @@ defmodule PumbleAutomation.Ingress.AutomationEvent do
       is meant to outlive one provider, and a second provider must not be added
       by widening `:type` strings.
     * `:installation_id` — the tenant. Never `nil`: an event with no tenant is
-      an unscoped event, and plan Section 12.3 forbids creating one.
+      an unscoped event, which this boundary forbids creating.
     * `:kind` — `:event` here. Interactions use
       `PumbleAutomation.Ingress.InteractionCommand` and lifecycle callbacks use
       `PumbleAutomation.Ingress.LifecycleCommand`, so a workflow trigger can

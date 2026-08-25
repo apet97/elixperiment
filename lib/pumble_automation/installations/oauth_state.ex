@@ -13,8 +13,8 @@ defmodule PumbleAutomation.Installations.OauthState do
   A state is consumable once. `OauthStates.consume/1` sets `:consumed_at` in a
   dedicated atomic update before the callback exchanges the code. A state that
   already has a value is refused. A later exchange or database failure cannot
-  make the state replayable. `:expires_at` is ten minutes out by convention
-  (see plan Section 11.1). An expired state is treated as absent because the
+  make the state replayable. `:expires_at` is ten minutes out by convention.
+  An expired state is treated as absent because the
   caller must not learn whether a token ever existed.
 
   ## Intent

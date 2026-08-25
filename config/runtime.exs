@@ -77,7 +77,7 @@ if config_env() == :prod do
 
   config :logger, level: settings.log_level
 
-  # Queue names are fixed by the plan; only concurrency is tunable per
+  # Queue names are fixed by the durable-job contract; only concurrency is tunable per
   # deployment through QUEUE_CONCURRENCY_* variables.
   config :pumble_automation, Oban, queues: settings.queue_concurrency
 

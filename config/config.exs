@@ -21,8 +21,8 @@ config :pumble_automation, PumbleAutomation.Repo,
   migration_timestamps: [type: :utc_datetime_usec]
 
 # Starting queue concurrency and operational limits. Production overrides these
-# from the environment in config/runtime.exs. Plan Section 9.1 fixes the queue
-# names; the numbers are starting limits, not permanent scaling values.
+# from the environment in config/runtime.exs. Queue names are part of the durable
+# job contract; the numbers are starting limits, not permanent scaling values.
 queue_concurrency = [ingress: 20, executions: 20, schedules: 2, maintenance: 2]
 
 config :pumble_automation,
@@ -36,10 +36,10 @@ config :pumble_automation,
 
 # The Pumble wire endpoints, and the scopes this application asks for.
 #
-# Plan Section 12.4 requires a fixed configured base URL: the host is never read
+# The Pumble client contract requires a fixed configured base URL: the host is never read
 # from a token claim, a callback parameter, or any other value an outsider can
 # influence. These are the official hosts from `docs/evidence/pumble_source_matrix.md`
-# (Section 6, A-16 and A-17), and every environment inherits them unless it says
+# (source-matrix section 6, A-16 and A-17), and every environment inherits them unless it says
 # otherwise. `config/dev.exs` and `config/test.exs` add the client identity to the
 # same keyword list; production adds it from the environment in `config/runtime.exs`.
 #
@@ -56,8 +56,8 @@ config :pumble_automation,
     user_scopes: []
   ]
 
-# Bounded reading of Pumble callback bodies. Plan Section 12.1 requires the exact
-# request bytes to be retained before any JSON parsing, and Section 31 sets the
+# Bounded reading of Pumble callback bodies. Signature verification requires the exact
+# request bytes to be retained before any JSON parsing, and the product limit sets the
 # callback body limit at 1 MiB (`PR-12` is still open on the value Pumble itself
 # enforces). The limit here is a byte count, not a rounded decimal one, because
 # it is compared against bytes.
@@ -82,7 +82,7 @@ config :pumble_automation, :pumble_callbacks,
 
 # Generic inbound webhooks. The path prefix is also the prefix
 # `PumbleAutomationWeb.Plugs.CacheRawBody` retains bytes for, so the two
-# must move together. The body cap is plan Section 31 (512 KiB).
+# must move together. The configured body cap is 512 KiB.
 config :pumble_automation, :inbound_webhooks,
   path_prefix: "/hooks",
   max_body_bytes: 524_288,
@@ -96,8 +96,7 @@ config :pumble_automation, :inbound_webhooks,
 #   * Pruner bounds unlimited growth of completed and discarded rows.
 #   * Cron fires the system schedule dispatcher every minute, plus the four
 #     maintenance ticks (reconcile, cleanup, integrity, retention). User clocks
-#     live in `schedules`; they are not crontab entries (plan Section 23,
-#     P2-T04, P11-T03, P14-T04).
+#     live in `schedules`; they are not crontab entries.
 config :pumble_automation, Oban,
   repo: PumbleAutomation.Repo,
   queues: queue_concurrency,
@@ -192,7 +191,7 @@ config :pumble_automation, PumbleAutomation.Diagnostics.Export,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-# IANA timezone database for schedule calculation (plan Section 23, P11-T02).
+# IANA timezone database for deterministic schedule calculation.
 # Autoupdate is disabled so the same config, reference, and tzdata version
 # always yield the same UTC instant. Packaged release is IANA 2026b.
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase

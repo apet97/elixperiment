@@ -1,18 +1,17 @@
-# Pumble source-evidence matrix (P0-T03)
+# Pumble source-evidence matrix
 
-Date: 2026-08-15. Last verified: 2026-08-25. Task: `P0-T03` of
-the [historical implementation plan](../archive/planning/implementation-plan.md).
+Date: 2026-08-15. Last verified: 2026-08-25.
 
 This matrix converts the supplied Pumble corpus into a traceable protocol
-record for the Elixir/Phoenix port. Every row that the product contract
-(plan section 5) depends on appears here with a status and a source.
+record for the Elixir/Phoenix port. Every protocol claim used by the product
+contract appears here with a status and a source.
 
 ## Status vocabulary
 
 | Status | Meaning |
 |---|---|
 | `SUPPORTED` | The supplied corpus states the item directly. |
-| `INFERRED` | The corpus does not state the item. This plan derives it. An inference is not evidence. |
+| `INFERRED` | The corpus does not state the item. This matrix derives it. An inference is not evidence. |
 | `PROBE REQUIRED` | The corpus is silent, ambiguous, or self-contradictory. A live probe must decide it. See `pumble_probe_register.md`. |
 
 ## Source keys
@@ -94,7 +93,7 @@ Notes:
 
 ### 2.1 User-selectable workflow trigger events
 
-The plan (section 5.1) exposes these five as workflow triggers.
+The product contract exposes these five as workflow triggers.
 
 | # | Event | Payload type | Key wire fields | Status | Source |
 |---|---|---|---|---|---|
@@ -115,7 +114,7 @@ matching event does. Any workflow trigger outside E-1 to E-5 is unproven.
 
 ### 2.2 Lifecycle and control-plane events
 
-The plan (section 5.1) forbids these as user-selectable triggers.
+The product contract forbids these as user-selectable triggers.
 
 | # | Event | Payload type | Key wire fields | Status | Source |
 |---|---|---|---|---|---|
@@ -157,7 +156,7 @@ Notes:
 
 ## 3. Payload identity fields
 
-The plan (section 12.3) needs a `delivery_key` per callback.
+The normalized ingress contract needs a `delivery_key` per callback.
 
 | # | Callback class | Candidate identity field | Uniqueness | Stability across redelivery | Status | Source |
 |---|---|---|---|---|---|---|
@@ -169,7 +168,7 @@ The plan (section 12.3) needs a `delivery_key` per callback.
 | I-6 | View action | `triggerId` plus `view.id` | unstated | unstated | `PROBE REQUIRED` | `G04` 2.2; `PR-01` |
 | I-7 | Dynamic menu | `triggerId` plus `onAction` plus `query` | keystroke-scoped | not applicable | `PROBE REQUIRED` | `G04` 2.2; `PR-01` |
 | I-8 | `APP_UNINSTALLED` / `APP_UNAUTHORIZED` | `id` | unstated | unstated | `PROBE REQUIRED` | `G04` 1.2; `PR-01` |
-| I-9 | Composite fallback delivery key | SHA-256 over the raw body plus the received signature | deterministic per byte-identical delivery | safe default while `PR-01` is open | `INFERRED` | this plan |
+| I-9 | Composite fallback delivery key | SHA-256 over the raw body plus the received signature | deterministic per byte-identical delivery | safe default while `PR-01` is open | `INFERRED` | `docs/architecture/delivery_semantics.md` |
 
 No corpus statement says that `rid` or `triggerId` is unique, monotonic, or
 repeated on a retry. Treating either as an idempotency key without `PR-01`
@@ -219,7 +218,7 @@ stability, because those are server properties:
 | K-8 | Single-response guard | All three helpers check `!res.headersSent` before writing, so the first writer wins and later calls are silent no-ops on the HTTP adapter | C-2 to C-9 | `SUPPORTED` | `G02` 7.1; `G04` 4.1. SDK source: `AddonHttpListener.ackFunction()`, `nackFunction()`, `responseFunction()`. **The socket adapter has no such guard** and will send every frame — see `X-1` |
 | K-9 | What Pumble does after a late or missing ack | Retry, drop, or user-visible error only — server behavior, absent from source. The SDK never sets a timer, never retries, and never detects its own lateness. | C-2 to C-8 | `PROBE REQUIRED` | `PR-02`, `PR-14` |
 | K-10 | Whether a non-2xx on C-1 causes redelivery | Server behavior, absent from source. Note that the SDK answers `200 'ok'` **before** the handler runs, so a handler crash is invisible to Pumble and can never trigger a redelivery. | C-1 | `PROBE REQUIRED` | `PR-02`. SDK source: `AddonHttpListener.handleMessage()` (response precedes dispatch) |
-| K-11 | Block-interaction loading spinner completion | When `loadingTimeout > 0` the SDK awaits the handler and then calls `POST /v1/interactions/complete` with `{channelId, sourceId, sourceType, triggerId}` on the **internal** client, using the *user* token. This is a second HTTP call, separate from the callback response. | C-5 to C-7 | `SUPPORTED` | SDK source: `core/services/AddonService.ts`, `blockInteractionView()` / `blockInteractionMessage()` / `blockInteractionEphemeralMessage()` wrappers and `notifyBlockInteractionProcessingCompleted()`; `api/v1/InteractionsClientInternalV1.ts`, `completeProcessing()`. See `X-6` and the conflict noted in section 6.4 |
+| K-11 | Block-interaction loading spinner completion | When `loadingTimeout > 0` the SDK awaits the handler and then calls `POST /v1/interactions/complete` with `{channelId, sourceId, sourceType, triggerId}` on the **internal** client, using the *user* token. This is a second HTTP call, separate from the callback response. | C-5 to C-7 | `SUPPORTED` | SDK source: `core/services/AddonService.ts`, `blockInteractionView()` / `blockInteractionMessage()` / `blockInteractionEphemeralMessage()` wrappers and `notifyBlockInteractionProcessingCompleted()`; `api/v1/InteractionsClientInternalV1.ts`, `completeProcessing()`. See `X-6` and the conflict noted in this matrix's section 6.4 |
 
 ---
 
@@ -252,7 +251,7 @@ write wins and the second call is a silent no-op, so `ack()` before
   with a modal envelope and no ack (server-side rendering), and whether the
   socket adapter — which has **no** `headersSent` guard and would send both
   frames (SDK source: `core/adapters/socket/AddonWebsocketListener.ts`,
-  `handleMessage()`) — behaves differently. The plan uses HTTP, so this does
+  `handleMessage()`) — behaves differently. Production uses HTTP, so this does
   not block.
 - Standing rule, now proven rather than precautionary: the Elixir transport
   writes exactly one response per callback and chooses an ack **or** a modal
@@ -292,7 +291,7 @@ from event name to `messageType` exists anywhere in the tree. SDK source:
 behavior. The guess "lifecycle events use `APP_EVENT`" remains a guess and
 must not be coded as fact. Status `PROBE REQUIRED`. Probe `PR-16`.
 
-### X-4 — Development signature bypass versus the plan invariant — `RESOLVED`
+### X-4 — Development signature bypass versus the security invariant — `RESOLVED`
 
 **Resolution: no bypass exists in this SDK version. Verification is
 unconditional.**
@@ -307,8 +306,8 @@ unconditional.**
   secret is configured" (`G02` 7.2, `G04` 8) is not true of this version.
   Either the guides describe an older build or they are wrong; either way the
   guide statement is retired.
-- Plan section 12.1 ("No production bypass when signing secret is absent") is
-  therefore **aligned with** the SDK, not a divergence from it. Status
+- The callback security contract (no production bypass when the signing secret is
+  absent) is therefore **aligned with** the SDK, not a divergence from it. Status
   `SUPPORTED`.
 - One real divergence remains and is deliberate: the SDK compares signatures
   with `!==` (SDK source: `middlewares.ts`, `verifySignature()`), which is not
@@ -362,7 +361,7 @@ It does not extend the 3-second acknowledgement deadline.**
   same 3 s appears on every endpoint in `docs/manifest.md` and every trigger
   in `docs/triggers-reference.md`.
 - Consequence and open decision: stopping the spinner requires the internal
-  `POST /v1/interactions/complete` endpoint, which section 6.4 forbids. The
+  `POST /v1/interactions/complete` endpoint, which this matrix's section 6.4 forbids. The
   Elixir port must either use `loadingTimeout: 0` on every interactive element
   it emits (recommended, and the only path that avoids the internal API), or
   record an explicit decision to call the internal endpoint. Until that is
@@ -379,12 +378,12 @@ Base URL default `https://api-ga.pumble.com`, overridable by the
 `https://app.pumble.com/access-request` (`PUMBLE_CONSENT_SCREEN_URL`); file
 upload default `https://files.pumble.com` (`PUMBLE_FILEUPLOAD_URL`).
 `SUPPORTED`. `G01` section 4. SDK source:
-`pumble-sdk/src/constants/index.ts`. Plan section 12.4 requires a fixed
-configured base URL, so the Elixir client must not read the value from a token
+`pumble-sdk/src/constants/index.ts`. The Elixir client contract requires a fixed
+configured base URL, so it must not read the value from a token
 or a callback — the SDK likewise resolves it from process configuration only,
 never from a payload.
 
-### 6.1 Action-node operations (plan section 5.3)
+### 6.1 Supported action-node operations
 
 | # | Product action | Operation | HTTP and path | Status | Source |
 |---|---|---|---|---|---|
@@ -394,7 +393,7 @@ never from a payload.
 | A-4 | Direct-message a user | `messages.dmUser(userId, payload)` = `GET /v1/channels/direct?participantIds=<self,target>` inside a `try/catch`, then on failure or empty result `POST /v1/channels/direct` with `{participantIds:[...]}`, then A-1 against `result.channel.id` | two or three calls | `SUPPORTED` | `G03` 4.1, 4.2. SDK source: `MessagesApiClientV1.ts`, `dmUser()`; `api/v1/ChannelsApiClientV1.ts`, `getDirectChannel()` (participant list includes the caller and is deduplicated) and `createDirectChannel()` |
 | A-5 | Add reaction | `messages.addReaction(messageId, {code, skinTone?})` | `POST /v1/messages/{mId}/reactions` with the request as the JSON body | `SUPPORTED` | `G03` 4.2. SDK source: `MessagesApiClientV1.ts`, `addReaction()` |
 | A-6 | Remove reaction | `messages.removeReaction(messageId, {code})` | `DELETE /v1/messages/{mId}/reactions` **with a JSON body**, same path as A-5 | `SUPPORTED` | `G03` 4.2. SDK source: `MessagesApiClientV1.ts`, `removeReaction()` — `{method:'delete', url, data: request}`; the body is passed as `data`, never as a query parameter |
-| A-7 | Generic external HTTP request | Not a Pumble operation | not applicable | not applicable | plan 5.3 |
+| A-7 | Generic external HTTP request | Not a Pumble operation | not applicable | not applicable | product contract |
 
 `A-6` sends a request body on a `DELETE`, now confirmed in source: the SDK
 passes `data` on a `delete` request and offers no query-parameter form. The
@@ -462,7 +461,7 @@ that probe:
   comparison in `X-4`. SDK source: `AddonService.setupOAuth()` versus
   `ClientUtils.generateAuthUrl()`.
 
-### 6.4 Operations the plan defers
+### 6.4 Operations outside the supported product scope
 
 Listed to prove they were considered and are not in the v1 dependency set:
 `messages.editMessage`, `deleteMessage`, `editAttachments`,
@@ -471,7 +470,7 @@ operations, all file-upload operations, `channels.createChannel`,
 `addUsersToChannel`, `removeUserFromChannel`, `users.updateCustomStatus`, and
 all `calls` operations. All are `SUPPORTED` by `G03` sections 4.1 to 4.6 and
 all were confirmed present in SDK source (`pumble-sdk/src/api/v1/`), but are
-outside plan section 5.3.
+outside the supported product action catalogue.
 
 `InteractionsClientInternalV1` (`POST /v1/interactions/complete`) is marked
 internal in `G03` section 4.8 and must not be used. **Source raises a conflict
@@ -517,7 +516,7 @@ any earlier copy.**
 | H-10 | Timestamp header | `x-pumble-request-timestamp` **exists** and is mandatory. It is part of the signed string, so it cannot be tampered with independently. Its unit and format (epoch seconds, epoch millis, or ISO 8601) are **not** determined by the code, which treats it as an opaque string. A replay window is therefore implementable once the unit is observed. | `SUPPORTED` (existence, mandatory, signed) / `PROBE REQUIRED` (unit and format, and whether the server enforces any window of its own) | SDK source: `middlewares.ts`, `verifySignature()` — `TIMESTAMP_HEADER`; `PR-03` for the unit |
 | H-11 | Raw body must be retained before JSON parsing | A custom middleware accumulates `data` chunks into a string, assigns `req.rawBody`, then sets `req.body = JSON.parse(req.rawBody)`. It runs before the verifier, and the verifier reads `req.rawBody`. A proxy must forward the body byte-intact. | `SUPPORTED` | SDK source: `middlewares.ts`, `rawBody()`; wiring in `core/adapters/http/AddonHttpListener.ts`, `registerMessageEndpoints()` — `post(paths, rawBody(), verifySignature(...), handler)`. The corpus claim that `express.raw({type:'*/*'})` is used is wrong |
 | H-17 | Rejection behavior | A missing timestamp header, a missing signature header, or a mismatch all produce `403` with the plain-text body `Invalid signature!`, and the handler is never reached | `SUPPORTED` | SDK source: `middlewares.ts`, `verifySignature()` |
-| H-18 | Comparison is **not** constant time | The SDK compares with `testSignature !== signature`, a short-circuiting string comparison. The Elixir port must use a constant-time comparison. Deliberate divergence, same class as the `state` validation gap in section 6.3. | `SUPPORTED` (that the SDK does this) / `INFERRED` (that the divergence is required) | SDK source: `middlewares.ts`, `verifySignature()`; plan section 12.1 |
+| H-18 | Comparison is **not** constant time | The SDK compares with `testSignature !== signature`, a short-circuiting string comparison. The Elixir port must use a constant-time comparison. Deliberate divergence, same class as the `state` validation gap in this matrix's section 6.3. | `SUPPORTED` (that the SDK does this) / `INFERRED` (that the divergence is required) | SDK source: `middlewares.ts`, `verifySignature()`; callback security contract |
 
 Implementation notes for the Elixir transport, all derived from
 `middlewares.ts`:
@@ -539,7 +538,7 @@ Implementation notes for the Elixir transport, all derived from
 |---|---|---|---|---|
 | H-12 | Rate-limit headers | No header name appears in the corpus, and **none appears in the SDK source or its docs either** — a repository-wide search for `429`, `Retry-After`, and "rate limit" over the SDK returns zero matches. Absence in a client is not proof of absence on the server. | `PROBE REQUIRED` | `PR-08` |
 | H-13 | `429` and `5xx` are possible | Listed among the observed statuses; the guide advises the caller to back off. Not corroborated by source. | `SUPPORTED` (guide only) | `G03` 7 |
-| H-14 | `Retry-After` on `429` | Assumed by plan section 12.4 (`retry_after` on the error struct), never stated in the corpus, and absent from the SDK | `INFERRED` | `PR-08` |
+| H-14 | `Retry-After` on `429` | Represented by `retry_after` on the Elixir error struct, never stated in the corpus, and absent from the SDK | `INFERRED` | `PR-08` |
 | H-15 | The supplied client implements no retry, no backoff, and no rate limiting | `BaseApiClient.request` is a single `axiosInstance.request(config)` returning `result.data`. There is no interceptor, no retry wrapper, no queue, and no concurrency cap anywhere in the client. Errors propagate as raw axios rejections. | `SUPPORTED` | `G03` 2, 7. SDK source: `pumble-sdk/src/api/BaseApiClient.ts`, `request()`; `api/ApiClient.ts`, `request()` — the axios instances are created with no interceptors |
 
 ---
@@ -601,7 +600,7 @@ The manifest keeps them in two separate arrays. SDK source:
 | S-15 | Bot scopes and user scopes are separate sets in the manifest | `scopes: {userScopes: string[], botScopes: string[]}`, both required | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `type AddonManifest` |
 | S-16 | The scope vocabulary is a closed set of sixteen strings | Vendor documentation calls it "the list of all available scopes" | `SUPPORTED` (as vendor documentation) | SDK docs: `docs/api-client.md`, "Scopes" |
 
-Consequence for plan section 13 (reinstall revalidation): the add-on cannot
+Consequence for reinstall scope revalidation: the add-on cannot
 compute "required scopes per workflow" reliably until `PR-07` closes. Until
 then, scope revalidation must be conservative and must never auto-disable a
 workflow on an unproven scope mapping.
@@ -610,8 +609,8 @@ workflow on an unproven scope mapping.
 
 ## 9. Manifest entries the product needs
 
-Plan section 5.1 fixes the manual entry points. The manifest fields exist and
-are proven.
+The product contract fixes the manual entry points. The manifest fields exist
+and are proven.
 
 | # | Item | Manifest field | Status | Source |
 |---|---|---|---|---|
@@ -622,10 +621,10 @@ are proven.
 | M-5 | Event subscription URL and list | `eventSubscriptions: {url, events?}` — `url` required, `events` optional | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `type ManifestEvents` |
 | M-6 | Block interaction and view action endpoints | `blockInteraction: {url}`, `viewAction: {url}`, both optional | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `AddonManifest`; served shape in `core/util/ManifestProcessor.ts`, `prepareForServing()` (handlers are stripped, only `url` survives) |
 | M-7 | Dynamic menus | `dynamicMenus: [{url, onAction}]`; the served form keeps exactly `url` and `onAction` | `SUPPORTED` | `G04` 3.2. SDK source: `core/types/types.ts`, `type DynamicMenu`; `ManifestProcessor.prepareForServing()` |
-| M-8 | Default Home view | `defaultHomeView: {enabled, blocks}` must be a non-null object for the current manifest-update endpoint. This product sends the neutral disabled value `{enabled: false, blocks: []}`. | `SUPPORTED` (current CLI and bounded live update rejection). Published CLI 1.1.11 types the field as required and sends the supplied manifest directly with `PUT`. During the bounded 2026-08-24/25 validation, the authorized sacrificial developer API rejected an otherwise complete update that omitted the field with HTTP 400/code `400000` and `must not be null`. The prose manifest guide at the matching source commit calls the field optional and shows `null`; that prose conflicts with the executable client contract and observed update endpoint. This evidence proves the accepted input shape requirement, not Home-tab rendering behavior. | CLI: `dist/types.d.ts`, `type AddonManifest`; `dist/services/PumbleApiClient.js`, `updateApp()`; matching source: `src/types.ts` and `src/services/PumbleApiClient.ts`. Bounded live developer-API probe; no identifier or credential retained. |
+| M-8 | Default Home view | Published CLI 1.1.11 requires `defaultHomeView: {enabled, blocks}` and sends the supplied manifest directly with `PUT`. This product sends the neutral disabled value `{enabled: false, blocks: []}`. | `SUPPORTED` (CLI payload contract). The prose manifest guide at the matching source commit calls the field optional and shows `null`, so this record follows the executable CLI type. This does not prove Home-tab rendering behavior. | CLI: `dist/types.d.ts`, `type AddonManifest`; `dist/services/PumbleApiClient.js`, `updateApp()`; matching source: `src/types.ts` and `src/services/PumbleApiClient.ts`. |
 | M-9 | Redirect URLs must be absolute HTTPS in production | Stated in the guides. The SDK resolves relative redirect URLs against a host at serve time (`ADDON_HOST` when set, otherwise `https://<req.hostname>`), so a relative entry becomes absolute HTTPS in the served manifest. | `SUPPORTED` | `G05` 4.4. SDK source: `core/util/ManifestProcessor.ts`, `getAbsoluteUrl()`; host selection in `core/adapters/http/AddonHttpListener.ts`, `serveManifest()` |
 | M-10 | Secrets are stripped before serving or publication | `prepareForServing` destructures out `appKey`, `clientSecret`, and `signingSecret` and spreads only the remainder | `SUPPORTED` | `G02` 8.1; `G05` 4.4. SDK source: `core/util/ManifestProcessor.ts`, `prepareForServing()` — `const {appKey, clientSecret, signingSecret, ...removedSecrets} = manifest`. Note `id` (the client ID) is **not** stripped |
-| M-11 | Runtime workflows cannot register new command or shortcut names | The manifest is static and is synced by the CLI or the developer console | `INFERRED` (plan 4.2) | `G05` 1.4, 4.3 |
+| M-11 | Runtime workflows cannot register new command or shortcut names | The manifest is static and is synced by the CLI or the developer console | `INFERRED` (product contract) | `G05` 1.4, 4.3 |
 | M-12 | Marketplace launch link and listing behavior | `listingUrl?`, `helpUrl?`, `welcomeMessage?`, `offlineMessage?` are all declared optional `string` fields on the manifest type, and **the SDK does nothing with any of them** — they are passed through `prepareForServing` untouched and never read by the runtime. Their behavior is entirely server-side. | `SUPPORTED` (the fields exist and are inert client-side) / `PROBE REQUIRED` (runtime behavior) | `G05` 4.3; `PR-13`. SDK source: `core/types/types.ts`, `AddonManifest`; absence of any other reference in the tree |
 | M-13 | Registration identity and bot mode | `name`, `displayName`, and `bot` are required by the Pumble manifest payload. This product also renders `botTitle` and explicitly disables development-only `socketMode`. | `SUPPORTED` | `G05` 4.3, manifest payload table and manual-create example |
 
@@ -633,8 +632,8 @@ are proven.
 
 ## 10. Message metadata generated by Pumble
 
-Plan section 5 needs to distinguish add-on-generated messages from human
-messages, so a workflow cannot trigger itself.
+Workflow matching needs to distinguish add-on-generated messages from human
+messages so a workflow cannot trigger itself.
 
 | # | Item | Detail | Status | Source |
 |---|---|---|---|---|
@@ -664,22 +663,22 @@ messages, so a workflow cannot trigger itself.
 
 ## 12. Coverage check against the product contract
 
-| Plan clause | Covered by |
+| Product capability | Covered by |
 |---|---|
-| 5.1 Pumble event triggers | E-1 to E-5 |
-| 5.1 Control-plane events | L-1, L-2 |
-| 5.1 Manual entries | M-1 to M-4 |
-| 5.1 Schedule, inbound webhook, manual run | No Pumble protocol dependency beyond A-1 to A-6 |
-| 5.3 Action nodes | A-1 to A-6 |
-| 5.4 Install and reinstall | A-16 to A-18, A-22 |
-| 5.4 Sign in to the web UI | A-14 |
-| 5.4 Members and roles | A-11, A-12, U-4 |
-| 5.4 Uninstall and delete data | L-1, A-19, A-20 |
-| 12.1 Transport | H-7 to H-11, X-2, X-4 |
-| 12.2 Callback classes | C-1 to C-9 |
-| 12.3 Normalized event | I-1 to I-9 |
-| 12.4 Client | H-1 to H-6, H-12 to H-15 |
-| 13 OAuth lifecycle | A-16 to A-22, L-1, L-2 |
+| Pumble event triggers | E-1 to E-5 |
+| Control-plane events | L-1, L-2 |
+| Manual entries | M-1 to M-4 |
+| Schedule, inbound webhook, manual run | No Pumble protocol dependency beyond A-1 to A-6 |
+| Action nodes | A-1 to A-6 |
+| Install and reinstall | A-16 to A-18, A-22 |
+| Sign in to the web UI | A-14 |
+| Members and roles | A-11, A-12, U-4 |
+| Uninstall and delete data | L-1, A-19, A-20 |
+| Callback transport | H-7 to H-11, X-2, X-4 |
+| Callback classes | C-1 to C-9 |
+| Normalized event | I-1 to I-9 |
+| Pumble client | H-1 to H-6, H-12 to H-15 |
+| OAuth lifecycle | A-16 to A-22, L-1, L-2 |
 
 No row in this matrix marks an unproven behavior as proven. Every
 `PROBE REQUIRED` row names a probe ID in `pumble_probe_register.md`.
@@ -705,14 +704,14 @@ Files read in full: `pumble-sdk/src/core/adapters/http/middlewares.ts`,
 
 1. **The signature contract was wrong in the guides and is now corrected.**
    Header names, signed string, and encoding all changed. See `X-2` and
-   section 7.2. This is the single highest-risk correction in the file: an
+   this matrix's section 7.2. This is the single highest-risk correction in the file: an
    implementation built on the previous `H-7` would have failed every
    signature check.
 2. **The development signature bypass does not exist.** See `X-4`.
 3. **Ack and modal are mutually exclusive.** See `X-1`.
 4. **`loadingTimeout` is unrelated to the ack deadline.** See `X-6`, and the
-   new open decision about `POST /v1/interactions/complete` in section 6.4.
-5. **The scope vocabulary is closed at sixteen strings.** See section 8.
+   new open decision about `POST /v1/interactions/complete` in this matrix's section 6.4.
+5. **The scope vocabulary is closed at sixteen strings.** See this matrix's section 8.
 6. **Bot-message detection is `aId === botUserId`.** See `N-4` and `N-7`.
 
 ### What the cross-check could not change
@@ -734,15 +733,15 @@ Machine-readable provenance for every stored adapter fixture lives in
 `priv/pumble/fixtures/catalog.json`. Shapes tagged `SUPPORTED` are SDK-source
 verified. Concrete values are `INFERRED`. Rows tagged `PROBE` (today:
 `oauth/exchange_error.json` / `PR-15`) must not be promoted to fact by a
-fixture update. Live recordings belong to P17.
+fixture update. Live recordings belong to bounded live validation.
 
 ### Deliberate divergences from the SDK, carried into the Elixir port
 
 | # | SDK behavior | Port behavior | Reason |
 |---|---|---|---|
 | D-1 | Signature compared with `!==` | Constant-time comparison | Timing side channel. `H-18` |
-| D-2 | `state` generated but never validated on redirect | Strict `state` validation, reject on mismatch | CSRF. Section 6.3 |
+| D-2 | `state` generated but never validated on redirect | Strict `state` validation, reject on mismatch | CSRF. This matrix's section 6.3 |
 | D-3 | Sequential non-returning guards could dispatch twice | Single-class classifier; a dual-match body is rejected as malformed | `X-5` |
 | D-4 | Events answered `200` before the handler runs | Same (fast ack), but with durable persistence before responding | `K-10`, `PR-02` |
-| D-5 | Calls the internal `POST /v1/interactions/complete` | Emits `loadingTimeout: 0` and never calls it | Section 6.4, `X-6` |
+| D-5 | Calls the internal `POST /v1/interactions/complete` | Emits `loadingTimeout: 0` and never calls it | This matrix's section 6.4, `X-6` |
 | D-6 | No retry, no backoff, no rate limiting | Client-side pacing and backoff | `H-15`, `PR-08` |

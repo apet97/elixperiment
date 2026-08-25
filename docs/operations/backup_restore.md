@@ -1,7 +1,6 @@
 # Backup and restore
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook defines the verified backup and restore boundary.
 
 Related:
 
@@ -16,9 +15,8 @@ PostgreSQL is the durable truth: schema, executions, Oban jobs, schedules,
 approvals, audit, and ciphertext. Encryption keys are not in the database.
 A restore without the matching `ENCRYPTION_KEY` / legacy keys fails closed.
 
-Automated provider backups, PITR, and `scripts/restore-verify.sh` are
-**planned**. They require production owner approval. Ledger blocker **B-001**
-(P16-T05).
+Automated provider backups, point-in-time recovery (PITR), and
+`scripts/restore-verify.sh` are **planned but not executed or verified**.
 
 ## Symptom
 
@@ -70,9 +68,9 @@ Every migration must read `up`. A second `mix ecto.migrate` must be a no-op.
 
 ### Planned: production backup and isolated restore
 
-<!-- command-status: planned-owner-approval -->
+<!-- command-status: planned-not-executed -->
 ```bash
-# planned — P16-T05; blocked by B-001
+# planned — not executed or verified
 # Enable encrypted provider backups / PITR.
 # Restore into an isolated database.
 # Point the exact image at it with the same encryption read keys.
@@ -83,10 +81,11 @@ Every migration must read `up`. A second `mix ecto.migrate` must be a no-op.
 Integrity checks must be boolean (row counts, foreign keys, version hashes,
 job presence, decrypt-success). The receipt must not contain plaintext.
 
-## Stop / escalate
+## Stop conditions
 
 - Stop if you are about to download an unencrypted production backup onto a
   laptop.
 - Stop if the restore environment can send real Pumble or HTTP actions.
 - Stop if decrypt checks fail. Do not print the failing ciphertext.
-- Escalate production backup policy to the production owner.
+- Stop before production backup or restore work. This repository does not prove
+  a production backup target, restore target, or recovery procedure.

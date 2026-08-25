@@ -15,7 +15,7 @@ defmodule PumbleAutomation.Workflows.ScheduleCalculator do
 
   A one-time clock whose `run_at` is at or before the reference is terminal.
 
-  ## DST (plan Section 23)
+  ## DST policy
 
   Local times are converted through tzdata IANA identifiers.
 

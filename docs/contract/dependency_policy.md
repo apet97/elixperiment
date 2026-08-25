@@ -1,12 +1,10 @@
 # Dependency and coding policy
 
 The authoritative version sources are [`.tool-versions`](../../.tool-versions),
-[`mix.exs`](../../mix.exs), and [`mix.lock`](../../mix.lock). The initial policy
-was derived from Sections 8 and 9.2 of the
-[historical implementation plan](../archive/planning/implementation-plan.md).
+[`mix.exs`](../../mix.exs), and [`mix.lock`](../../mix.lock).
 
 A runtime dependency must solve a concrete problem, pass compatibility and
-maintenance review, and pass the complete verification gate.
+maintenance checks, and pass the complete verification gate.
 
 ---
 
@@ -38,7 +36,7 @@ dependencies.
 
 - keep exact resolved versions in `mix.lock`;
 - do not mix opportunistic upgrades with unrelated behavior changes;
-- run dependency updates with changelog review, full tests, audit, and a
+- read the changelog and run full tests, audit, and a
   release build;
 - do not use a vulnerable or retired package release.
 
@@ -60,10 +58,10 @@ Credential encryption is implemented by
 `PumbleAutomation.Crypto.Vault`. It uses AES-256-GCM through OTP crypto with
 versioned key envelopes and authenticated context. No Cloak dependency is used.
 
-### Supply-chain review
+### Supply-chain checks
 
-Review ownership, release recency, known advisories, and transitive dependency count
-before approving any dependency.
+Check maintenance activity, release recency, known advisories, and transitive
+dependency count before adding any dependency.
 
 ---
 
@@ -108,7 +106,7 @@ the complete 19-gate candidate check. It includes format, compile with
 warnings-as-errors, tests, Credo, Dialyzer, Sobelow, Hex audit, asset build,
 secret scanning, release and container proof, and `git diff --check`.
 
-Commands, as stated in the plan:
+Core commands:
 
 ```bash
 mix format --check-formatted

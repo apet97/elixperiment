@@ -2,13 +2,13 @@ defmodule PumbleAutomation.Pumble.Client.Error do
   @moduledoc """
   The only failure shape a Pumble API call produces.
 
-  Plan Section 12.4 fixes the four fields: `:class`, `:status`, `:retry_after`,
+  The Pumble client contract fixes the four fields: `:class`, `:status`, `:retry_after`,
   and `:body_summary`. Two more are carried because a log line without them
   cannot be acted on: `:operation`, which names the adapter function that
   failed, and `:provider_request_id`, which is the correlation value the far
   side returned, if it returned one.
 
-  `:class` is drawn from the Section 30 taxonomy. The classifier never invents a
+  `:class` is drawn from the Pumble client error taxonomy. The classifier never invents a
   class outside it, and it never decides *whether to retry*: that is the node
   runner's decision, made from the class and the action's own semantics. See
   `PumbleAutomation.Pumble.Client.retry_safety/1`.
@@ -58,7 +58,7 @@ defmodule PumbleAutomation.Pumble.Client.Error do
   @max_retry_after_seconds 900
 
   @typedoc """
-  The Section 30 error classes this boundary can produce.
+  The error classes this boundary can produce.
   """
   @type class ::
           :validation

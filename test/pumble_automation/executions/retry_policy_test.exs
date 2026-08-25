@@ -231,7 +231,7 @@ defmodule PumbleAutomation.Executions.RetryPolicyTest do
       assert samples |> Enum.uniq() |> length() > 1
     end
 
-    test "the schedule matches Section 30" do
+    test "the schedule matches the documented retry policy" do
       assert RetryPolicy.schedule() == [1, 5, 30, 120, 600]
       assert RetryPolicy.max_attempts() == 5
     end

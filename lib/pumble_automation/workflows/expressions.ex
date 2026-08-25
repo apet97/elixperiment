@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.Expressions do
   @moduledoc """
-  The data-path grammar of Section 21.1 of the plan.
+  The workflow data-path grammar.
 
   A path is a root followed by dot-separated segments. There is no function
   call, no index, no wildcard, and no operator: a path names a value and
@@ -20,7 +20,7 @@ defmodule PumbleAutomation.Workflows.Expressions do
   practice: a path cannot start anywhere the runtime did not put data.
 
   `secret` is a root here because `{{ secret.API_TOKEN }}` is the explicit
-  form Section 21.3 allows. Whether a *field* may use it is a separate
+  credential-reference form. Whether a *field* may use it is a separate
   question, and `PumbleAutomation.Workflows.Validator` is what answers it —
   only outbound headers and bodies may.
 
@@ -52,7 +52,7 @@ defmodule PumbleAutomation.Workflows.Expressions do
   `PumbleAutomation.Workflows.Path.resolve/2`. Comparators follow the
   activation contract (`eq`, `neq`, `contains`, `not_contains`,
   `starts_with`, `ends_with`, `gt`, `gte`, `lt`, `lte`, `is_empty`,
-  `is_not_empty`) plus the Section 21.2 names `in` and `is_present`.
+  `is_not_empty`) plus `in` and `is_present`.
   Combinators are `all` (AND), `any` (OR), and `none` (NOT over the group).
   Nested groups are allowed. Logical forms short-circuit. Types are never
   coerced: a numeric string from the run is not a number, and `false` is

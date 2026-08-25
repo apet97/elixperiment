@@ -38,7 +38,7 @@ defmodule PumbleAutomation.Installations.Sessions do
 
   @token_bytes 32
 
-  # Plan Section 11.2 requires both limits and does not fix the numbers. Twelve
+  # Both idle and absolute limits are required. Twelve
   # hours ends a session someone walked away from within a working day; seven
   # days ends one that has simply lived too long.
   @idle_seconds 12 * 60 * 60
@@ -49,7 +49,7 @@ defmodule PumbleAutomation.Installations.Sessions do
   # write on every request of a busy page.
   @touch_debounce_seconds 60
 
-  # The statuses whose members may still hold a browser session. P13-T05 keeps
+  # The statuses whose members may still hold a browser session. This keeps
   # `revoked` usable on purpose: unauthorized already deletes the bot token and
   # revokes existing sessions, and an owner must be able to sign in again to see
   # that and reinstall. `uninstalled` and `deleted` do not, because there is

@@ -1,8 +1,6 @@
 # ADR-0009: Tenant-scoped application boundary
 
 **Status:** Accepted
-**Plan source:** Section 28, with Section 9.2 and the cross-workspace row of
-Section 27. This decision has no separate row in the Section 7 log.
 
 ## Context
 
@@ -11,21 +9,14 @@ data access is the highest-impact failure in the threat model.
 
 ## Evidence
 
-- Plan Section 28: use `%PumbleAutomation.Scope{installation_id, member_id, role}`;
-  every browser context function receives a scope; every tenant query filters
-  installation ID; tenant objects are fetched by `(installation_id, id)`; jobs carry
-  installation ID and verify it against the loaded record; callbacks derive the
-  installation from the verified payload or workspace mapping; webhook token lookup
-  resolves one installation and never accepts a caller-supplied workspace override;
-  the approval callback verifies installation, approval, actor, and token together;
-  audit events include installation; support tooling is tenant-scoped and audited.
-- Plan Section 28: hidden fields and route prefixes are never authorization.
-- Plan Section 27, cross-workspace access row: boundary is context/query, the
-  mitigation is trusted scope and compound filters, and the proof is tenant
-  adversarial tests.
-- Plan Section 9.2: allowed domain dependencies and forbidden edges, including
-  LiveViews bypassing authorization contexts.
-- Plan phase gate P13 (Section 41.1): tenant matrix and threat closure pass.
+- `%PumbleAutomation.Scope{installation_id, member_id, role}` is the trusted
+  browser-context boundary; tenant queries use compound installation and record IDs.
+- Callback classifiers, webhook token lookup, jobs, approval decisions, and audit
+  records derive or re-verify installation identity instead of accepting a workspace
+  override from an untrusted caller.
+- `docs/security/threat_model.md` identifies cross-workspace access as a critical
+  threat, and the adversarial tenant suites test each boundary.
+- Hidden fields and route prefixes are never authorization.
 
 ## Decision
 

@@ -8,8 +8,8 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWorkflowVersions do
 
   ## Immutability is a rule about writers, not a database trigger
 
-  Section 14.2 of the plan allows a database trigger "only if operationally
-  justified". No trigger is created here. The only writer is
+  A database trigger is allowed only when operationally justified. No trigger
+  is created here. The only writer is
   `PumbleAutomation.Workflows.WorkflowVersion`, which offers an insert and
   raises on an update, and the table has no `updated_at` column, so a row that
   changed would be visible as a row whose content no longer hashes to its
@@ -31,7 +31,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWorkflowVersions do
 
   ## `compiled_definition` and `compiler_version` are nullable
 
-  The compiler is Phase 6. Until it exists, a version carries its source and
+  The compiler owns this conversion. A version carries its source and
   its hash and nothing else, and a row written today stays readable when the
   compiler starts filling those columns. They become mandatory when activation
   is the only path that creates a version.
@@ -78,7 +78,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWorkflowVersions do
       # What the author wrote, canonicalized before it was hashed.
       add :source_definition, :map, null: false
 
-      # Filled by the Phase 6 compiler. See the module documentation.
+      # Filled by the workflow compiler. See the module documentation.
       add :compiled_definition, :map
       add :compiler_version, :string
 

@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Verification.OfflineGateTest do
   @moduledoc """
-  P15-T07: the offline acceptance script, receipt schema, and skip scanner.
+  The offline acceptance script, receipt schema, and skip scanner.
   """
 
   use ExUnit.Case, async: true
@@ -43,7 +43,7 @@ defmodule PumbleAutomation.Verification.OfflineGateTest do
       assert source =~ gate, "verify.sh is missing #{inspect(gate)}"
     end
 
-    assert source =~ "live certification: excluded (P17)"
+    assert source =~ "live certification: excluded"
     assert source =~ "all 19 gates passed"
     assert source =~ "VERIFY_TEST_LOG"
     assert source =~ "VERIFY_DOCKER_STATUS=\"smoke_passed\""

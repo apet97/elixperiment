@@ -17,9 +17,10 @@ defmodule PumbleAutomation.Executions.StateMachine do
   ## Deactivation is not uninstall
 
   Deactivating a workflow refuses new executions and leaves in-flight runs
-  alone (plan Section 16). Uninstalling or revoking the installation refuses
+  alone. Uninstalling or revoking the installation refuses
   both new executions and new external effects. Cancelling those in-flight
-  rows is P7-T09; this module only says whether an effect may still dispatch.
+  rows is handled by the execution service; this module only says whether an
+  effect may still dispatch.
   """
 
   alias PumbleAutomation.Error

@@ -3,51 +3,32 @@
 This directory holds the architecture decision records (ADRs) for the Pumble
 workflow-automation add-on.
 
-Accepted ADRs in this directory describe the current architecture decisions.
-The initial records were derived from Section 7 of the
-[historical implementation plan](../../archive/planning/implementation-plan.md).
-The archived plan preserves rationale but is not current product status.
+The records explain why the current implementation is shaped as it is. Source,
+tests, and exact-commit verification receipts remain authoritative. The records
+contain technical rationale only.
 
-## When an ADR is required
-
-Write a new ADR when any of these is true:
-
-- an accepted architecture decision must change;
-- a new architecture decision is needed;
-- a direct runtime dependency is added, replaced, or removed (see
-  `docs/contract/dependency_policy.md`);
-- the frozen product contract changes (see `docs/contract/product_contract.md`);
-- a security boundary, tenant-isolation rule, or delivery-semantics claim changes;
-- a proposed Pumble manifest entry point changes.
-
-Do not change an existing accepted ADR to record a new decision. Add a new ADR and
-mark the old one `Superseded`.
-
-An implementation-driven architecture change must include evidence and update
-the affected acceptance tests.
+When implementation changes invalidate a record, update the documentation and
+the affected tests together. A later record may supersede an earlier one when
+preserving the old rationale is useful.
 
 ## Allowed statuses
 
 | Status | Meaning |
 |---|---|
-| `Proposed` | Written, not yet approved. Not binding. |
-| `Accepted` | Approved and binding on implementation. |
-| `Superseded` | Replaced by a later ADR. The replacing ADR number is named in the record. |
-
-A record never moves back from `Superseded` to `Accepted`. Write a new record instead.
+| `Proposed` | Describes an idea that is not the current implementation. |
+| `Accepted` | Describes the current implementation. |
+| `Superseded` | Retained for context but replaced by a named later record. |
 
 `0001-record-template.md` is not a decision record. It carries the status
 `Template` and is exempt from this table.
 
-## Rules
+## Reading the records
 
-- Records are append-only. Correct a mistake with a new record, not by deleting history.
 - Numbers are sequential and never reused. `0001` is the template.
-- Existing records retain their historical plan citations as rationale.
-- Every record states a reversal condition.
+- Existing records can retain source notes that explain their rationale.
+- Each record states when its decision should be reconsidered.
 - An ADR is not evidence of implementation. Current implementation evidence is
-  executable tests and the exact-commit verification receipt. The
-  [implementation ledger](../../archive/implementation-ledger.md) is historical.
+  executable tests and the exact-commit verification receipt.
 
 ## Files
 

@@ -1,18 +1,15 @@
-# Frozen v1 product contract
+# v1 product contract
 
-This is the current v1 scope contract. It was derived from Sections 5, 6, 12,
-and 18 of the [historical implementation plan](../archive/planning/implementation-plan.md)
-and is now maintained with the implementation and tests.
+This is the current v1 scope contract. Maintain it with the implementation and
+tests.
 
-**Any change to this contract requires a new ADR in
-`docs/architecture/decisions/`.** A feature that is absent from this contract cannot
-enter the critical path silently.
+A feature that is absent from this contract is outside the v1 scope.
 
 The generic HTTP action is the only broad external integration primitive in v1.
 
 ---
 
-## 1. Trigger categories (plan Section 5.1)
+## 1. Trigger categories
 
 ### 1.1 Pumble event
 
@@ -59,7 +56,7 @@ Dry-run by default. External effects require an explicit live-test action.
 
 ---
 
-## 2. Logic nodes (plan Section 5.2)
+## 2. Logic nodes
 
 - condition;
 - AND;
@@ -75,7 +72,7 @@ No loops in v1.
 
 ---
 
-## 3. Action nodes (plan Section 5.3)
+## 3. Action nodes
 
 Production actions in v1:
 
@@ -97,7 +94,7 @@ Deferred until proven necessary. These may be deferred without blocking release:
 
 ---
 
-## 4. Management capabilities (plan Section 5.4)
+## 4. Management capabilities
 
 - install and reinstall;
 - sign in to the web UI;
@@ -114,11 +111,12 @@ Deferred until proven necessary. These may be deferred without blocking release:
 - resolve uncertain outcomes;
 - manage secrets and external HTTP connections;
 - inspect audit history;
+- export a bounded, sanitized diagnostic ZIP;
 - uninstall and delete data.
 
 ---
 
-## 5. Explicit non-goals (plan Section 6)
+## 5. Explicit non-goals
 
 The production core does not include:
 
@@ -144,7 +142,7 @@ The production core does not include:
 
 ---
 
-## 6. Manifest trigger model (plan Sections 5.1 and 12)
+## 6. Manifest trigger model
 
 The Pumble manifest registers static entry points. Manifest entries are installation
 configuration, not per-workflow runtime registrations. See ADR-0007.
@@ -153,25 +151,25 @@ Rules:
 
 - the manifest declares one slash command, one global shortcut, and one message
   shortcut, and these do not change when users edit workflows;
-- callbacks reach fixed HTTPS-only production paths (plan Section 12.1);
+- callbacks reach fixed HTTPS-only production paths;
 - callback classes are: ordinary Pumble event, slash command, global shortcut,
-  message shortcut, block interaction, view action, and dynamic menu (plan
-  Section 12.2). Each class has its own response contract;
+  message shortcut, block interaction, view action, and dynamic menu. Each class
+  has its own response contract;
 - dynamic-menu handling stays synchronous and bounded and is used for product UI
   selection, not for workflow execution;
 - an active workflow alias is unique within a workspace and trigger type;
 - a manifest version or scope change requires a reinstall. Scope expansion never
   happens silently;
-- if a proposed command name is unavailable, the change needs an ADR and a manifest
-  migration plan.
+- if a proposed command name is unavailable, the release needs a different
+  static name and a manifest migration.
 
 ---
 
-## 7. Delivery semantics summary (plan Section 18)
+## 7. Delivery semantics summary
 
 Delivery is **at-least-once**. The system makes no exactly-once claim.
 
-Guaranteed (plan Section 18.1):
+Guaranteed:
 
 - one stored received-event row per accepted dedupe key;
 - one logical execution per execution key;
@@ -180,19 +178,19 @@ Guaranteed (plan Section 18.1):
 - completed steps are not executed again by duplicate jobs;
 - state transitions preserve database invariants.
 
-Not guaranteed (plan Section 18.2):
+Not guaranteed:
 
 - exactly one callback delivery;
 - exactly one job attempt;
 - exactly one remote effect when the remote API lacks idempotency and the outcome is
   ambiguous.
 
-Uncertain outcomes (plan Sections 18.4 and 19): when dispatch began, no definitive
-response was obtained, and remote idempotency cannot prove safe retry, the execution
-enters `PAUSED_UNCERTAIN`. It stores the effect key, attempt, request summary, error
-class, timing, whether bytes may have left, any remote correlation ID, and operator
-guidance. An operator resolves it to `RUNNING`, `FAILED`, or `COMPLETED`. See
-ADR-0006.
+Uncertain outcomes: when dispatch began, no definitive response was obtained,
+and remote idempotency cannot prove safe retry, the execution enters
+`PAUSED_UNCERTAIN`. It stores the effect key, attempt, request summary, error
+class, timing, whether bytes may have left, any remote correlation ID, and
+operator guidance. An authorized workspace owner resolves it to `RUNNING`,
+`FAILED`, or `COMPLETED`. See ADR-0006.
 
 ---
 

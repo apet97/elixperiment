@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Security.LoopPreventionTest do
   @moduledoc """
-  P13-T03: own-bot filtering, include-bot warning, internal lineage, forged
+  Own-bot filtering, include-bot warning, internal lineage, forged
   metadata, and depth/descendant caps. Loop telemetry never carries message
   text.
   """

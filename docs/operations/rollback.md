@@ -1,7 +1,6 @@
 # Rollback
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook defines the verified rollback boundary.
 
 Related:
 
@@ -117,7 +116,7 @@ an availability limitation, not a silent authentication downgrade. Roll
 forward and reactivate the workflow to restore that endpoint. Bearer-only
 endpoints continue to use the previous `enabled` column.
 
-## Stop / escalate
+## Stop conditions
 
 - Stop if you are about to run `mix ecto.rollback` on a shared or production
   database.
@@ -127,4 +126,5 @@ endpoints continue to use the previous `enabled` column.
   rollback smoke plan. Those rows must survive process replacement. Forced
   `SIGKILL` recovers through leases and reconciliation; it may pause
   uncertain writes rather than lose them.
-- Escalate production rollback to the production owner.
+- Stop before a production rollback. This repository proves schema
+  compatibility, not a production traffic switch.

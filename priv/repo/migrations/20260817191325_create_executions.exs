@@ -2,8 +2,8 @@ defmodule PumbleAutomation.Repo.Migrations.CreateExecutions do
   @moduledoc """
   Creates the durable execution ledger: runs, steps, attempts, and approvals.
 
-  Plan Section 14.4 is the column list. The engine in later P7 tasks reads and
-  writes these rows; this migration is the constraint set those tasks inherit.
+  The execution schemas and state machine define the column list. The engine
+  reads and writes these rows subject to the constraints in this migration.
 
   ## Tenant alignment is a foreign key, not a review comment
 
@@ -31,7 +31,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateExecutions do
 
   ## `received_event_id` has no foreign key yet
 
-  Ingress persists received events in P8. The column is here so an execution
+  Ingress persists received events in a later migration. The column is here so an execution
   can name the event that created it without waiting for that table; the
   reference is added with it.
   """
@@ -67,7 +67,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateExecutions do
           ),
           null: false
 
-      # Set by P8 ingress. See the module documentation.
+      # Set by ingress. See the module documentation.
       add :received_event_id, :binary_id
 
       add :execution_key, :string, null: false

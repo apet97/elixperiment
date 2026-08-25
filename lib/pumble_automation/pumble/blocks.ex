@@ -3,8 +3,8 @@ defmodule PumbleAutomation.Pumble.Blocks do
   The message payloads this product sends, and nothing else.
 
   v1 posts four things: a message, a threaded reply, a direct message, and an
-  approval message carrying two buttons (product contract Section 3, plan
-  Section 25). This module builds exactly those and refuses everything else. It
+  approval message carrying two buttons (product contract). This module builds
+  exactly those and refuses everything else. It
   is not a block-kit port: a constructor exists here because a v1 node needs it,
   and the absent constructors are absent on purpose.
 

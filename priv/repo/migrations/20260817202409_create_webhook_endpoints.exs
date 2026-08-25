@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWebhookEndpoints do
   @moduledoc """
   Creates `webhook_endpoints`, one tenant-owned inbound URL and its credentials.
 
-  P8-T01 fixes the columns: an opaque public id, the current token digest, an
+  The inbound webhook contract fixes the columns: an opaque public id, the current token digest, an
   optional previous digest with an overlap expiry, the workflow/version the
   endpoint is bound to, enabled, last-used, and per-endpoint / per-IP rate
   settings.
@@ -17,7 +17,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWebhookEndpoints do
   Workflow and version references are composite and also cascade: an endpoint
   cannot outlive the program it is bound to, and cannot name another tenant's
   workflow. Deactivation itself does not delete versions, so an endpoint stays
-  until a later task disables or replaces it.
+  until endpoint rotation disables or replaces it.
 
   ## Public id is globally unique on purpose
 

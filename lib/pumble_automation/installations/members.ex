@@ -3,8 +3,8 @@ defmodule PumbleAutomation.Installations.Members do
   Changing what a member of an installation may do.
 
   One function, because one thing about a member is security-critical: the role.
-  `update_role/4` is the wiring point for plan Section 11.2's "rotate the session
-  after a role change".
+  `update_role/4` is the wiring point for rotating the session after a role
+  change.
 
   ## A role change ends the member's sessions
 

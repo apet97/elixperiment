@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Executions.Execution do
   @moduledoc """
   One run of one immutable workflow version.
 
-  A row here is the durable state machine of Section 19: which program is
+  A row here is the durable execution state machine: which program is
   running, which step is current, what context it has accumulated, and whether
   anybody has asked it to stop. Workers claim it, finalize it, and wait on it;
   they do not invent a second copy of that state in memory.
@@ -10,14 +10,14 @@ defmodule PumbleAutomation.Executions.Execution do
   ## The execution key is identity for ingress
 
   `:execution_key` is unique inside one installation. Two deliveries that name
-  the same key are one run. The insert is what collapses them; later P7 tasks
-  return the existing row when the unique index refuses a second.
+  the same key are one run. The insert is what collapses them; the execution
+  service returns the existing row when the unique index refuses a second.
 
   ## Lineage
 
   A run that starts from an event has no parent: `:root_execution_id` is nil
   and `:lineage_depth` is 0. A derived run names its root and counts how far
-  it is from that root. Depth three is the last hop Section 29 allows; the
+  it is from that root. Depth three is the configured final hop; the
   check constraint is that number, not a reminder in a comment.
 
   ## Optimistic locking
@@ -29,7 +29,7 @@ defmodule PumbleAutomation.Executions.Execution do
   ## Context is bounded and sanitized
 
   `:context` and `:trigger_snapshot` are JSONB. They hold what a later step
-  may read, never a secret value. A document larger than Section 31's 256 KiB
+  may read, never a secret value. A document larger than the 256 KiB context limit
   is a validation error, not a database crash. Keys that read like credentials
   are refused on write.
   """
@@ -123,7 +123,7 @@ defmodule PumbleAutomation.Executions.Execution do
     |> foreign_key_constraint(:received_event_id)
   end
 
-  @doc "The statuses a run may hold, matching Section 19."
+  @doc "The statuses a run may hold."
   @spec statuses() :: [String.t()]
   def statuses, do: @statuses
 
@@ -141,7 +141,7 @@ defmodule PumbleAutomation.Executions.Execution do
   @spec max_context_bytes() :: pos_integer()
   def max_context_bytes, do: Limits.get(:context_size_bytes)
 
-  @doc "The greatest lineage depth Section 29 allows."
+  @doc "The greatest allowed lineage depth."
   @spec max_lineage_depth() :: pos_integer()
   def max_lineage_depth, do: Limits.get(:lineage_depth)
 

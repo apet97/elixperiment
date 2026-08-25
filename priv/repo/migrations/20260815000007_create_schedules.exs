@@ -17,7 +17,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateSchedules do
 
   **Timezone validation here is a format check only.** No time zone database is
   a dependency of this application yet, so `Europe/Atlantis` is refused for its
-  shape and accepted for its existence. Phase 11 owns real schedule
+  shape and accepted for its existence. The schedule calculator owns real schedule
   computation and is where a zone must be resolved against a real database;
   `PumbleAutomation.Workflows.Schedule` carries the same note.
 
@@ -31,7 +31,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateSchedules do
 
   ## One enabled schedule per workflow
 
-  Section 14.2's "unique workflow active schedule identity" is a partial unique
+  The schedule schema's unique active identity is a partial unique
   index on `workflow_id WHERE enabled`. A workflow has one clock. Superseded
   schedules stay as disabled rows so the history of what was dispatched still
   resolves.

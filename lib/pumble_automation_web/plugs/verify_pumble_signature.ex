@@ -19,7 +19,7 @@ defmodule PumbleAutomationWeb.Plugs.VerifyPumbleSignature do
   ## Divergence from the Node SDK
 
   The SDK answers `403 'Invalid signature!'` (`H-17`). This application answers a
-  generic `401` with no detail, as plan Section 12.1 requires. The status is the
+  generic `401` with no detail, as the callback security contract requires. The status is the
   only difference; the accepted requests are identical.
 
   ## No bypass

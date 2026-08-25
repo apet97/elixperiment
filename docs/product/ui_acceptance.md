@@ -7,9 +7,19 @@ verified**; it is not an automated-test result.
 | Proof layer | Status | Evidence |
 | --- | --- | --- |
 | LiveView interaction and browser-state fixtures | Automated | `./scripts/verify-ui.sh` and `test/browser/` |
+| Private app configuration page in real Chrome | Observed | The intended private app entry was visible in the authorized sacrificial workspace; installation remained pending |
 | Keyboard, viewport, and screen-reader spot checks in a real browser | Not verified | Manual criteria below |
 | axe-core or equivalent scan | Not run | No scanner was added |
 | Real Chromium console review | Not verified | Remains outside the offline gate |
+
+## Live browser boundary (2026-08-25)
+
+The private app configuration page was observed in real Chrome. The app was not
+installed. OAuth consent, token exchange, authenticated onboarding, callback
+delivery, and live workflow execution were not observed.
+
+This narrow observation does not complete any unchecked accessibility or
+viewport criterion below.
 
 Representative viewports: **360** (mobile), **768** (tablet), **1280** (desktop).
 The authenticated shell stacks the sidebar above content below `lg` (1024px).
@@ -73,13 +83,13 @@ Saved / Saving / Unsaved / Conflict. Colour is never the only signal.
 Long and translated-like names must remain in one column without covering
 actions.
 
-## P15-T06 automated acceptance
+## Automated acceptance
 
 The UI runner is `Phoenix.LiveViewTest`. Command: `./scripts/verify-ui.sh`
 (`mix test test/pumble_automation_web/live --trace` then
 `mix test test/browser --trace`). Discoverable journeys live in
 `test/browser/acceptance_journey_test.exs`. Unique canaries are
-`CANARY-P15T06-…`. Axe was not selected. Wallaby/Playwright were not added.
+`CANARY-UI-…`. Axe was not selected. Wallaby/Playwright were not added.
 
 Automated proofs (desktop layout classes plus the stacked `lg:` narrow shell):
 
@@ -92,4 +102,5 @@ Automated proofs (desktop layout classes plus the stacked `lg:` narrow shell):
 - Skip link, primary nav, CSP `script-src 'self'`, `/assets/js/app.js` and
   `/assets/css/app.css` HTTP 200, no inline `<script>`
 
-Colour-only visual statuses and a real Chromium console remain P18-T01.
+Colour-only visual statuses and a real Chromium console remain unverified by
+this LiveView-only runner.

@@ -1,6 +1,6 @@
-# Secret-scan allowlist for the P2-selected scanner (gitleaks).
+# Secret-scan allowlist for gitleaks.
 # Default rules stay on. These entries are documented false positives from
-# P13-T07, not a blanket skip of high/critical findings.
+# the security regression suite, not a blanket skip of high/critical findings.
 title = "pumble-automation"
 
 [extend]

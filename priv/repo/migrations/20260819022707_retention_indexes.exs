@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Repo.Migrations.RetentionIndexes do
   @moduledoc """
-  Adds indexes the P13-T04 retention sweep uses to delete due rows in batches.
+  Adds indexes the retention sweep uses to delete due rows in batches.
 
   Tenant-owned predicates lead with `installation_id` so a sweep never has to
   scan another workspace. Partial indexes match the due predicates exactly:

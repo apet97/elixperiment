@@ -22,7 +22,7 @@ defmodule PumbleAutomation.Workflows.PureDomainMatrixTest do
   alias PumbleAutomation.Workflows.Node.Predicate
   alias PumbleAutomation.Workflows.Schedule
 
-  test "compiler node types are the six Section 15.1 kinds" do
+  test "compiler node types are the six supported kinds" do
     assert Map.keys(Node.types()) |> Enum.sort() ==
              ~w(approval condition delay http_action pumble_action stop)
   end
@@ -41,7 +41,7 @@ defmodule PumbleAutomation.Workflows.PureDomainMatrixTest do
     assert Schedule.schedule_types() == ~w(once every_minutes every_hours daily weekly)
   end
 
-  test "trigger types are the five Section 5.1 kinds" do
+  test "trigger types are the five supported kinds" do
     assert Map.keys(Trigger.types()) |> Enum.sort() ==
              ~w(manual manual_test pumble_event schedule webhook)
   end
@@ -62,7 +62,7 @@ defmodule PumbleAutomation.Workflows.PureDomainMatrixTest do
     assert Approval.statuses() == ~w(pending approved rejected timed_out cancelled)
   end
 
-  test "retry backoff is the Section 30 schedule of five attempts" do
+  test "retry backoff uses the documented schedule of five attempts" do
     assert RetryPolicy.schedule() == [1, 5, 30, 120, 600]
     assert RetryPolicy.max_attempts() == 5
   end

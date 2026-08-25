@@ -5,7 +5,7 @@
 # Continuous integration runs this exact script, so a local pass and a CI pass
 # mean the same thing. Add a gate here first, never only in the workflow file.
 #
-# Nineteen steps, cheap-first. Live certification is P17 and is excluded.
+# Nineteen steps, cheap-first. Live certification is excluded.
 #
 #   1. clean candidate checkout
 #   2. format
@@ -135,4 +135,4 @@ mix run scripts/write_offline_receipt.exs
 
 printf '\nverify.sh: all 19 gates passed\n'
 printf 'verify.sh: offline acceptance passed\n'
-printf 'live certification: excluded (P17)\n'
+printf 'live certification: excluded\n'

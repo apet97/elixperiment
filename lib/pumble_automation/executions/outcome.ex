@@ -10,8 +10,8 @@ defmodule PumbleAutomation.Executions.Outcome do
   that lookup, as data: it does not walk a stored graph and it does not
   write a row.
 
-  Later P7 tasks attach runner results to the same names. The kinds listed
-  here are the finite set those tasks may return; they are not an extension
+  Execution runners attach results to the same names. The kinds listed here
+  are the finite set runners may return; they are not an extension
   point.
   """
 
@@ -120,7 +120,7 @@ defmodule PumbleAutomation.Executions.Outcome do
 
   def next_node_expected?(_target), do: false
 
-  @doc "The runner-result kinds later tasks may return."
+  @doc "The runner-result kinds execution nodes may return."
   @spec kinds() :: [kind()]
   def kinds, do: @kinds
 
@@ -156,7 +156,7 @@ defmodule PumbleAutomation.Executions.Outcome do
   Builds a runner outcome of a known kind.
 
   A `:success` result must name an `edge`. Other kinds may omit it. The
-  struct is not persisted; later tasks decide how it becomes a transition.
+  struct is not persisted; the execution engine decides how it becomes a transition.
   """
   @spec new(map()) :: {:ok, t()} | {:error, Error.t()}
   def new(attrs) when is_map(attrs) do

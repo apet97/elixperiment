@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Repeat the P15-T02 race tests until a timing-lucky pass cannot hide.
+# Repeat the race tests until a timing-lucky pass cannot hide.
 # Each iteration uses a distinct seed. A single failure stops the script.
 
 set -euo pipefail

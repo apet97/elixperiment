@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Executions.SchemaTest do
   @moduledoc """
   Durable execution, step, attempt, and approval constraints.
 
-  The promises this file holds are the ones later P7 workers inherit: a
+  The promises this file holds are execution-engine invariants: a
   tenant cannot be crossed by a parent id, a node runs at most once per
   execution, attempts are append-only, and an approval is decided once.
   """
@@ -79,7 +79,7 @@ defmodule PumbleAutomation.Executions.SchemaTest do
       assert run.lock_version == 0
     end
 
-    test "refuses a status outside the Section 19 set", %{version: version} do
+    test "refuses a status outside the execution state set", %{version: version} do
       changeset =
         Execution.changeset(%Execution{}, %{
           installation_id: version.installation_id,
@@ -120,7 +120,7 @@ defmodule PumbleAutomation.Executions.SchemaTest do
       assert %Execution{} = execution(other_version, %{execution_key: "same-delivery"})
     end
 
-    test "refuses context larger than the Section 31 bound", %{version: version} do
+    test "refuses context larger than the configured bound", %{version: version} do
       blob = String.duplicate("x", Execution.max_context_bytes() + 1)
 
       changeset =

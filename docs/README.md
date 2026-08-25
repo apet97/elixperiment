@@ -4,9 +4,8 @@ Technical documentation for the independent Pumble Workflow Automation
 experiment. References to Pumble or CAKE.com describe compatibility only; they
 do not imply affiliation, endorsement, sponsorship, or maintenance.
 
-For current behavior, use the source, tests, accepted architecture decisions,
-and the product contract. Files under [`archive/`](archive/) preserve build
-history and may describe earlier or superseded states.
+For current behavior, use the source, tests, architecture decisions, and the
+product contract.
 
 ## Product and contract
 
@@ -47,11 +46,4 @@ history and may describe earlier or superseded states.
 - [Pumble source matrix](evidence/pumble_source_matrix.md)
 - [Protocol probe register](evidence/pumble_probe_register.md)
 - [Read-only API-key contract snapshot](evidence/pumble_api_key_live_contract.md)
-- [Runbook game day](evidence/runbook_game_day.md)
-
-## Historical records
-
-The [archive](archive/) contains the initial assessment, implementation plan,
-agent prompt, initial-state inventory, and implementation ledger. These files
-are retained for traceability; they are not current product status and grant no
-authority to change, publish, deploy, or submit anything.
+- [Runbook game-day evidence](evidence/runbook_game_day.md)

@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Security.LimitsTest do
   @moduledoc """
-  Section 31 resource limits and P13-T02 rate limits: catalog, owners,
+  Resource and rate limits: catalog, owners,
   quotas, HTTP statuses, telemetry, and trusted proxies.
   """
 
@@ -61,7 +61,7 @@ defmodule PumbleAutomation.Security.LimitsTest do
   end
 
   describe "catalog" do
-    test "Section 31 defaults and hard caps are the documented numbers" do
+    test "resource-limit defaults and hard caps are the documented numbers" do
       assert Limits.default(:workflow_nodes) == 50
       assert Limits.default(:branch_depth) == 8
       assert Limits.default(:definition_size_bytes) == 256 * 1024

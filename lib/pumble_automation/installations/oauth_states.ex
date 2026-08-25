@@ -44,7 +44,7 @@ defmodule PumbleAutomation.Installations.OauthStates do
 
   @token_bytes 32
 
-  # Plan Section 11.1. Long enough for a person to read a consent screen, short
+  # Long enough for a person to read a consent screen, short
   # enough that a token captured from a browser history is usually already dead.
   @ttl_seconds 600
 
@@ -163,8 +163,8 @@ defmodule PumbleAutomation.Installations.OauthStates do
 
   # The database already matched the digest, which is a comparison this code did
   # not perform and cannot make variable-time. This second comparison is the one
-  # that happens in application code, and it is constant-time as the plan's
-  # security note requires. A mismatch would mean the row returned is not the row
+  # that happens in application code, and it is constant-time as the OAuth
+  # security contract requires. A mismatch would mean the row returned is not the row
   # asked for, which is a defect rather than a user error.
   defp confirm_digest(%OauthState{} = state, digest) do
     if :crypto.hash_equals(state.state_digest, digest) do

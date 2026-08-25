@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.ValidatorStructureTest do
   @moduledoc """
-  Structural validation: P6-T01.
+  Structural validation.
 
   This module never checks out a database sandbox. A repository call from
   anywhere under `Validator.validate/1` would raise an ownership error rather
@@ -430,7 +430,7 @@ defmodule PumbleAutomation.Workflows.ValidatorStructureTest do
     # itself is not: `Node.put_branch/3` takes only a list, and a branch is
     # built by the editor rather than typed by an author. A branch holding
     # something that is not a step is the programmer-invariant violation the
-    # task's failure behaviour allows to raise, so it is not generated here.
+    # validator failure behavior allows a raise, so it is not generated here.
     test "no corruption of a valid definition can make validation raise" do
       :rand.seed(:exsss, {2026, 8, 16})
 

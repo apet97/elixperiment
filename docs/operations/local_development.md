@@ -92,7 +92,8 @@ curl -sS http://localhost:4000/health/ready
 must return HTTP 200 with checks `database`, `migrations`, and `queues` equal
 to `ok` when PostgreSQL and Oban are up.
 
-Run the complete 19-step candidate gate before you hand off a release:
+Run the complete 19-step candidate gate before treating a commit as a release
+candidate:
 
 <!-- command-status: proven-local -->
 ```bash
@@ -116,10 +117,11 @@ ready does not run those checks.
   prepare a production-like release. Never commit a filled `.env`.
 - `LOG_LEVEL` is a production runtime setting. Dev keeps the text formatter.
 
-## Stop / escalate
+## Stop conditions
 
 - Stop if a command would print `SECRET_KEY_BASE`, `ENCRYPTION_KEY`,
   `PUMBLE_CLIENT_SECRET`, `PUMBLE_APP_KEY`, or `PUMBLE_SIGNING_SECRET`.
 - Stop if you are about to point this checkout at a production database.
-- Escalate production deploy questions to [deployment.md](deployment.md).
-  Production hosting is not configured in this repository (blocker B-001).
+- Stop before a production deploy. [deployment.md](deployment.md) defines the
+  verified deployment boundary; this local guide does not prove durable
+  production hosting.

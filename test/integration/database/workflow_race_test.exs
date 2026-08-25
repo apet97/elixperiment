@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Integration.WorkflowRaceTest do
   @moduledoc """
-  Activation, schedule dispatch, and approval decision races from Section 20.3.
+  Activation, schedule dispatch, and approval decision races.
   """
 
   use PumbleAutomation.DatabaseRaceCase, async: false

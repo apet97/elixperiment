@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Retention do
   @moduledoc """
   Time-based retention sweeps and the uninstalled-tenant purge.
 
-  Default windows (plan P13-T04):
+  Default windows:
 
     * receipt detail — 30 days (`received_events.retain_until`)
     * execution detail — 90 days after last write, terminal rows only

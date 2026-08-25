@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.MaintenanceTest do
   @moduledoc """
-  P14-T04: singleton maintenance scheduling, bounded continuation, pause/run-once,
+  Singleton maintenance scheduling, bounded continuation, pause/run-once,
   safe repair vs unsafe alert, and tenant sentinels.
   """
 

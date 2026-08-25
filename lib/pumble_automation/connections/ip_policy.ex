@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Connections.IpPolicy do
   @moduledoc """
   The address classes a workflow HTTP request may never target.
 
-  Plan Section 26's SSRF algorithm resolves every name, then refuses the
+  The Safe HTTP SSRF algorithm resolves every name, then refuses the
   request if **any** returned address is blocked. This module is that
   classification, and nothing else: it does not parse URLs, it does not talk
   to DNS, and it does not open sockets. `PumbleAutomation.Connections.UrlPolicy`
@@ -19,7 +19,7 @@ defmodule PumbleAutomation.Connections.IpPolicy do
 
   IPv4-mapped IPv6 (`::ffff:0:0/96`) is refused as its own class, including a
   mapping of a public IPv4 address. Connecting to `::ffff:8.8.8.8` is still a
-  mapped form, and the plan lists mapped IPv4 as blocked.
+  mapped form, and the Safe HTTP contract lists mapped IPv4 as blocked.
 
   Decimal, hex, octal, and shortened IPv4 literals (`2130706433`,
   `0x7f000001`, `0177.0.0.1`, `127.1`) are not canonical addresses. They are

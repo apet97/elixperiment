@@ -1,9 +1,8 @@
-# Identity behaviors that remain live-probe dependent (P3-T07)
+# Identity behaviors that remain live-probe dependent
 
-Date: 2026-08-15. Task: `P3-T07` of
-the [historical implementation plan](../archive/planning/implementation-plan.md).
-Companion files: `pumble_source_matrix.md` (P0-T03),
-`pumble_probe_register.md` (P0-T04).
+Original review date: 2026-08-15. Last evidence update: 2026-08-25.
+Companion files: `pumble_source_matrix.md` and
+`pumble_probe_register.md`.
 
 The identity suite proves what *this application* does. It runs offline against
 stubs and fixtures, so it cannot prove what *Pumble's server* does. This file
@@ -12,6 +11,16 @@ probe that would settle it, and the assumption the code holds until then.
 
 Nothing here is a known defect. Each entry is a claim the test suite deliberately
 does not make.
+
+## Current live status
+
+The 2026-08-25 API-key preflight observed only the separate API-key identity and
+read contracts. It did not start or complete OAuth. The private app
+configuration page was observed, but the app remained pending installation.
+
+No OAuth token-exchange response bytes were observed. No callback, reinstall,
+revocation, uninstall, second-person sign-in, or provider-granted scope list was
+observed. Therefore, the live status of every identity row below is unchanged.
 
 ## How to read a row
 

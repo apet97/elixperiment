@@ -1,7 +1,6 @@
 # OAuth, revocation, uninstall, and key rotation
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook covers OAuth loss, uninstall, revocation, and key rotation.
 
 Related:
 
@@ -84,12 +83,12 @@ pause tenant purge.
 Reinstall of the same workspace during grace restores the tenant instead of
 creating a second installation.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to `DELETE FROM installations` by hand.
 - Stop if you are about to resume executions for an uninstalled tenant.
-- Escalate legal or Marketplace removal to the human owner. There is no
-  legal hold in product.
+- Stop before legal-hold or Marketplace removal work. The product has no legal
+  hold, and Marketplace changes are outside this runbook.
 
 ## Signing secret, app key, and OAuth client secret
 
@@ -110,9 +109,9 @@ console rotation.
 
 Redeploy with the new value in the platform secret store.
 
-<!-- command-status: planned-owner-approval -->
+<!-- command-status: planned-not-executed -->
 ```bash
-# planned — production secret replace and rolling restart; blocked by B-001
+# planned — not executed or verified in production
 # Replace PUMBLE_SIGNING_SECRET (or APP_KEY / CLIENT_SECRET) in the secret store.
 # Restart the release. Do not echo the value.
 ```
@@ -120,10 +119,11 @@ Redeploy with the new value in the platform secret store.
 Expect replayed callbacks after a signing-secret change. App key changes
 fail every API call until the new value is live.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if a runbook step says to `echo` the secret.
-- Escalate console access to the production owner.
+- Stop if the required private-console access is unavailable. This runbook does
+  not grant that access.
 
 ## Webhook credential rotation
 
@@ -170,8 +170,8 @@ version.
 
 ### Safe action
 
-1. Deploy with new primary key, new version, and legacy read keys. This
-   step is **planned** in production (B-001).
+1. Deploy with new primary key, new version, and legacy read keys. This step is
+   **planned but not executed or verified** in production.
 2. Re-encrypt installation bot tokens and user access tokens in bounded
    batches until `rotated` is 0:
 
@@ -223,12 +223,13 @@ assuming all old lineage headers have expired.
 
 This rotation is a redeploy, not a `Rotation.rotate` call. It cannot be a
 zero-downtime rolling key change in this release because there is no legacy
-`SECRET_KEY_BASE` verifier. Stop if the maintenance window, endpoint-owner
-coordination, pending-approval cleanup, or whole-fleet restart is not approved.
+`SECRET_KEY_BASE` verifier. Stop unless one maintenance window can cover caller
+credential updates, pending-approval cleanup, and the whole-fleet restart.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if the new key is not deployed and you already discarded the old key.
 - Stop if a command would print ciphertext or plaintext.
 - Stop if `rotated` is non-zero and you are about to drop the legacy key.
-- Escalate production key ceremony to the production owner.
+- Stop before production key rotation. This repository does not prove the
+  platform secret update or fleet restart.

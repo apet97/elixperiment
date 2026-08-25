@@ -1,6 +1,6 @@
-# HTTP action security review (P10-T05)
+# HTTP action security review
 
-Static review of the generic HTTP boundary after P10-T01 through P10-T04.
+Static review of the implemented generic HTTP boundary.
 The adversarial suite in `test/security/http_action_adversarial_test.exs`
 is the automated proof. This note records what the Mint path actually does,
 which residual risks remain, and which operational controls are defence in
@@ -55,7 +55,7 @@ A certificate that does not match the original hostname is
 
 ## SSRF algorithm (observed)
 
-Matches plan Section 26:
+Matches ADR-0010 and the Safe HTTP boundary:
 
 1. Render the URL without putting secrets into diagnostics.
 2. Parse; reject userinfo, fragments, and non-canonical IP tricks.
@@ -86,8 +86,8 @@ invoked for those URLs.
 
 ## Residual risks (explicit)
 
-These are not treated as passing-looking gaps. They are named so P13/P15
-can re-check them rather than assuming the HTTP node is a perfect oracle.
+These are not treated as passing-looking gaps. They remain named release-test
+inputs rather than assumptions that the HTTP node is a perfect oracle.
 
 1. **Unstructured body echo.** If a remote returns the caller's secret as
    ordinary text (not under a secret-named JSON key), the 256-byte excerpt
@@ -132,7 +132,7 @@ a future client bypasses this module:
 A deployment that relies only on egress filtering, without this DNS-pin
 path, is not in conformance with ADR-0010.
 
-Re-checked in P15-T05: the seven named residuals are unchanged. None were
+Re-checked by the release security suite: the seven named residuals are unchanged. None were
 upgraded to critical or high. Loopback HTTPS still fails closed as
 `:target_blocked` / `:loopback` before a socket opens
 (`test/security/release_gate_test.exs`).

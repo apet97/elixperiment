@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Security.ReleaseGateTest do
   @moduledoc """
-  P15-T05 discoverable security scenarios. Each named case is a release
+  Discoverable security scenarios. Each named case is a release
   blocker. Canary values are unique per test so a leak cannot hide behind a
   fixture string.
   """

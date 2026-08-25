@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Executions.Concurrency do
   @moduledoc """
   Per-workspace running limits and fair admission of queued executions.
 
-  Section 31 allows five occupying executions per workspace. Occupying
+  The default limit allows five occupying executions per workspace. Occupying
   statuses hold a slot. Excess creates stay `queued` without an advance job
   until a slot frees; the oldest queued row is admitted first.
 
@@ -23,7 +23,7 @@ defmodule PumbleAutomation.Executions.Concurrency do
   # Matches Oban Lifeline `rescue_after` in config/config.exs.
   @stale_after_seconds 30 * 60
 
-  @doc "Section 31 running executions per workspace."
+  @doc "Configured running executions per workspace."
   @spec max_running() :: pos_integer()
   def max_running, do: Limits.get(:running_executions)
 

@@ -39,7 +39,7 @@ defmodule PumbleAutomation.Ingress.WebhookEndpoint do
 
   An endpoint names one workflow and one immutable version of that workflow,
   under the same installation. It cannot choose an arbitrary version at
-  request time; P8-T07 creates executions against this stored binding.
+  request time; execution creation uses this stored binding.
   """
 
   use Ecto.Schema

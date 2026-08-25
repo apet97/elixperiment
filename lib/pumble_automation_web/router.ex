@@ -122,8 +122,8 @@ defmodule PumbleAutomationWeb.Router do
   #
   # `log: false` is a security setting, not a noise setting. Phoenix's dispatch
   # log writes the parsed parameters at debug level, and a callback's parameters
-  # are the callback body: message text, channel ids, and actor ids. Plan Section
-  # 12.1 and `P4-T01` forbid writing that down, and `filter_parameters` cannot
+  # are the callback body: message text, channel ids, and actor ids. The callback
+  # security contract forbids writing that down, and `filter_parameters` cannot
   # help because the field names are Pumble's and open-ended. Dispatch is instead
   # recorded by the audit trail, which records what happened without the content.
   scope "/pumble", PumbleAutomationWeb do

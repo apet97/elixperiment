@@ -4,7 +4,7 @@ defmodule PumbleAutomation.Ingress.ReceivedEvent do
 
   A row here is the durable identity of a delivery: which tenant, which
   provider and class, which dedup key, the digest of the raw body, and a
-  bounded sanitized snapshot. Matching and execution creation (P8-T04) read
+  bounded sanitized snapshot. Matching and execution creation read
   this row; they do not re-parse the wire body.
 
   ## No raw body
@@ -23,7 +23,7 @@ defmodule PumbleAutomation.Ingress.ReceivedEvent do
   ## Retention is a date, not a comment
 
   `:retain_until` must fall after `:received_at` and at most thirty days
-  later, matching the receipt window P13-T04 will sweep. An out-of-range
+  later, matching the configured receipt-retention window. An out-of-range
   value cannot persist.
   """
 

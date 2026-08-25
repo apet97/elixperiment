@@ -1,7 +1,6 @@
 # ADR-0003: HTTP callbacks in production
 
 **Status:** Accepted
-**Plan decision:** ADR-002 in plan Section 7
 
 ## Context
 
@@ -11,15 +10,12 @@ what the marketplace expects at installation time.
 
 ## Evidence
 
-- Plan Section 7, row ADR-002: "HTTP callbacks in production — source-supported,
-  signed, marketplace-aligned".
-- Plan Section 9: Pumble reaches the Phoenix endpoint over HTTPS callbacks through
-  a body-size gate, a raw-body cache, HMAC verification, and a callback classifier.
-- Plan Section 12.1: production callback paths are fixed and HTTPS-only; the
-  endpoint rejects oversized bodies, retains exact raw bytes, computes HMAC-SHA256,
-  compares in constant time, rejects missing or malformed signatures, and parses
-  JSON only after the raw bytes are retained.
-- Plan Section 12.2: seven callback classes, each with its own response contract.
+- `docs/evidence/pumble_source_matrix.md` records the source-supported callback
+  classes, payloads, and signature algorithm.
+- `PumbleAutomationWeb.Router`, `CacheRawBody`, and `VerifyPumbleSignature` put a
+  body-size gate and exact-byte HMAC verification before callback classification.
+- `test/pumble_automation_web/controllers/pumble_callback_controller_test.exs`
+  and the security suites cover valid, invalid, malformed, and oversized requests.
 
 ## Decision
 
@@ -41,8 +37,8 @@ is a rejection, not a permission.
 
 - The application must be reachable at a stable public HTTPS address.
 - Raw-body capture must run before any JSON body parser in the plug pipeline.
-- Interactive callback classes must answer inside the interactive acceptance path
-  (plan Section 9, under three seconds), so the work is handed to Ingress.
+- Interactive callback classes must answer inside the configured three-second
+  acceptance path, so durable work is handed to Ingress.
 - Signature fixtures for valid and invalid cases are required test material.
 
 ## Reversal condition

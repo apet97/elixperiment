@@ -188,7 +188,7 @@ defmodule PumbleAutomation.Executions.Nodes.Pumble do
     })
   end
 
-  @doc "Maps a Pumble client error onto the Section 30 outcome kinds."
+  @doc "Maps a Pumble client error onto the execution outcome kinds."
   @spec from_client(ClientError.t(), map()) :: {:ok, Outcome.t()} | {:error, Error.t()}
   def from_client(%ClientError{} = error, input) when is_map(input) do
     class = client_error_class(error)

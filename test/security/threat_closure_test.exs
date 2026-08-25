@@ -1,7 +1,7 @@
 defmodule PumbleAutomation.Security.ThreatClosureTest do
   @moduledoc """
-  P13-T07 source checklist: every Section 27 threat is mapped, production
-  debug surfaces stay off, and the dangerous-pattern search stays empty.
+  Current source checklist: every supported threat is mapped, production debug
+  surfaces stay off, and the dangerous-pattern search stays empty.
   """
 
   use ExUnit.Case, async: true
@@ -26,7 +26,7 @@ defmodule PumbleAutomation.Security.ThreatClosureTest do
     "Dependency compromise"
   ]
 
-  @reviewed_parent "acc514e5009c75b55ec83457ec5d041541e45ab8"
+  @verified_checkpoint "7c6680aa0663417790c4e8e5f61b649d7b0a8eec"
 
   @forbidden_lib [
     {~r/\bbinary_to_term\s*\(/, "binary_to_term on untrusted data"},
@@ -45,13 +45,12 @@ defmodule PumbleAutomation.Security.ThreatClosureTest do
   )
 
   describe "threat table" do
-    test "every Section 27 threat has owner, proof, evidence, and residual risk" do
+    test "every current threat has an enforcement boundary, proof, evidence, and residual risk" do
       path = Path.expand("../../docs/security/threat_model.md", __DIR__)
       body = File.read!(path)
 
-      assert body =~ @reviewed_parent
-      assert body =~ "Code owner"
-      assert body =~ "Last passing evidence"
+      assert body =~ "Implementation"
+      assert body =~ "Offline proof"
       assert body =~ "Residual risk"
 
       Enum.each(@threats, fn threat ->
@@ -59,11 +58,11 @@ defmodule PumbleAutomation.Security.ThreatClosureTest do
       end)
     end
 
-    test "the review artifact names the reviewed parent commit" do
+    test "the review artifact names the historical verified checkpoint" do
       path = Path.expand("../../docs/security/review_results.md", __DIR__)
       body = File.read!(path)
 
-      assert body =~ @reviewed_parent
+      assert body =~ @verified_checkpoint
       assert body =~ "Unresolved critical:** none"
       assert body =~ "Unresolved high:** none"
       assert body =~ "mix hex.audit"

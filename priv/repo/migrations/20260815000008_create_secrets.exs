@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateSecrets do
   @moduledoc """
   Creates `secrets`, the write-only store for one tenant's named credentials.
 
-  Plan Section 14.5 fixes the columns: a tenant, a unique name, an
+  The secret-storage contract fixes the columns: a tenant, a unique name, an
   authenticated ciphertext, the key version that ciphertext claims, a value
   fingerprint, a description, and the rotation and last-used timestamps.
 
@@ -28,8 +28,8 @@ defmodule PumbleAutomation.Repo.Migrations.CreateSecrets do
 
   ## Names are identifiers, not prose
 
-  A template refers to a secret as `{{ secret.API_TOKEN }}` (plan Section
-  21.3), so the name has to survive that grammar. The check constraint is the
+  A template refers to a secret as `{{ secret.API_TOKEN }}`, so the name has
+  to survive that grammar. The check constraint is the
   same one the changeset applies: an uppercase identifier, at most 64
   characters.
   """

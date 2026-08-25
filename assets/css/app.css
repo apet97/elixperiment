@@ -141,7 +141,7 @@ body {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-signal) 20%, transparent);
 }
 
-/* Viewport matrix (P12-T08): 360 mobile, 768 tablet, 1280 desktop.
+/* Viewport matrix: 360 mobile, 768 tablet, 1280 desktop.
    Below lg (1024px), identity and navigation use a compact grid above content. */
 .pa-state {
   min-height: 10rem;

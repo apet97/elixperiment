@@ -167,7 +167,7 @@ defmodule PumbleAutomationWeb.OauthController do
   defp maybe_put(query, _key, nil), do: query
   defp maybe_put(query, key, value), do: Keyword.put(query, key, value)
 
-  # Plan Section 11.2. Every cookie attribute, and the renewal of the Phoenix
+  # Every cookie attribute, and the renewal of the Phoenix
   # session that goes with a sign-in, lives in `PumbleAutomationWeb.BrowserSession`.
   defp put_session_token(conn, %{session_token: token}) when is_binary(token) do
     BrowserSession.put(conn, token)

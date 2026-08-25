@@ -1,7 +1,6 @@
 # ADR-0006: At-least-once delivery and `PAUSED_UNCERTAIN`
 
 **Status:** Accepted
-**Plan decision:** ADR-009 in plan Section 7
 
 ## Context
 
@@ -11,21 +10,14 @@ system must state honest semantics instead of claiming exactly-once behavior.
 
 ## Evidence
 
-- Plan Section 7, row ADR-009: "At-least-once plus uncertainty — honest semantics
-  for duplicate delivery and ambiguous writes".
-- Plan Section 6: "exactly-once claims" is an explicit non-goal.
-- Plan Section 18.1: guaranteed — one stored received-event row per accepted dedupe
-  key; one logical execution per execution key; one logical step row per
-  execution/node; stale jobs do not advance state; completed steps are not executed
-  again by duplicate jobs.
-- Plan Section 18.2: not guaranteed — one callback delivery, one job attempt, or one
-  remote effect when the remote API lacks idempotency and the outcome is ambiguous.
-- Plan Section 18.3: effect key `installation_id / execution_id / node_id`.
-- Plan Section 18.4: a write is uncertain when dispatch began, no definitive
-  response was obtained, and remote idempotency cannot prove safe retry.
-- Plan Section 19: `RUNNING -> PAUSED_UNCERTAIN`; `PAUSED_UNCERTAIN -> RUNNING |
-  FAILED | COMPLETED`.
-- Plan Section 30: error classes `ambiguous_transport` and `side_effect_uncertain`.
+- `docs/architecture/delivery_semantics.md` defines receipt deduplication and the
+  explicit at-least-once boundary.
+- `PumbleAutomation.Executions.StateMachine`, `Attempt`, and `Effect` enforce
+  generation-aware claim, execute, and finalize behavior with stable effect keys.
+- `docs/operations/uncertain_effects.md` defines operator recovery for ambiguous
+  writes; crash-window and race tests prove that completed effects are not silently
+  repeated.
+- Error classes distinguish `ambiguous_transport` and `side_effect_uncertain`.
 
 ## Decision
 
@@ -52,7 +44,7 @@ No document, UI text, or API response claims exactly-once behavior.
 - Every effectful step needs a stable effect key and a durable attempt record.
 - The UI and the runbooks need an operator resolution path.
 - Uncertain executions accumulate until an operator acts, so they need visibility
-  and a lifetime bound (plan Section 31).
+  and a configured lifetime bound.
 
 ## Reversal condition
 

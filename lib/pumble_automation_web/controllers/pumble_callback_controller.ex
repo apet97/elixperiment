@@ -4,8 +4,8 @@ defmodule PumbleAutomationWeb.PumbleCallbackController do
 
   By the time `dispatch/2` runs, two plugs have already done their work: the raw
   bytes were retained before any JSON parsing, and the signature over those
-  bytes was verified. This action does the remaining four steps of plan
-  Section 12.1 — classify, hand to the ingress boundary, answer, measure — and
+  bytes was verified. This action does the remaining callback-ingress steps —
+  classify, hand to the ingress boundary, answer, measure — and
   nothing else.
 
   ## The dispatch table
@@ -27,8 +27,8 @@ defmodule PumbleAutomationWeb.PumbleCallbackController do
   application does not understand could therefore produce an unbounded retry of
   something it will never understand. It is acknowledged, counted, and dropped.
   A malformed *envelope*, by contrast, is still `400`: that is a request this
-  application cannot even classify, and plan `P4-T03` requires it to be refused
-  after signature validation.
+  application cannot even classify, and it is refused after signature
+  validation.
 
   **A dynamic menu is a bounded read, never a trigger.** The fixed manifest
   action resolves only the sorted union of active aliases visible in either
@@ -43,7 +43,7 @@ defmodule PumbleAutomationWeb.PumbleCallbackController do
 
   The action performs no external call, no workflow step, and no unbounded work
   of any kind. `PumbleAutomation.Ingress.Service` owns everything after
-  classification, and plan Section 17.3 fixes what may happen before the
+  classification, and the ingress acknowledgement contract fixes what may happen before the
   acknowledgement: verification, minimal validation, the dedupe and execution
   inserts, an Oban insert, and building a small response. No call to Pumble.
 

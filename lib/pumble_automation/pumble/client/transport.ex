@@ -27,7 +27,7 @@ defmodule PumbleAutomation.Pumble.Client.Transport do
 
   ## No retry lives here
 
-  `retry: false`. Plan Section 12.4 puts retry above this boundary, where the
+  `retry: false`. The Pumble client contract puts retry above this boundary, where the
   action's own semantics are known; a transport that retried would duplicate
   messages, because Pumble publishes no idempotency key on writes (`PR-09`).
 

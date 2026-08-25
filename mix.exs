@@ -82,7 +82,7 @@ defmodule PumbleAutomation.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.23"},
-      # P11-T02: IANA/DST schedule math. Exact pin; autoupdate is disabled in config.
+      # IANA/DST schedule math. Exact pin; autoupdate is disabled in config.
       {:tzdata, "1.1.4"},
       # tzdata requires hackney for IANA autoupdate. This application disables
       # autoupdate, so hackney is never called. Override the 1.x line tzdata

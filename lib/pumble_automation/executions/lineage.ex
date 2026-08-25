@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Executions.Lineage do
   @moduledoc """
   Loop protection for derived executions and untrusted Pumble events.
 
-  Section 29 caps lineage depth at three. This module also caps descendants
+  The workflow contract caps lineage depth at three. This module also caps descendants
   per root and per event window, refuses a workflow that would re-enter its
   own tree, and ignores parent claims that are not cryptographically bound.
 
@@ -36,7 +36,7 @@ defmodule PumbleAutomation.Executions.Lineage do
   @type lineage :: %{root_execution_id: Ecto.UUID.t() | nil, lineage_depth: non_neg_integer()}
   @type request :: map()
 
-  @doc "Section 29 depth ceiling."
+  @doc "Lineage depth ceiling."
   @spec max_depth() :: pos_integer()
   def max_depth, do: Limits.get(:lineage_depth)
 

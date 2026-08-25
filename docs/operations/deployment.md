@@ -1,8 +1,7 @@
 # Deployment
 
-Audience: internal operators. Do not copy this file into public support
-articles. This file names application settings and probes. It does not name
-production hosts.
+Audience: people who deploy this application. This file names application
+settings and probes. It does not name production hosts.
 
 Related:
 
@@ -19,11 +18,29 @@ A production-like node must boot from `config/runtime.exs`, serve HTTPS, and
 fail ready when the database, schema, or Oban supervisor cannot accept durable
 work.
 
-A staging or production target is **not** configured in this repository. The
-repository does provide a pinned, hardened OCI image, an explicit release
-migrator, and local candidate-bound smoke tests. Registry publication, platform
-deployment, DNS/TLS, traffic switching, and environment smoke tests remain
-unverified because no deployment target or authority was supplied.
+A temporary test runtime was observed for clean commit
+`7c6680aa0663417790c4e8e5f61b649d7b0a8eec`. A staging or production target
+is **not** configured in this repository. The exact-candidate gate built and
+tested one local hardened OCI image from digest-pinned base images. The
+repository also contains an explicit release migrator and candidate-bound local
+smoke tests. It does not provide a published registry artifact. Registry
+publication, durable platform deployment, stable DNS, managed TLS, restore,
+rollback, traffic switching, and environment smoke tests remain unverified.
+
+## Current temporary runtime evidence
+
+| Item | Result |
+| --- | --- |
+| Candidate | Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` |
+| Local image ID | `sha256:2120f16478fff70c4c6e0fb8beb05f420b2705a8393995f3ef28ce7486dd7b88` |
+| OCI revision | Exact candidate commit |
+| Running container | `pumble-wa-app-7c6680a` |
+| Local liveness and readiness | HTTP 200 and HTTP 200 |
+| Temporary HTTPS tunnel liveness and readiness | HTTP 200 and HTTP 200 |
+
+The image value is a local Docker image ID. It is not a registry digest. The
+tunnel and container prove one temporary test runtime only. They do not prove a
+durable deployment or production behavior.
 
 ## What this release already implements
 
@@ -106,22 +123,22 @@ against a disposable database, and requires both health probes to return HTTP
 path also requires a clean tree. A standalone dirty-tree run is developer proof
 only.
 
-Production or staging apply is not implemented as a pretend generic command.
-The deployment owner must publish the already-tested image by immutable digest,
-run `/app/bin/migrate` from that same digest, start the new instance with the
-documented runtime variables, and keep it out of rotation until ready returns
-HTTP 200. Record the registry digest, deployed digest, migration result, and
-probe result for that environment.
+Production or staging apply is not implemented as a generic command. To deploy,
+publish the tested image by immutable registry digest. Run `/app/bin/migrate`
+from that same digest. Start the instance with the documented runtime variables.
+Keep it out of rotation until readiness returns HTTP 200. Record the registry
+digest, deployed digest, migration result, and probe result for that environment.
 
 Mark the instance ready only after `/health/ready` is HTTP 200. Migrations
 must finish before the new instance receives traffic. See [migrations.md](migrations.md).
 
-## Stop / escalate
+## Stop conditions
 
 - Stop if `/health/ready` is 503 and you are about to force the load balancer
   to send traffic anyway.
 - Stop if you are about to run `mix ecto.rollback` against a shared database.
   That is not a production rollback. See [rollback.md](rollback.md).
 - Stop if a command would print a secret value.
-- Escalate registry, platform, DNS, and TLS choices to the production owner.
-  Do not invent a host or claim that the local container smoke is a deploy.
+- Stop if the registry, platform, DNS, or TLS target is not explicitly
+  configured. Do not invent a host or claim that the local container smoke is a
+  durable deployment.

@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.CompiledWorkflow do
   @moduledoc """
-  The executable form of a workflow: Section 15.2 of the plan.
+  The immutable executable form of a workflow.
 
   A definition is a tree, because that is what an author edits. This is the
   same workflow as a flat map of steps joined by named edges, because that is
@@ -99,7 +99,7 @@ defmodule PumbleAutomation.Workflows.CompiledWorkflow do
   def end_target, do: @end_target
 
   @doc """
-  Encodes into the plain, string-keyed document of Section 15.2.
+  Encodes into the plain, string-keyed executable document.
 
   Keys are strings and values are JSON types, so the result is what is stored
   and what is hashed.

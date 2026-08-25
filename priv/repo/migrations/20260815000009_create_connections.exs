@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateConnections do
   @moduledoc """
   Creates `connections`, one tenant's reusable outbound HTTP configuration.
 
-  Plan Section 14.5 fixes the columns: a tenant, a unique name, the single type
+  The connection-storage contract fixes the columns: a tenant, a unique name, the single type
   `http`, a base URL, configuration that carries no secret value, the secret
   ids it references, and a status.
 
@@ -33,7 +33,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateConnections do
   There is deliberately no column for any of those. A connection is a finite
   description of where a request may go and which fixed headers it carries.
   Everything that decides *what* to send lives in the workflow definition, and
-  everything that performs the request is the P10 transport.
+  everything that performs the request is the Safe HTTP transport.
   """
 
   use Ecto.Migration

@@ -1,7 +1,6 @@
 # Queues and schedules
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook covers queue health, schedules, and safe recovery.
 
 Related:
 
@@ -122,12 +121,12 @@ Owner cancel-all is `Engine.cancel_all/2` (no global UI button besides
 per-execution cancel). Running cancel sets a durable request; finalize does
 not start the next step.
 
-## Stop / escalate
+## Stop conditions
 
 - Stop if you are about to `INSERT` into `oban_jobs` by hand.
 - Stop if you are about to treat occupancy-parked queued rows as missing jobs.
 - Stop if a discarded job already has a step attempt — resolve uncertainty
   or cancel; do not requeue.
-- Escalate when oldest available work is older than 6 hours and ready is
-  still 200: the node accepts work, but the backlog is stuck. That is an
-  incident, not a load-balancer flap.
+- Stop repeated repair attempts when oldest available work is older than 6
+  hours and ready is still 200. The node accepts work, but the backlog is
+  stuck. Investigate the queue path; do not change the load-balancer probe.

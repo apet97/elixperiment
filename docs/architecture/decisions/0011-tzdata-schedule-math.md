@@ -12,15 +12,12 @@ only through a `Calendar.TimeZoneDatabase`, and the default database is UTC-only
 
 ## Evidence
 
-- Plan Section 8: tzdata is on the allowed dependency list.
-- Plan Section 23: store IANA timezones; nonexistent local time uses the first
-  valid instant after the gap; ambiguous local time uses the earlier occurrence
-  once.
-- Plan task P11-T02: use IANA timezone IDs through tzdata; same
-  config/reference/tzdata version yields the same result; UTC storage only; no
-  server local timezone dependence.
-- Plan task P1-T05 / `docs/contract/dependency_policy.md`: a new runtime
-  dependency requires an ADR; pin the exact version.
+- `docs/contract/dependency_policy.md` permits the pinned tzdata runtime dependency.
+- `PumbleAutomation.Workflows.ScheduleCalculator` stores IANA timezone IDs, uses
+  the first valid instant after a gap, and uses the earlier occurrence once for an
+  ambiguous local time.
+- Schedule calculator tests prove that the same config, reference, and tzdata
+  version yield the same UTC result without server-local timezone dependence.
 
 ## Decision
 
@@ -43,8 +40,7 @@ vulnerable `quic` that hackney 4.0.1 pulled.
 - Enable tzdata autoupdate. Rejected: a mid-run IANA download would change
   results for the same config and reference.
 - Vendor IANA files and implement `Calendar.TimeZoneDatabase` locally. Rejected:
-  the plan names tzdata, and a hand-rolled parser would be a second timezone
-  database.
+  a hand-rolled parser would be a second timezone database.
 
 ## Consequences
 
@@ -61,5 +57,5 @@ vulnerable `quic` that hackney 4.0.1 pulled.
 
 Reconsider if a maintained timezone library provides IANA data without a
 vulnerable HTTP client, or if Elixir ships a non-UTC Calendar database that
-covers the Section 23 DST policy. Reversal requires a new ADR and a pin-gate
-revalidation.
+covers the documented DST policy. Revalidate the dependency pin and schedule
+tests after a change.

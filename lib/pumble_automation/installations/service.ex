@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Installations.Service do
   @moduledoc """
   Turns a completed OAuth exchange into a tenant, a member, and a session.
 
-  `complete_oauth/3` is plan Section 13's install list as one transaction: upsert
+  `complete_oauth/3` applies the installation contract in one transaction: upsert
   the installation by Pumble workspace id, store the credentials encrypted, snapshot
   the scopes, upsert the member, assign the first owner when there is none, create the
   browser session, and append the audit event. Either all of that happens or none of it
@@ -29,8 +29,8 @@ defmodule PumbleAutomation.Installations.Service do
   and a workspace whose owner left must recover through an explicit path rather than
   through whoever signs in next. `signin` and `connect_user` also leave the bot
   credentials alone; only an install or a reinstall replaces them. Sign-in on a
-  revoked installation is allowed so an owner can open onboarding and reinstall
-  (P13-T05). Sign-in on an uninstalled or deleted installation is refused.
+  revoked installation is allowed so an owner can open onboarding and reinstall.
+  Sign-in on an uninstalled or deleted installation is refused.
 
   `install` and `reinstall` require a bot token. A grant that carried none cannot run a
   workflow, so it fails here rather than producing a tenant that looks installed and
@@ -48,8 +48,8 @@ defmodule PumbleAutomation.Installations.Service do
 
   The exchange response carries no scope list (`A-16`). The snapshot written here is the
   set this application requested at exchange time, which is the only scope fact that
-  exists at this point. Reinstall scope revalidation is deliberately not done here; see
-  plan Section 13 and the `PR-07` caveat in the evidence matrix.
+  exists at this point. Reinstall scope revalidation is deliberately not done here;
+  see the `PR-07` caveat in the evidence matrix.
   """
 
   import Ecto.Query, only: [from: 2]
@@ -211,7 +211,7 @@ defmodule PumbleAutomation.Installations.Service do
   defdelegate session_absolute_seconds, to: Sessions, as: :absolute_seconds
 
   # A reinstall by a different person is a change of who authorized this
-  # workspace. Plan Section 11.2 rotates a session on a change of authority, and
+  # workspace. A change of authority rotates the session, and
   # this is the largest one there is: the sessions that exist were issued under
   # the previous installer's grant, so they end here, before the new grant is
   # written. The session this flow is about to create is inserted later and is
@@ -283,7 +283,7 @@ defmodule PumbleAutomation.Installations.Service do
 
   # Sign-in and connect_user prove identity against an existing tenant. A
   # revoked installation still needs that path so an owner can open onboarding
-  # and reinstall (P13-T05). Uninstalled and deleted tenants have nothing left
+  # and reinstall. Uninstalled and deleted tenants have nothing left
   # to administer; recovery is `reinstall` / `install`.
   defp check_browser_status(intent, %Installation{status: status})
        when intent in ~w(signin connect_user) and status in ~w(uninstalled deleted) do

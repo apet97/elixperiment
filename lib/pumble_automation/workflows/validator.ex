@@ -9,10 +9,10 @@ defmodule PumbleAutomation.Workflows.Validator do
 
     * *structural* — is there one supported trigger, are the step types real,
       do the branching steps branch anywhere, are the identifiers unique, and
-      is the document within the limits (Section 15.3);
+      is the document within the configured structural limits;
     * *semantic* — does every data path name something that exists and will
       have run by then, does every template parse, and does each step's
-      configuration make sense for the action it selected (Section 21).
+      configuration make sense for the action it selected.
 
   ## Nothing is read and nothing is written
 
@@ -27,7 +27,7 @@ defmodule PumbleAutomation.Workflows.Validator do
   An error blocks activation. A warning does not. The line is whether the
   workflow can run and mean what it says: a step after a stop is dead but
   harmless, so it warns; a reference to a step that has not run yet cannot be
-  resolved, so it blocks. Section 21.2 draws the same line for comparisons —
+  resolved, so it blocks. Comparisons use the same rule —
   a type error between two literals is knowable now and blocks, while a type
   error that depends on what a message contains is a runtime failure and is
   not reported here at all.
@@ -48,8 +48,8 @@ defmodule PumbleAutomation.Workflows.Validator do
   `delay`, and `stop` exist to branch, to wait, and to end, and publish
   nothing, so naming their output is an error rather than an empty value at
   run time. What the *fields* of an output are is settled by the node runners
-  in Phase 9, so a subpath below `output` is not checked here — checking it
-  against a schema this phase invented would reject paths the runtime will
+  at expression-evaluation time, so a subpath below `output` is not checked here — checking it
+  against a schema this validator invented would reject paths the runtime will
   happily resolve.
 
   The trigger's fields are fixed, and come from
@@ -61,7 +61,7 @@ defmodule PumbleAutomation.Workflows.Validator do
 
   ## Bounds
 
-  A definition is already bounded to the Section 31 node limit from
+  A definition is already bounded to the configured node limit from
   `PumbleAutomation.Limits` with bounded fields, and each template is bounded
   in how many references it may make, so the number of issues is bounded by
   construction. `max_issues/0` bounds it again after sorting, so a definition
@@ -121,7 +121,7 @@ defmodule PumbleAutomation.Workflows.Validator do
     StopConfig => [:reason]
   }
 
-  # Section 21.3: a secret may reach an outbound header or body, and nowhere
+  # A secret may reach an outbound header or body, and nowhere
   # else. A URL is excluded on purpose — it is logged and resolved.
   @secret_fields %{HttpActionConfig => [:body]}
 
@@ -529,7 +529,7 @@ defmodule PumbleAutomation.Workflows.Validator do
   defp predicate_issues(%Predicate{}, _context, _path), do: []
   defp predicate_issues(_predicate, _context, _path), do: []
 
-  # Section 21.2: a type error is a validation error only when it is static.
+  # A type error is a validation error only when it is static.
   # Once either side interpolates, what is being compared depends on the run.
   defp numeric_pair?(left, right) do
     if literal?(left) and literal?(right) do
@@ -667,7 +667,7 @@ defmodule PumbleAutomation.Workflows.Validator do
 
   # One outbound header rule, owned by `Connection`. A workflow differs from a
   # connection in one way only: `authorization` may be set here when a secret
-  # fills it, which is the case Section 21.3 exists for.
+  # fills it, which is why credential references are explicit.
   defp header_issue(name, value, context, path) do
     key = String.downcase(name)
 

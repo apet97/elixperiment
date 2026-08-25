@@ -1,7 +1,7 @@
 # Uncertain effects
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook covers recovery when a remote side effect may have happened but
+the application cannot prove its outcome.
 
 Related:
 
@@ -65,13 +65,13 @@ effect: **Cancel execution** (`#cancel-prompt`). Waiting and paused rows
 become `cancelled` immediately. A running row keeps running until finalize
 observes the cancel request.
 
-## Stop / escalate
+## Stop conditions
 
-- Stop if you are about to retry from Oban or SQL without owner
-  acknowledgement.
+- Stop if you are about to retry from Oban or SQL without the required
+  owner-role acknowledgment.
 - Stop if you are about to mark succeeded without evidence and the remote
   write is billing- or permission-sensitive — use **Mark failed** or wait
-  for the owner.
+  for a workspace owner to decide.
 - Stop if the tenant is uninstalled or deleted. Do not dispatch.
-- Escalate a flood of uncertain pauses during a provider outage. Do not
-  bulk-succeed from a script.
+- Stop automated resolution during a provider outage that causes many
+  uncertain pauses. Do not bulk-succeed from a script.

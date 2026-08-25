@@ -2,7 +2,7 @@
 
 One sanitized callback envelope per class, exactly as it arrives on the wire:
 the JSON object Pumble POSTs to `/pumble/callbacks`, with an event's `body` kept
-as the JSON **string** it really is (evidence section 2.3), so a test that
+as the JSON **string** it really is (source-matrix section 2.3), so a test that
 encodes a fixture produces bytes of the same shape a real callback has.
 
 Every identifier is obviously fake (`W_FAKE001`, `U_FAKE001`, `TRIG_FAKE001`,
@@ -15,7 +15,7 @@ Shapes come from `docs/evidence/pumble_source_matrix.md`. The matrix rows below
 are SDK-source-verified (`SUPPORTED`): they prove the field **names and types**
 of each class. They do not prove which optional fields a live server actually
 sends, or what a value looks like, so every concrete *value* here is `INFERRED`
-by this plan and every fixture is a shape test rather than a recording.
+from the matrix and every fixture is a shape test rather than a recording.
 
 | File | Class | Matrix rows |
 |---|---|---|

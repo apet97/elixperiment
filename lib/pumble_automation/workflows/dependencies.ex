@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.Dependencies do
   @moduledoc """
-  What a compiled workflow needs before it is allowed to run: P6-T04.
+  What a compiled workflow needs before it is allowed to run.
 
   Every compiled step declares what it needs, and `requirements/2` is what the
   compiler asks to write that declaration. `calculate/1` then reads the

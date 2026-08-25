@@ -1,4 +1,4 @@
-# Writes tmp/offline_acceptance_receipt.json for P15-T07.
+# Writes tmp/offline_acceptance_receipt.json for the offline acceptance gate.
 # Run with `mix run scripts/write_offline_receipt.exs` so Jason is available.
 
 defmodule PumbleAutomation.OfflineReceipt do

@@ -52,7 +52,7 @@ defmodule PumbleAutomation.Workflows.DefinitionTest do
 
     test "manual aliases use the workflow slug syntax", do: assert_manual_alias_syntax()
 
-    test "encodes to the shape of Section 15.1" do
+    test "encodes to the editable workflow shape" do
       encoded = definition([message_node()]) |> Definition.encode()
 
       assert %{"schema_version" => 1, "trigger" => trigger, "steps" => [step]} = encoded
@@ -64,7 +64,7 @@ defmodule PumbleAutomation.Workflows.DefinitionTest do
       assert config["action"] == "send_message"
     end
 
-    test "condition and approval carry their plan branch keys" do
+    test "condition and approval carry their fixed branch keys" do
       encoded =
         definition([
           condition_node(if_true: [stop_node()]),

@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Integration.EngineRaceTest do
   @moduledoc """
-  Section 20.3 create, claim, finalize, occupancy, and reconcile under two
+  Create, claim, finalize, occupancy, and reconcile under two
   real connections. Occupancy-parked queued rows have no job and are not
   missing jobs.
   """

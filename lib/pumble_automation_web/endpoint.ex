@@ -58,7 +58,7 @@ defmodule PumbleAutomationWeb.Endpoint do
 
   # `:body_reader` is what makes signature verification possible. For a Pumble
   # callback path it retains the exact bytes in `conn.private[:raw_body]` and
-  # enforces the Section 31 body limit before a decoder runs. Inbound webhook
+  # enforces the configured body limit before a decoder runs. Inbound webhook
   # paths are retained the same way at the 512 KiB cap. Every other path is
   # capped at `Limits.get(:max_request_body_bytes)` and is not retained. See
   # `PumbleAutomationWeb.Plugs.CacheRawBody`.

@@ -19,7 +19,7 @@ defmodule PumbleAutomationWeb.Plugs.CacheRawBody do
   ## Limits
 
   `config :pumble_automation, :pumble_callbacks` supplies the callback body limit
-  from plan Section 31, the per-read chunk size, and the read timeout. Inbound
+  from the product limits, the per-read chunk size, and the read timeout. Inbound
   webhooks use `:inbound_webhooks` for their 512 KiB cap. The limit is checked
   after every chunk, so an oversized body is refused while it is still arriving
   rather than after it has been buffered whole.

@@ -1,7 +1,6 @@
 # ADR-0008: LiveView outline editor
 
 **Status:** Accepted
-**Plan decision:** ADR-008 in plan Section 7
 
 ## Context
 
@@ -11,15 +10,14 @@ stack before it is proved necessary.
 
 ## Evidence
 
-- Plan Section 7, row ADR-008: "LiveView outline editor — product quality without
-  premature React/canvas complexity".
-- Plan Section 9: LiveView UI is a component of the single application.
-- Plan Section 6: free-form canvas editing is an explicit non-goal.
-- Plan Section 8: Phoenix LiveView is in the dated dependency snapshot.
-- Plan Section 33: UI and UX plan.
-- Plan phase gate P12 (Section 41.1): authorized users can create, validate,
-  activate, operate, and diagnose workflows with an accessible UI, proved by
-  LiveView, browser, role, accessibility, and reconnect tests.
+- `docs/contract/product_contract.md` defines the browser workflow editor and
+  excludes a free-form graph canvas.
+- Phoenix LiveView is the browser stack in `mix.exs`; editor events call the
+  tenant-scoped workflow contexts.
+- LiveView and role tests cover the tenant-scoped server-rendered workflow
+  journeys. Structural accessibility checks and reconnect tests are automated.
+  Real-browser keyboard, viewport, screen-reader, axe, and console checks remain
+  unverified in `docs/product/ui_acceptance.md`.
 
 ## Decision
 
@@ -42,11 +40,13 @@ client-side workflow engine. Validation and compilation stay on the server.
 - The UI needs LiveView reconnect behavior and server-side authorization on every
   event, because a hidden field or a route prefix is never authorization.
 - Rendering of stored content must be escaped, and a content security policy is
-  required (plan Section 27, stored content injection).
-- Accessibility and browser tests belong to phase P12.
-- Adding a client-side framework requires a new ADR.
+  required (`docs/security/threat_model.md`).
+- LiveView and structural accessibility tests are local gates. The manual
+  browser matrix remains explicit in `docs/product/ui_acceptance.md`.
+- Adding a client-side framework must update this architecture record and its
+  tests.
 
 ## Reversal condition
 
-Reconsider if a contract-approved editing interaction cannot reach an acceptable
+Reconsider if a supported editing interaction cannot reach an acceptable
 latency or accessibility standard in LiveView, shown by a measurement.

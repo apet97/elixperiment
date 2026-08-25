@@ -98,7 +98,7 @@ defmodule PumbleAutomation.Telemetry do
   def id_keys, do: @id_keys
 
   @doc """
-  Section 32 metrics mapped to a source event.
+  Product metrics mapped to a source event.
 
   Every row has an event name. Nothing is deferred: queue depth and schedule
   lag are polled here; readiness probes already emit health events.

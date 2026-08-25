@@ -3,7 +3,7 @@ defmodule PumbleAutomation.Ingress.RateLimiter do
   Per-node minute buckets for internet-facing and expensive actions.
 
   Storage is an ETS table owned by this process. The deployment is a small
-  Phoenix cluster without Redis (plan P13-T02). Each node therefore enforces
+  Phoenix cluster without Redis. Each node therefore enforces
   the full configured rate; the cluster-wide rate is at most N times the
   limit. That is conservative per node and does not require a shared cache.
 

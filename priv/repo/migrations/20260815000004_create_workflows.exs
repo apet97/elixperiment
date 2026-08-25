@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateWorkflows do
   @moduledoc """
   Creates the workflow aggregate: identity, mutable draft, and ownership.
 
-  One table arrives alone because it is the only part of Section 14.2 that has
+  This table arrives alone because it is the only workflow-schema record that has
   no dependency on a version, a binding, or a schedule. Those tables reference
   this one, so this one comes first.
 

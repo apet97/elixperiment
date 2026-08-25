@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Installations.Policy do
   @moduledoc """
   What each local role may do. The only place that answers that question.
 
-  Plan Section 11.3 fixes the three roles and what they own. This module turns a
+  The product contract fixes the three roles and what they own. This module turns a
   role into a set of capability atoms and nothing else: it reads no row, takes no
   side effect, and has no opinion about how a caller reacts to a `false`. Every
   controller, plug, LiveView, and context that needs an authorization decision
@@ -26,8 +26,8 @@ defmodule PumbleAutomation.Installations.Policy do
   `authorize_tenant/2` answers `:not_found` for a resource belonging to another
   installation — the identical answer, with the identical message, that an
   identifier belonging to nobody gets. A `403` would confirm that the row exists,
-  which turns any id-guessing route into an existence oracle across tenants. Plan
-  Section 11.3's failure behaviour requires the two to be indistinguishable, and
+  which turns any id-guessing route into an existence oracle across tenants. The
+  authorization contract requires the two to be indistinguishable, and
   `policy_test.exs` compares the two errors field by field.
   """
 

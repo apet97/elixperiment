@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Limits do
   @moduledoc """
-  Section 31 resource limits, with typed runtime overrides and hard caps.
+  Product resource limits, with typed runtime overrides and hard caps.
 
   Every number that bounds a workflow, a run, or an inbound body lives here
   once. Owner modules read through `get/1`; they do not keep a second copy
@@ -99,7 +99,7 @@ defmodule PumbleAutomation.Limits do
 
   @type key :: atom()
 
-  @doc "Section 31 defaults plus operational rate and history bounds."
+  @doc "Product defaults plus operational rate and history bounds."
   @spec defaults() :: %{optional(key()) => pos_integer()}
   def defaults, do: @defaults
 
@@ -111,7 +111,7 @@ defmodule PumbleAutomation.Limits do
   @spec keys() :: [key()]
   def keys, do: @defaults |> Map.keys() |> Enum.sort()
 
-  @doc "The Section 31 (or operational) default for `key`."
+  @doc "The product (or operational) default for `key`."
   @spec default(key()) :: pos_integer()
   def default(key) when is_atom(key), do: Map.fetch!(@defaults, key)
 
@@ -122,7 +122,7 @@ defmodule PumbleAutomation.Limits do
   @doc """
   The effective limit for `key`.
 
-  Reads `:pumble_automation, :limits`, falls back to the Section 31 default,
+  Reads `:pumble_automation, :limits`, falls back to the product default,
   and clamps to the hard cap. Unknown or non-positive configured values use
   the default.
   """
@@ -157,7 +157,7 @@ defmodule PumbleAutomation.Limits do
     Application.get_env(:pumble_automation, :trusted_proxies, [])
   end
 
-  @doc "Whether `execution` has outlived the Section 31 lifetime."
+  @doc "Whether `execution` has outlived the configured lifetime."
   @spec execution_expired?(term()) :: boolean()
   def execution_expired?(%Execution{inserted_at: inserted_at}), do: expired_at?(inserted_at)
   def execution_expired?(%{started_at: started_at}), do: expired_at?(started_at)

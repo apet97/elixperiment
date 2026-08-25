@@ -1,7 +1,7 @@
 defmodule PumbleAutomation.Workflows.Templates do
   @moduledoc """
-  The template syntax of Section 21.3 of the plan, and the runtime that
-  evaluates the form the compiler stored.
+  The workflow template syntax and the runtime that evaluates the form the
+  compiler stored.
 
   A template is text with `{{ path }}` references in it:
 

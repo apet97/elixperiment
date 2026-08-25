@@ -111,7 +111,7 @@ defmodule PumbleAutomation.ObanTest do
   end
 
   describe "configuration" do
-    test "declares the four planned queues at the planned concurrency" do
+    test "declares the four configured queues at the configured concurrency" do
       queues = Application.fetch_env!(:pumble_automation, :queue_concurrency)
 
       assert Enum.sort(queues) == [executions: 20, ingress: 20, maintenance: 2, schedules: 2]

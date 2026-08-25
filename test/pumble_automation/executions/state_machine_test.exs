@@ -16,7 +16,7 @@ defmodule PumbleAutomation.Executions.StateMachineTest do
   alias PumbleAutomation.Workflows.CompiledWorkflow
 
   describe "execution and step transition table" do
-    test "every documented Section 19 edge is accepted" do
+    test "every documented state-machine edge is accepted" do
       table = [
         {"queued", :start, "running"},
         {"queued", :cancel, "cancelled"},

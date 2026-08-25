@@ -11,9 +11,8 @@ defmodule PumbleAutomation.Workflows.Node do
 
   ## Types and branches
 
-  The six node types of Section 15.1 of the plan are `condition`, `delay`,
-  `approval`, `pumble_action`, `http_action`, and `stop`. Two of them own
-  branches, and the branch keys are fixed by the plan:
+  The six node types are `condition`, `delay`, `approval`, `pumble_action`,
+  `http_action`, and `stop`. Two of them own branches, with these fixed keys:
 
     * `condition` owns `if_true` and `if_false`;
     * `approval` owns `approved`, `rejected`, and `timed_out`.

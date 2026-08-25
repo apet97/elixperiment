@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Repo.Migrations.CreateReceivedEvents do
   @moduledoc """
   Creates `received_events`, the ingress ledger one callback becomes.
 
-  Plan Section 14.3 and P8-T01 fix the columns: tenant, provider, class, type,
+  The ingress receipt contract fixes the columns: tenant, provider, class, type,
   a database-enforced dedup key, an optional provider id, the raw-body digest,
   bounded sanitized data, clocks, processing state, and a retention date.
 
@@ -19,7 +19,8 @@ defmodule PumbleAutomation.Repo.Migrations.CreateReceivedEvents do
 
   ## Executions may name a receipt
 
-  P7 stored `executions.received_event_id` without a foreign key because this
+  The earlier executions migration stored `executions.received_event_id`
+  without a foreign key because this
   table did not exist. The reference is added here with `ON DELETE SET NULL`:
   retention (30 days for receipts, 90 for executions) must be able to drop a
   receipt without deleting the run it started. Uninstall still cascades from

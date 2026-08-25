@@ -155,7 +155,7 @@
           {Credo.Check.Warning.UnusedStringOperation, []},
           {Credo.Check.Warning.UnusedTupleOperation, []},
           {Credo.Check.Warning.WrongTestFilename, []},
-          # P13-T07: keep dynamic-atom and env-leaking shell use as build failures.
+          # Keep dynamic-atom and environment-leaking shell use as build failures.
           {Credo.Check.Warning.UnsafeToAtom, []},
           {Credo.Check.Warning.LeakyEnvironment, []},
           {PumbleAutomation.Checks.NoWebLayerRepo, []}

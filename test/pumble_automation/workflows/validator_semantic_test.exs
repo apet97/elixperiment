@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.ValidatorSemanticTest do
   @moduledoc """
-  Expressions, templates, and per-step semantics: P6-T02.
+  Expressions, templates, and per-step semantics.
 
   Like the structural suite, this module checks out no database sandbox, so
   any repository call under `Validator.validate/1` would raise rather than
@@ -8,9 +8,9 @@ defmodule PumbleAutomation.Workflows.ValidatorSemanticTest do
 
   ## What is not here
 
-  Section 21.3 lets a *field* choose what happens when a reference resolves to
+  The template contract lets a *field* choose what happens when a reference resolves to
   nothing: fail, empty string, or null, defaulting to fail. No configuration
-  in the schema carries that choice yet, so there is nothing for this phase to
+  in the schema carries that choice yet, so there is nothing for this validator to
   validate and nothing here to test. What is tested under "missing values" is
   the behaviour that does exist: which fields must be filled in, and which
   comparators need a second operand.

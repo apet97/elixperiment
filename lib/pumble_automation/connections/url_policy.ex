@@ -2,10 +2,10 @@ defmodule PumbleAutomation.Connections.UrlPolicy do
   @moduledoc """
   Parses a user-supplied URL and returns an approved, short-lived target.
 
-  This is steps 1–6 of the Section 26 SSRF algorithm: render-safe parsing,
+  This is the validation half of the Safe HTTP SSRF algorithm: render-safe parsing,
   scheme and port checks, IDNA normalisation, DNS through an injectable
   resolver, and classification of every A/AAAA result. Connecting to a
-  validated IP is `P10-T02`. Redirects re-enter this function; nothing here
+  validated IP belongs to the Safe HTTP transport. Redirects re-enter this function; nothing here
   is cached across calls.
 
   ## What an approved target is
@@ -20,7 +20,7 @@ defmodule PumbleAutomation.Connections.UrlPolicy do
 
   A URL without a scheme is treated as HTTPS. HTTP is refused unless the
   caller passes `allow_http: true`, which is the explicit deployment/product
-  decision Section 26 requires. There is no reading of `HTTP_PROXY`,
+  decision ADR-0010 requires. There is no reading of `HTTP_PROXY`,
   `HTTPS_PROXY`, or `NO_PROXY`. A `:proxy` option is a permanent refusal:
   workflow calls do not honour OS or user proxy configuration.
   """

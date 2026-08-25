@@ -1,8 +1,17 @@
-# Offline verification
+# Verification
 
 This is the mechanical stop/go gate for a release candidate **before** any
-deployment or live Pumble mutation. Live certification is **P17** and is a
-separate, named command path. It is not part of `./scripts/verify.sh`.
+deployment or live Pumble mutation. Live certification is a separate, named
+command path. It is not part of `./scripts/verify.sh`.
+
+## Current offline result
+
+Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` passed all 19 gates
+on 2026-08-25. The run passed 2,335 tests and 1 doctest. Its local image ID is
+`sha256:2120f16478fff70c4c6e0fb8beb05f420b2705a8393995f3ef28ce7486dd7b88`,
+and the OCI revision label equals the candidate commit.
+
+The image value is a local Docker image ID. It is not a registry digest.
 
 ## One command
 
@@ -15,7 +24,7 @@ A passing run prints:
 ```
 verify.sh: all 19 gates passed
 verify.sh: offline acceptance passed
-live certification: excluded (P17)
+live certification: excluded
 ```
 
 The UI slice can be run alone:
@@ -101,9 +110,9 @@ Repo, Oban queues and cron, and the web endpoint before the script guard runs.
 The guard cannot undo those application-side effects.
 
 The script then requires the exact reviewed public-contract hash. That public
-request never contains the API key. The script binds `/myInfo` to literal
-one fixed sacrificial workspace, selects one eligible sacrificial channel, and performs
-bounded list/search shape reads. Its JSON receipt contains a safe timestamp;
+request never contains the API key. The script binds `/myInfo` to one fixed
+sacrificial workspace, selects one eligible sacrificial channel, and performs
+bounded list and search shape reads. Its JSON receipt contains a safe timestamp;
 fixed command and schema metadata; outcome and reason values; request counts
 and caps; commit and contract hashes; and booleans and read counts. It excludes
 provider IDs, message text, and credentials.
@@ -116,6 +125,15 @@ absence. See the
 [API-key live contract snapshot](../evidence/pumble_api_key_live_contract.md).
 The API key does not prove OAuth, callback signatures, lifecycle delivery, a
 deployment, or Marketplace readiness.
+
+The isolated run at `2026-08-25T00:13:32Z` passed against the exact candidate.
+It made 1 public contract read and 4 authenticated reads. It made no write and
+created no resource. The result was captured in transient standard output. The
+existing ignored receipt file still belongs to an earlier candidate and must
+not be cited for this run. A final clean-candidate run must replace it.
+
+See the [live validation record](../evidence/live_validation.md) for the
+temporary runtime proof and all pending live boundaries.
 
 ## Tools
 

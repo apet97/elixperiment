@@ -1,7 +1,7 @@
 defmodule PumbleAutomation.Workflows.ScheduleCalculatorTest do
   @moduledoc """
   Next UTC instants for once/interval/daily/weekly clocks. DST gap and overlap
-  policy is Section 23: first valid instant after a spring gap; earlier
+  policy is explicit: first valid instant after a spring gap; earlier
   occurrence of a fall overlap. No clock is read.
   """
 

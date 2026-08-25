@@ -1,7 +1,7 @@
 defmodule PumbleAutomation.Observability.RunbooksTest do
   @moduledoc """
-  P14-T05: operational runbooks match implemented commands and UI, cover every
-  failure class, label unproven production steps, and execute locally.
+  Operational runbooks match implemented commands and UI, cover every failure
+  class, label unverified production steps, and execute locally.
   """
 
   use PumbleAutomationWeb.ConnCase, async: false
@@ -74,7 +74,7 @@ defmodule PumbleAutomation.Observability.RunbooksTest do
 
   @secret_echo ~r/echo\s+\$\{?(SECRET_KEY_BASE|ENCRYPTION_KEY|PUMBLE_CLIENT_SECRET|PUMBLE_APP_KEY|PUMBLE_SIGNING_SECRET|DATABASE_URL)/i
 
-  @command_status ~r/<!-- command-status: (proven-local|planned-owner-approval) -->\s*```(\w+)\n(.*?)```/s
+  @command_status ~r/<!-- command-status: (proven-local|planned-not-executed) -->\s*```(\w+)\n(.*?)```/s
   @fence ~r/```(\w+)\n.*?```/s
 
   setup do
@@ -93,7 +93,7 @@ defmodule PumbleAutomation.Observability.RunbooksTest do
         assert body =~ "### Symptom" or body =~ "## Symptom", path
         assert body =~ "### Checks" or body =~ "## Checks", path
         assert body =~ "### Safe action" or body =~ "## Safe action", path
-        assert body =~ "### Stop / escalate" or body =~ "## Stop / escalate", path
+        assert body =~ "### Stop conditions" or body =~ "## Stop conditions", path
       end
 
       corpus = corpus()
@@ -111,8 +111,13 @@ defmodule PumbleAutomation.Observability.RunbooksTest do
       end
 
       assert corpus =~ "occupancy-parked"
-      assert corpus =~ "planned-owner-approval"
-      assert corpus =~ "B-001"
+      assert corpus =~ "planned-not-executed"
+      refute corpus =~ "planned-owner-approval"
+      refute corpus =~ "B-001"
+      refute String.downcase(corpus) =~ "stop / escalate"
+      refute String.downcase(corpus) =~ "escalate"
+      refute String.downcase(corpus) =~ "reviewer"
+      refute String.downcase(corpus) =~ "peer review"
       assert corpus =~ "PumbleAutomation.Maintenance.run_once"
       assert corpus =~ "PumbleAutomation.Operations.run_reconciliation"
       assert corpus =~ "PumbleAutomation.Executions.Engine.resolve_uncertain"
@@ -128,9 +133,9 @@ defmodule PumbleAutomation.Observability.RunbooksTest do
         assert length(fences) == length(labelled), "#{path} has unlabelled command fences"
 
         for [_, status, _lang, command] <- Regex.scan(@command_status, body) do
-          if status == "planned-owner-approval" do
+          if status == "planned-not-executed" do
             assert command =~ "planned"
-            assert command =~ "B-001" or command =~ "P16" or command =~ "owner"
+            assert command =~ "not executed" or command =~ "not verified"
           end
         end
       end
@@ -169,15 +174,14 @@ defmodule PumbleAutomation.Observability.RunbooksTest do
       end
     end
 
-    test "game-day evidence names the local commands and the review checklist" do
+    test "game-day evidence names the local commands and the evidence checklist" do
       evidence = File.read!(@evidence)
-      assert evidence =~ "P14-T05"
       assert evidence =~ "non-production"
       assert evidence =~ "GET /health/live"
       assert evidence =~ "Maintenance.run_once(:reconcile)"
       assert String.downcase(evidence) =~ "occupancy-parked"
-      assert evidence =~ "Review checklist"
-      assert evidence =~ "B-001"
+      assert evidence =~ "Evidence checklist"
+      assert evidence =~ "planned-not-executed"
     end
   end
 

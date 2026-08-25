@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Workflows.Compiler do
   @moduledoc """
-  Turns an edited definition into the graph a worker runs: Section 15.2.
+  Turns an edited definition into the immutable graph a worker runs.
 
   `compile/1` refuses anything `PumbleAutomation.Workflows.Validator` calls an
   error, so a compiled graph is by construction a graph that passed validation.
@@ -45,7 +45,7 @@ defmodule PumbleAutomation.Workflows.Compiler do
   alias PumbleAutomation.Workflows.Validator
   alias PumbleAutomation.Workflows.WorkflowVersion
 
-  # The outcome names of Section 15.2, which are shorter than the branch keys
+  # Executable outcome names are shorter than the editable branch keys
   # an author sees. Nothing derives one from the other by rewriting text.
   @outcomes %{
     if_true: "true",

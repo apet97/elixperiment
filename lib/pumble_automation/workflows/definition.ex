@@ -2,7 +2,7 @@ defmodule PumbleAutomation.Workflows.Definition.PumbleEventConfig do
   @moduledoc """
   A trigger that fires on a user-visible Pumble event.
 
-  Only the five user-selectable events of Section 5.1 of the plan appear here.
+  Only the five user-selectable events in the product contract appear here.
   `APP_UNINSTALLED` and `APP_UNAUTHORIZED` are control-plane events and are
   deliberately absent: a workflow may not be attached to them.
   """
@@ -84,7 +84,7 @@ defmodule PumbleAutomation.Workflows.Definition.ScheduleConfig do
   @moduledoc """
   A trigger that fires on a clock.
 
-  The five schedule types of Section 5.1 of the plan are the whole set. Which
+  The five schedule types in the product contract are the whole set. Which
   of the remaining fields a given type needs is a semantic rule and is checked
   later; what is fixed here is that no sixth type exists and that the timezone
   is carried with the schedule rather than assumed.
@@ -175,7 +175,7 @@ defmodule PumbleAutomation.Workflows.Definition.Trigger do
 
   A definition has exactly one trigger. It has a stable identifier of its own,
   so that a trigger binding and an execution can name it the way they name any
-  other step, and a type from the closed set in Section 5.1 of the plan.
+  other step, and a type from the closed set in the product contract.
   """
 
   alias PumbleAutomation.Workflows.Definition.ManualConfig
@@ -305,14 +305,14 @@ defmodule PumbleAutomation.Workflows.Definition do
   @moduledoc """
   The editable source of one workflow.
 
-  This is the shape of Section 15.1 of the plan and nothing else: a schema
+  This is the editable workflow shape and nothing else: a schema
   version, exactly one trigger, and an ordered list of steps. Branches nest
   inside the steps that own them, so the document is a tree and the editable
   representation has no way to express a cycle or a reference to another node.
 
       %Definition{schema_version: 1, trigger: %Trigger{}, steps: [%Node{}]}
 
-  The compiled graph of Section 15.2 is a different shape produced later. This
+  The compiled graph is a different shape produced later. This
   module never builds it, and never needs a database.
 
   ## Decoding

@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.RetentionTest do
   @moduledoc """
-  P13-T04: receipt, execution, audit, OAuth, session, and uninstall purge.
+  Receipt, execution, audit, OAuth, session, and uninstall purge.
   """
 
   use PumbleAutomation.DataCase, async: false

@@ -5,7 +5,7 @@ defmodule PumbleAutomation.Executions.Context do
   An execution row holds two maps: `:trigger_snapshot` (what started the
   run) and `:context` (accumulated step output plus a small amount of
   execution metadata). This module projects those maps into the five roots
-  Section 21.1 names — `trigger`, `steps`, `execution`, `workspace`,
+  The expression roots are `trigger`, `steps`, `execution`, `workspace`,
   `actor` — and nothing else.
 
   ## Allowlist

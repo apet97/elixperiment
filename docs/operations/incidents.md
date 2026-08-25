@@ -1,10 +1,9 @@
 # Incidents
 
-Audience: internal operators. Do not copy this file into public support
-articles.
+This runbook provides direct first-response paths for supported failure modes.
 
 Every class below has one first-response path: symptom, checks, safe action,
-then stop or escalate. Detailed recovery lives in the linked runbook. Alert
+then stop conditions. Detailed recovery lives in the linked runbook. Alert
 candidates also live in [metrics.md](metrics.md). Owner UI for queue health is
 `/settings/operations`.
 
@@ -74,13 +73,13 @@ psql -h localhost -U postgres -d pumble_automation_dev -c "SELECT 1"
 2. When ping succeeds, confirm `/health/ready` returns HTTP 200.
 3. Then inspect `/settings/operations` for leftover discarded jobs.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to change liveness so it queries the database.
 - Stop if you are about to run mutating SQL.
-- Escalate a managed-database outage to the production owner. Restore from
-  backup follows [backup_restore.md](backup_restore.md) and needs approval
-  outside local/dev.
+- Stop before a production restore. Follow
+  [backup_restore.md](backup_restore.md); production restore is not verified by
+  this repository.
 
 ## Callbacks failing signatures
 
@@ -108,11 +107,12 @@ application, not the vendor SDK's 403).
 2. If the surge is abusive, the existing callback-failure rate limit answers
    429. Do not disable signature checks.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to log the raw callback body or the signature header.
 - Stop if you are about to accept unsigned callbacks "temporarily".
-- Escalate a Pumble-side secret rotation to the app owner.
+- Stop if the signing value cannot be confirmed from the private app
+  configuration. Do not guess or bypass signature verification.
 
 ## 401 / 403 scope loss
 
@@ -141,10 +141,11 @@ request and the app permissions. If the request changed, reinstall the app so
 the new request is recorded. Start a new run after access works; do not retry
 the failed step from SQL.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to paste a bot token into a ticket.
-- Escalate Marketplace permission changes to the app owner.
+- Stop before a Marketplace permission change. Marketplace changes are outside
+  this runbook.
 
 ## 429 / 5xx surge
 
@@ -152,7 +153,7 @@ the failed step from SQL.
 
 Retries rise. Metric `[:pumble_automation, :executions, :retry]` stays
 non-zero. Pumble or HTTP nodes report `rate_limited`, `remote_transient`,
-or timeouts. Engine retries up to five attempts with Section 30 backoff
+or timeouts. Engine retries up to five attempts with the configured backoff
 (1s, 5s, 30s, 120s, 600s) plus full jitter. A valid `Retry-After` is
 clamped to 1–900 seconds.
 
@@ -173,11 +174,11 @@ clamped to 1–900 seconds.
    uncertain. Do not retry those from the queue. See
    [uncertain_effects.md](uncertain_effects.md).
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to requeue a job that already opened a step attempt.
-- Escalate a sustained Pumble 5xx incident to the provider status page and
-  the production owner.
+- Stop manual retries during a sustained Pumble 5xx incident. Provider recovery
+  is outside this application.
 
 ## Stuck queues
 
@@ -216,10 +217,11 @@ PumbleAutomation.Maintenance.run_once(:reconcile)
 
 3. The dispatcher cron is every minute. Do not insert schedule rows in SQL.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to change `next_run_at` in SQL.
-- Escalate if lag stays above 6 hours after Oban is healthy.
+- Stop new manual repair attempts if lag stays above 6 hours after Oban is
+  healthy. Preserve diagnostics and investigate the dispatcher path.
 
 ## Stale attempts
 
@@ -239,11 +241,11 @@ on a `running` execution.
    when the attempt is safe to repeat. Ambiguous writes pause uncertain.
 2. Resolve uncertain rows on `/executions/:id`. Never in SQL.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to delete the attempt row.
-- Escalate if stale count does not fall after reconcile and the node is
-  otherwise ready.
+- Stop repeated reconciliation if the stale count does not fall and the node is
+  otherwise ready. Inspect the affected execution before any further action.
 
 ## Uncertain effects
 
@@ -289,19 +291,20 @@ MIX_ENV=test mix ecto.migrations
    migration or a test-database replay. Never edit an applied migration
    file.
 
-### Stop / escalate
+### Stop conditions
 
 - Stop if you are about to drop a column the previous release still reads.
-- Escalate production schema failure to the production owner.
+- Stop before a production schema repair. Production migration and rollback are
+  not verified by this repository.
 
 ## Rollback
 
 See [rollback.md](rollback.md). First response: keep the previous image
 serving. Do not schema-downgrade.
 
-## Commands that need production owner approval
+## Unverified production actions
 
 Any platform deploy, production migration, production restore, production
-image rollback, or production encryption-key change is
-**planned-owner-approval**. Local Mix and IEx commands above are proven in
-this repository.
+image rollback, or production encryption-key change is **planned but not
+executed or verified**. Local Mix and IEx commands above are proven in this
+repository.

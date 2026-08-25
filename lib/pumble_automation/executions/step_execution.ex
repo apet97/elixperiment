@@ -5,8 +5,8 @@ defmodule PumbleAutomation.Executions.StepExecution do
   A loop-free graph visits a node at most once, so `(execution_id, node_id)` is
   identity: two workers that both try to open the same step find one row, and
   the unique index is what makes the second insert fail rather than fork the
-  run. Duplicate jobs after that row exists become no-ops in later P7 tasks;
-  they do not create a second history.
+  run. Duplicate jobs after that row exists become no-ops; they do not create
+  a second history.
 
   ## Input and output are summaries
 
@@ -18,7 +18,7 @@ defmodule PumbleAutomation.Executions.StepExecution do
 
   ## The effect key is derived
 
-  Section 18.3 names an effect as `installation_id/execution_id/node_id`.
+  An effect is named by `installation_id/execution_id/node_id`.
   That string is written on insert from those three columns and is not
   accepted from the caller.
   """
@@ -111,7 +111,7 @@ defmodule PumbleAutomation.Executions.StepExecution do
   def max_payload_bytes, do: Execution.max_context_bytes()
 
   @doc """
-  The Section 18.3 effect key for this tenant, run, and node.
+  The effect key for this tenant, run, and node.
 
   The same three identifiers always produce the same string, which is what
   lets an uncertain write be recognized as the write that already happened.

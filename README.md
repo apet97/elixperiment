@@ -22,15 +22,18 @@ The proof boundaries are deliberately separate:
 
 | Boundary | Current evidence |
 | --- | --- |
-| Application, database, UI, release, and container | Implemented. `./scripts/verify.sh` produces an exact-commit offline receipt. |
-| Pumble API-key access | A bounded, read-only preflight has passed in one sacrificial workspace. It creates no resources. |
-| OAuth installation, signed callbacks, events, interactions, and Pumble writes | Implemented against fixtures, but not live-certified with application credentials. |
-| Deployed instance | No deployment is configured or proven by this repository. |
-| Marketplace publication | Outside this repository's scope. |
+| Offline candidate | **Passed.** Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` passed all 19 gates: 2,335 tests and 1 doctest. |
+| Read-only Pumble API | **Passed.** The 2026-08-25 preflight made 1 public contract read and 4 authenticated reads in one sacrificial workspace. It made no write and created no resource. |
+| Temporary test deployment | **Passed within its limited scope.** The exact local image ran behind a temporary HTTPS tunnel. Liveness and readiness returned HTTP 200. This is not durable deployment proof. |
+| OAuth installation | **Pending.** The private app configuration page was observed, but installation did not complete. No token-exchange bytes were observed. |
+| Signed callbacks and workflow execution | **Pending.** The implementation and offline fixtures passed. No live callback or workflow action is proved. |
+| Pumble writes | **Unverified.** The API-key harness has no write mode. |
+| Durable deployment | **Unverified.** No registry digest, durable platform, stable DNS, managed TLS, restore, rollback, or traffic switch is proved. |
+| Marketplace publication | **Not submitted.** No submission was started. |
 
 An API key is not an OAuth client secret, application key, callback-signing
-secret, installation grant, or Marketplace authority. A local boot proves only
-the local application; it does not prove a real Pumble installation.
+secret, installation grant, or Marketplace authority. The exact evidence and
+open boundaries are in the [live validation record](docs/evidence/live_validation.md).
 
 ## Use cases
 
@@ -172,14 +175,14 @@ Build and exercise the image with:
 ./scripts/container-smoke.sh
 ```
 
-No staging host, production host, container registry, DNS zone, TLS setup, or
-deployment platform is configured here. The [deployment](docs/operations/deployment.md),
+A temporary test runtime was observed for the exact candidate. No staging host,
+production host, container registry, stable DNS zone, managed TLS setup, or
+durable deployment platform is configured or proved. The
+[deployment](docs/operations/deployment.md),
 [migration](docs/operations/migrations.md), and
-[rollback](docs/operations/rollback.md) documents describe the required
-operator boundaries without claiming a deployment occurred.
+[rollback](docs/operations/rollback.md) documents state the remaining limits.
 
 ## Documentation
 
 Start with the [documentation index](docs/README.md). It separates current
-product, architecture, engineering, operations, security, and evidence material
-from archived planning records.
+product, architecture, engineering, operations, security, and evidence material.

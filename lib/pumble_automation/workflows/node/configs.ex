@@ -4,7 +4,7 @@ defmodule PumbleAutomation.Workflows.Node.Predicate do
 
   A predicate compares a left side with a right side. Both sides are text: a
   template the compiler resolves later, or a literal. Nothing here evaluates
-  anything — this phase only records what the author chose.
+  anything — this schema only records what the author chose.
   """
 
   @comparators %{
@@ -51,7 +51,7 @@ defmodule PumbleAutomation.Workflows.Node.ConditionConfig do
   @moduledoc """
   A condition: a combinator over an ordered list of predicates.
 
-  Section 5.2 of the plan lists AND, OR, and NOT as logic nodes. They are not
+  AND, OR, and NOT are represented as logic combinators. They are not
   separate node types here, because a combinator over a predicate list says the
   same thing without letting an author build a tree the compiler would have to
   flatten. `:all` is AND, `:any` is OR, and `:none` is NOT over the group.
@@ -83,7 +83,7 @@ defmodule PumbleAutomation.Workflows.Node.DelayConfig do
   @moduledoc """
   A wait of a fixed duration.
 
-  The upper bound is the 365 day delay limit from Section 31 of the plan,
+  The upper bound is the configured 365-day delay limit,
   expressed in seconds so the editor never has to guess a unit.
   """
 
@@ -140,10 +140,10 @@ end
 
 defmodule PumbleAutomation.Workflows.Node.PumbleActionConfig do
   @moduledoc """
-  One of the six production Pumble actions from Section 5.3 of the plan.
+  One of the supported production Pumble actions.
 
   The action discriminator selects which of the remaining fields matter. This
-  phase does not check that pairing: which field a given action requires is a
+  schema does not check that pairing: which field a given action requires is a
   semantic rule, and semantic validation owns it. What is fixed here is that
   the field list is finite and that no other action exists.
   """
@@ -191,8 +191,8 @@ defmodule PumbleAutomation.Workflows.Node.HttpActionConfig do
 
   `:connection_id` names a stored external connection rather than carrying a
   credential, so no secret ever reaches a definition. The request body is a
-  template; the 16 KiB bound is the template source limit from Section 31 of
-  the plan, not the request body limit, because what is stored here is the
+  template; the 16 KiB bound is the template source limit, not the request
+  body limit, because what is stored here is the
   source and not the expansion.
   """
 

@@ -1,27 +1,25 @@
-# Runbook game day (P14-T05)
+# Runbook game-day evidence
 
-Date: 2026-08-19. Task: `P14-T05` of
-the [historical implementation plan](../archive/planning/implementation-plan.md).
-Environment: local non-production (Elixir 1.20.3 / OTP 29 / PostgreSQL 16).
-Starting HEAD: `ce91140` (ledger P14-T04). Feature parent: `9d5edd2`.
+Date: 2026-08-19. Environment: local non-production (Elixir 1.20.3 / OTP 29 /
+PostgreSQL 16). Starting commit: `ce91140`. Parent commit: `9d5edd2`.
 
 This is the game-day evidence for operational runbooks. Commands ran against
 the local test application, not a production host. Production deploy, backup,
-and image rollback remain **planned** (blocker B-001 / P16).
+and image rollback were **not executed or verified**.
 
 Public support docs stay separate: `docs/operations/local_development.md` is
-the shareable local guide. The other files in `docs/operations/` named by
-this task are internal operator detail. They do not name production hosts.
+the shareable local guide. The other files in `docs/operations/` contain
+internal operation details. They do not name production hosts.
 
-## Review checklist
+## Evidence checklist
 
-- [x] Every operational failure class has symptom → checks → safe action → stop/escalate.
+- [x] Every operational failure class has symptom → checks → safe action → stop conditions.
 - [x] Commands match implemented Mix tasks, IEx APIs, and UI ids.
 - [x] No command prints secrets.
 - [x] Ordinary recovery does not use mutating SQL.
 - [x] Occupancy-parked queued rows are not treated as missing jobs.
-- [x] Unproven production commands are labelled `planned-owner-approval`.
-- [x] Commands that change production infrastructure require owner approval.
+- [x] Unproven production commands are labelled `planned-not-executed`.
+- [x] This evidence did not execute a production infrastructure change.
 
 Failure classes covered: database unavailable, callbacks failing signatures,
 401/403 scope loss, 429/5xx surge, stuck queues, schedule lag, stale
@@ -57,13 +55,11 @@ from `docs/operations/migrations.md`. It was not re-run as a destructive
 step during this game day; `Migrator.migrations/1` confirmed the test schema
 is fully applied.
 
-## Peer / manual review
-
-Reviewer: P14-T05 implementer. Assumptions checked:
+## Source checks
 
 - Owner UI paths `/settings/operations`, `/audit`, `/executions/:id`,
   `/settings`, `/secrets` match LiveView modules and element ids.
 - `Operations.requeue_safe_job/2` still refuses jobs that opened an attempt.
 - `Crypto.Rotation` still cannot rotate `secrets.value`.
 - Public ready still excludes detailed queue checks.
-- Diagnostic ZIP remains P14-T06 and is out of scope here.
+- Diagnostic ZIP was outside this game-day scope.

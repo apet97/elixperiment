@@ -28,7 +28,7 @@ defmodule PumbleAutomation.Connections do
       exists. A `viewer` cannot: enumerating the credentials a workspace holds
       is not part of reading a workflow.
     * `owner` writes: creating, rotating, updating, and deleting either kind.
-      Plan Section 11.3 gives secrets to the owner, and the product contract
+      The product contract gives secrets to the owner and
       names "secrets and external HTTP connections" as one capability, so both
       are gated on `:manage_secrets` rather than inventing a second permission
       that the contract does not describe.
@@ -44,8 +44,8 @@ defmodule PumbleAutomation.Connections do
 
   ## Deletion is refused while something references it
 
-  Plan Section 14.5's failure behaviour allows either refusing the delete or
-  degrading the workflows that referenced it. This context refuses, and names
+  The connection contract permits either refusing the delete or degrading the
+  workflows that referenced it. This context refuses, and names
   the referencing workflows and connections in the error, because an explicit
   refusal an owner can act on is better than a silent degradation an execution
   discovers at run time.

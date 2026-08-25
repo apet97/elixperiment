@@ -3,8 +3,8 @@ defmodule PumbleAutomation.Connections.Connection do
   One tenant's reusable outbound HTTP configuration.
 
   A connection says where a request may go and which fixed headers it carries.
-  It holds no script, no retry code, no template, and no secret value. Plan
-  Section 14.5 fixes the columns; this module is the only writer of them and
+  It holds no script, no retry code, no template, and no secret value. The
+  connection schema fixes the columns; this module is the only writer of them and
   the only place that decides whether a base URL or a header name is
   acceptable.
 
@@ -38,14 +38,14 @@ defmodule PumbleAutomation.Connections.Connection do
   A path lives in `base_path_prefix`, which begins with `/`, never ends with
   one, and never contains a `.` or `..` segment.
 
-  ## The P10 boundary
+  ## The Safe HTTP boundary
 
   The full outbound URL policy — private address ranges, DNS rebinding,
-  redirect handling, the deny list, and the request itself — is `P10`. What is
+  redirect handling, the deny list, and the request itself — belongs to Safe HTTP. What is
   enforced here is scheme and shape: the checks that can be made against a
   stored row without resolving a name or opening a socket. `policy_version`
   records which generation of that policy a row was written under, so the
-  stricter P10 policy can find every row that predates it instead of trusting
+  stricter Safe HTTP policy can find every row that predates it instead of trusting
   that they were all rewritten.
 
   ## Redaction
@@ -186,7 +186,7 @@ defmodule PumbleAutomation.Connections.Connection do
 
   Returns the canonical `"https://host"` or `"https://host:port"` string, or a
   `:validation` error. See the module documentation for the rule and for the
-  P10 boundary.
+  Safe HTTP boundary.
   """
   @spec normalize_origin(term()) :: {:ok, String.t()} | {:error, Error.t()}
   def normalize_origin(origin) when is_binary(origin) do
@@ -229,7 +229,7 @@ defmodule PumbleAutomation.Connections.Connection do
   character outside the unreserved and sub-delimiter sets. Percent escapes are
   rejected rather than decoded, because `%2e%2e` and `%2f` are the two ways a
   decode-then-check implementation lets a traversal through, and a connection
-  path has no legitimate need for one. Encoding a value into a path is the P10
+  path has no legitimate need for one. Encoding a value into a path is the Safe HTTP
   request builder's job, after this check has run.
   """
   @spec path_segments(String.t()) :: {:ok, [String.t()]} | {:error, Error.t()}

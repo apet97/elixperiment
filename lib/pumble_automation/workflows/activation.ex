@@ -10,7 +10,7 @@ defmodule PumbleAutomation.Workflows.Activation do
 
   ## One `Ecto.Multi`
 
-  The steps are the list in plan Section 16, in that order: lock the
+  The steps run in this order: lock the
   installation and the workflow, verify the draft revision and that the
   workspace may still run automations, validate and compile, insert or reuse
   the immutable version, replace the trigger-binding and schedule projections,

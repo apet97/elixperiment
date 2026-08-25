@@ -1,15 +1,26 @@
-# Pumble protocol probe register (P0-T04)
+# Pumble protocol probe register
 
-Date: 2026-08-15. Task: `P0-T04` of
-the [historical implementation plan](../archive/planning/implementation-plan.md).
-Companion file: `pumble_source_matrix.md` (P0-T03).
+Original review date: 2026-08-15. Last evidence update: 2026-08-25.
+Companion file: `pumble_source_matrix.md`.
 
 Each probe resolves one unknown. Each probe is bounded: one hypothesis, one
 weakest acceptable conclusion, one action set, one cleanup.
 
+## Current live status
+
+The 2026-08-25 API-key preflight was separate from these probes. It passed 1
+public contract read and 4 authenticated reads. It made no write and did not
+start OAuth. The private app configuration page was observed, but installation
+remained pending.
+
+No OAuth response bytes, callback delivery, lifecycle event, interaction, or
+Pumble write was observed. The preflight does not change any probe status in
+this register.
+
 ## Rules for every probe
 
-1. **No probe runs in this task.** P0-T04 defines the probes only.
+1. **Run each probe separately.** A read-only API-key preflight does not close
+   an OAuth, callback, lifecycle, interaction, or write probe.
 2. **Sacrificial workspace only.** Probes marked `SACRIFICIAL` require a
    throwaway Pumble workspace and a throwaway OAuth add-on registration.
    Never run them against a customer or personal workspace.
@@ -26,11 +37,9 @@ weakest acceptable conclusion, one action set, one cleanup.
    happen". Record the observation window.
 6. **`BLOCKED` is a valid state.** If credentials are missing, mark the probe
    `BLOCKED` and keep the conservative assumption named in the probe.
-7. **Initial credential status.** The
-   [initial-state inventory](../archive/evidence/initial-state-inventory.md)
-   records that OAuth add-on credentials were `NOT YET VERIFIED`. Every probe
-   below is therefore *defined now and runnable later*. Do not mark them
-   `BLOCKED` until an operator has actually tried to obtain the credentials.
+7. **Current credential status.** OAuth installation did not complete in the
+   2026-08-25 run. Every OAuth-dependent probe remains open. Do not treat the
+   API key as OAuth application credentials or callback-signing authority.
 8. **`RESOLVED BY SOURCE` is a terminal state.** Added 2026-08-15 after the
    public [Pumble Node SDK at commit `36bb7ed`](https://github.com/CAKE-com/pumble-node-sdk/tree/36bb7edf091b9d24b39d6e70302ebbb3a1759fe3)
    was cross-checked (see `pumble_source_matrix.md` section 13). A probe or a
@@ -53,32 +62,32 @@ weakest acceptable conclusion, one action set, one cleanup.
 | `SETUP-C` | A public HTTPS collector that logs, for every request: full header set, exact raw body bytes, byte length, receipt timestamp with millisecond precision, and the response the collector returned. The collector must be able to return a chosen status code and a chosen delay per path. |
 | `SETUP-D` | The collector subscribes to all seven documented events and declares one slash command, one global shortcut, one message shortcut, one block interaction endpoint, one view action endpoint, and one dynamic menu. |
 
-`SETUP-C` is the single most valuable artifact in Phase 0. Most probes are
+`SETUP-C` is the single most valuable initial live-probe artifact. Most probes are
 just a scripted interaction plus a read of its log.
 
 ---
 
 ## Probe index
 
-| ID | Subject | Status after source cross-check | Sacrificial | Owner action | Blocks |
+| ID | Subject | Status after source cross-check | Sacrificial | Owner action | Affects |
 |---|---|---|---|---|---|
-| `PR-01` | Delivery identity fields for all callback classes | OPEN (annotated) | yes | yes | `P2` transport, `P3` schema |
-| `PR-02` | Callback retry, replay, and timeout behavior | OPEN (annotated) | yes | yes | `P2` transport, `P6` execution |
-| `PR-03` | Signature header name, precedence, encoding, timestamp | **RESOLVED BY SOURCE** except the timestamp unit | yes | no | `P2` transport |
-| `PR-04` | OAuth token expiry and refresh | OPEN, narrowed | yes | yes | `P4` installation |
-| `PR-05` | Reinstall token replacement | OPEN (annotated) | yes | yes | `P4` installation |
-| `PR-06` | Uninstall and unauthorized delivery and ordering | OPEN (annotated) | yes | yes | `P4` installation, `P16` teardown |
-| `PR-07` | Exact scope matrix | OPEN, narrowed (vocabulary closed) | yes | yes | `P4` installation, `P8` actions |
-| `PR-08` | Rate-limit headers and `429` shape | OPEN (annotated) | yes | no | `P8` actions, `P9` client |
-| `PR-09` | Server-side idempotency on writes | OPEN (annotated) | yes | no | `P8` actions, `P6` retry policy |
-| `PR-10` | App-generated message metadata and self-trigger loops | OPEN, narrowed (detection rule resolved) | yes | no | `P5` triggers |
-| `PR-11` | Workspace role values | OPEN (annotated) | yes | yes | `P4` members and roles |
-| `PR-12` | Callback and message size limits | OPEN (annotated) | yes | no | `P2` transport, `P8` actions |
-| `PR-13` | Marketplace launch-link behavior | OPEN (annotated) | yes | yes | `P15` listing, `P17` certification |
-| `PR-14` | Slash, shortcut, and modal response ordering | **PARTLY RESOLVED BY SOURCE** — steps 1 to 4 and the `loadingTimeout` half closed; the ack-deadline half stays open | yes | yes | `P2` transport, `P7` console UI |
-| `PR-15` | OAuth redirect and error payloads | OPEN (annotated) | yes | yes | `P4` installation |
-| `PR-16` | Callback classification and `messageType` values | OPEN, narrowed (guard exclusivity resolved) | yes | yes | `P2` transport |
-| `PR-17` | Reaction write semantics and dynamic-menu response contract | OPEN, narrowed (client-side forms resolved) | yes | no | `P8` actions, `P7` console UI |
+| `PR-01` | Delivery identity fields for all callback classes | OPEN (annotated) | yes | yes | callback transport, delivery and execution schema |
+| `PR-02` | Callback retry, replay, and timeout behavior | OPEN (annotated) | yes | yes | callback transport, execution recovery |
+| `PR-03` | Signature header name, precedence, encoding, timestamp | **RESOLVED BY SOURCE** except the timestamp unit | yes | no | callback signature verification |
+| `PR-04` | OAuth token expiry and refresh | OPEN, narrowed | yes | yes | installation credential lifecycle |
+| `PR-05` | Reinstall token replacement | OPEN (annotated) | yes | yes | reinstall behavior |
+| `PR-06` | Uninstall and unauthorized delivery and ordering | OPEN (annotated) | yes | yes | installation lifecycle, tenant teardown |
+| `PR-07` | Exact scope matrix | OPEN, narrowed (vocabulary closed) | yes | yes | installation scope snapshot, actions |
+| `PR-08` | Rate-limit headers and `429` shape | OPEN (annotated) | yes | no | action pacing, Pumble client errors |
+| `PR-09` | Server-side idempotency on writes | OPEN (annotated) | yes | no | action safety, retry policy |
+| `PR-10` | App-generated message metadata and self-trigger loops | OPEN, narrowed (detection rule resolved) | yes | no | trigger matching |
+| `PR-11` | Workspace role values | OPEN (annotated) | yes | yes | member role mapping |
+| `PR-12` | Callback and message size limits | OPEN (annotated) | yes | no | callback body limits, action payload validation |
+| `PR-13` | Marketplace launch-link behavior | OPEN (annotated) | yes | yes | listing behavior, live validation |
+| `PR-14` | Slash, shortcut, and modal response ordering | **PARTLY RESOLVED BY SOURCE** — steps 1 to 4 and the `loadingTimeout` half closed; the ack-deadline half stays open | yes | yes | callback responses, modal UI |
+| `PR-15` | OAuth redirect and error payloads | OPEN (annotated) | yes | yes | OAuth install and error handling |
+| `PR-16` | Callback classification and `messageType` values | OPEN, narrowed (guard exclusivity resolved) | yes | yes | callback classification |
+| `PR-17` | Reaction write semantics and dynamic-menu response contract | OPEN, narrowed (client-side forms resolved) | yes | no | reaction actions, dynamic pickers |
 
 "Owner action" means a human must click inside Pumble; the probe cannot run
 unattended.
@@ -105,8 +114,8 @@ No probe was deleted or renumbered by the 2026-08-15 source cross-check. The
 > not a delivery id, so it must not be used as one. Fallback `I-9` (SHA-256
 > over the raw body plus the signature header) stands until this probe runs.
 
-**Unknown:** plan 4.3 item 1 "stable unique delivery identities for all
-callback types". Matrix rows `I-1` to `I-8`.
+**Unknown:** stable unique delivery identities for all callback types. Matrix
+rows `I-1` to `I-8`.
 
 **Hypothesis:** `rid` on event payloads and `triggerId` on interaction
 payloads are unique per delivery, and a redelivery of the same logical event
@@ -142,7 +151,7 @@ delivery).
 the probe channel, deactivate the second test user if it was created for this
 probe.
 
-**Blocks:** `P2` callback transport, `P3` delivery and execution schema.
+**Affects:** callback transport and the delivery and execution schema.
 
 ---
 
@@ -161,8 +170,7 @@ probe.
 > socket adapter sends **no** response at all for events, which means the
 > event channel has no application-level acknowledgement in either adapter.
 
-**Unknown:** plan 4.3 item 2 "exact replay behavior". Matrix rows `K-9`,
-`K-10`, `U-1`.
+**Unknown:** exact replay behavior. Matrix rows `K-9`, `K-10`, `U-1`.
 
 **Hypothesis:** Pumble retries a callback when the endpoint answers a `5xx`
 status or does not answer within the deadline, and the retry carries an
@@ -189,7 +197,7 @@ and whether the slash-command user saw a timeout error in the Pumble client
 **Cleanup:** delete probe messages; restore the collector to `200` for all
 paths.
 
-**Blocks:** `P2` transport idempotency, `P6` execution retry policy.
+**Affects:** transport idempotency and execution retry policy.
 
 ---
 
@@ -229,7 +237,8 @@ paths.
 > Everything below this line is the original probe definition, retained
 > unchanged for the record.
 
-**Unknown:** plan 4.3 item 3. Matrix contradiction `X-2`, rows `H-7` to `H-10`.
+**Unknown:** signature header and timestamp details. Matrix contradiction `X-2`,
+rows `H-7` to `H-10`.
 
 **Hypothesis:** Pumble sends exactly one signature header, named
 `X-Pumble-Signature`, whose value is the lowercase hexadecimal HMAC-SHA256 of
@@ -258,7 +267,7 @@ or presence of a timestamp header.
 **Cleanup:** delete probe messages. Rotate the sacrificial signing secret
 after the probe.
 
-**Blocks:** `P2` signature verification.
+**Affects:** callback signature verification.
 
 ---
 
@@ -277,7 +286,7 @@ after the probe.
 > token, and a `401` after a long idle interval would still have to be
 > handled. Run the long-interval probe; skip step 1.
 
-**Unknown:** plan 4.3 item 4. Matrix rows `A-21`, `U-2`.
+**Unknown:** OAuth token expiry and refresh behavior. Matrix rows `A-21`, `U-2`.
 
 **Hypothesis:** the access token and the bot token do not expire on a fixed
 schedule, and no refresh endpoint exists; recovery from `401` is a fresh
@@ -304,7 +313,7 @@ interval, if any.
 **Cleanup:** none needed during the observation window. Uninstall the probe
 app from the sacrificial workspace at the end and rotate the client secret.
 
-**Blocks:** `P4` installation and credential lifecycle.
+**Affects:** installation and credential lifecycle.
 
 ---
 
@@ -323,7 +332,7 @@ app from the sacrificial workspace at the end and rotate the client secret.
 > (a different authorizing user) remains the most valuable step, because the
 > store is keyed by `userId` and would accumulate rather than replace.
 
-**Unknown:** plan 4.3 item 5. Matrix row `A-22`, plan section 13 "Reinstall".
+**Unknown:** matrix row `A-22` and reinstall behavior.
 
 **Hypothesis:** a reinstall through the consent screen with `isReinstall=true`
 returns a new access token and a new bot token for the same workspace, the
@@ -347,11 +356,11 @@ fingerprint (a salted hash of the token, never the token).
 
 **Expected observation:** which credentials change, which survive, and whether
 authorization identity can change across a reinstall (this decides whether the
-add-on must revoke sessions, plan section 13).
+add-on must revoke sessions).
 
 **Cleanup:** uninstall the probe app; rotate the client secret.
 
-**Blocks:** `P4` reinstall path and session revocation rules.
+**Affects:** reinstall behavior and session revocation rules.
 
 ---
 
@@ -369,8 +378,7 @@ add-on must revoke sessions, plan section 13).
 > encoding is unproven and must be parsed defensively — add that to the
 > observation list for actions 3 and 4.
 
-**Unknown:** plan 4.3 item 6, plus the task item "uninstall delivery". Matrix
-rows `L-1`, `L-2`.
+**Unknown:** uninstall and unauthorized delivery. Matrix rows `L-1`, `L-2`.
 
 **Hypothesis:** removing one user's authorization delivers `APP_UNAUTHORIZED`
 with `accessGranted: false`, and uninstalling the app from the workspace
@@ -402,7 +410,7 @@ uninstall (action 4) produces the same callback as an owner-initiated one
 **Cleanup:** reinstall the probe app for later probes, or leave the workspace
 clean if this is the last probe of the session.
 
-**Blocks:** `P4` uninstall and unauthorized handling, `P16` data teardown.
+**Affects:** uninstall and unauthorized handling, and tenant-data teardown.
 
 ---
 
@@ -428,14 +436,13 @@ clean if this is the last probe of the session.
 > builder (SDK source: `pumble-sdk/src/core/services/ClientUtils.ts`,
 > `generateAuthUrl()`).
 
-**Unknown:** plan 4.3 item 7, plus the task item "exact scope mapping". Matrix
-section 8, rows `S-1` to `S-12`.
+**Unknown:** exact scope mapping. Source-matrix section 8, rows `S-1` to `S-12`.
 
 **Hypothesis:** each product operation requires exactly one documented scope,
 and the strings observed in the example manifests are the full set the product
 needs.
 
-**Weakest acceptable conclusion:** for every operation in matrix section 6.1
+**Weakest acceptable conclusion:** for every operation in source-matrix section 6.1
 to 6.3 and for every subscribed event, the minimum scope set under which the
 call succeeds and the exact `403` body when it is missing. If a required scope
 cannot be identified, the add-on requests the configured superset and never
@@ -461,7 +468,7 @@ codes, and the authoritative scope-string list from the consent screen.
 **Cleanup:** uninstall every probe registration; delete probe channels and
 messages created during the write calls.
 
-**Blocks:** `P4` scope snapshot, `P8` action nodes, plan section 13 reinstall
+**Affects:** scope snapshots, action-node authorization, and reinstall scope
 revalidation.
 
 ---
@@ -478,8 +485,7 @@ revalidation.
 > instances without interceptors). The Elixir client must add pacing of its
 > own regardless of what this probe finds (matrix `D-6`).
 
-**Unknown:** plan 4.3 item 8, plus the task item "rate-limit headers". Matrix
-rows `H-12` to `H-15`.
+**Unknown:** rate-limit headers. Matrix rows `H-12` to `H-15`.
 
 **Hypothesis:** the Pumble API returns `429` with a `Retry-After` header and
 with limit and remaining headers.
@@ -504,7 +510,7 @@ channel) at a much lower ramp: 1, 2, 5 per second, maximum 60 total messages.
 **Cleanup:** delete every probe message created by the write ramp. Cap total
 write volume at 60 messages.
 
-**Blocks:** `P9` Pumble client error classification, `P8` action pacing.
+**Affects:** Pumble client error classification and action pacing.
 
 ---
 
@@ -521,7 +527,7 @@ write volume at 60 messages.
 > the API accepts the field at all before it can test deduplication with it.
 > No request in the whole client carries any idempotency header or key.
 
-**Unknown:** plan 4.3 item 9. Matrix row `U-3`.
+**Unknown:** server-side write idempotency. Matrix row `U-3`.
 
 **Hypothesis:** Pumble does not deduplicate writes; two identical
 `postMessageToChannel` calls create two messages, and there is no client-side
@@ -530,7 +536,7 @@ idempotency key field.
 **Weakest acceptable conclusion:** whether repeating a byte-identical write
 creates a duplicate, and whether `localId` (`Message.localId`, matrix `G03`
 5.6) or any other request field influences deduplication. If nothing
-deduplicates, the plan's rule stands: an external write with an ambiguous
+deduplicates, the safety rule stands: an external write with an ambiguous
 outcome pauses and never retries automatically.
 
 **Setup:** `SETUP-A`, `SETUP-B`, one install, one probe channel.
@@ -548,7 +554,7 @@ reaction writes (these decide whether reaction actions are safely retryable).
 
 **Cleanup:** delete every probe message and reaction created.
 
-**Blocks:** `P6` retry and resume semantics, `P8` action safety class.
+**Affects:** retry and resume semantics and action safety classification.
 
 ---
 
@@ -573,8 +579,7 @@ reaction writes (these decide whether reaction actions are safely retryable).
 > 6 all still run; step 6 (the `st` value list, matrix `N-5`) is untouched by
 > source, which types `st` as a bare `string` and never reads it.
 
-**Unknown:** plan 4.3 item 10, plus the task item "Pumble-generated message
-metadata". Matrix rows `N-1` to `N-7`.
+**Unknown:** Pumble-generated message metadata. Matrix rows `N-1` to `N-7`.
 
 **Hypothesis:** a message posted by the add-on bot produces a `NEW_MESSAGE`
 callback to the same add-on, and the callback carries a distinguishing marker
@@ -605,7 +610,7 @@ human message, and the `st` value list.
 **Cleanup:** delete all probe messages, including ephemeral ones where
 deletion is possible.
 
-**Blocks:** `P5` trigger binding and loop prevention.
+**Affects:** trigger binding and loop prevention.
 
 ---
 
@@ -620,7 +625,7 @@ deletion is possible.
 > vendor client therefore treats the role set as open, which is the behavior
 > the add-on must also adopt. `status` / `st` are likewise bare strings.
 
-**Unknown:** plan 4.3 item 11. Matrix row `U-4`.
+**Unknown:** exact workspace role values. Matrix row `U-4`.
 
 **Hypothesis:** `WorkspaceUser.role` and the `ro` field on
 `WORKSPACE_USER_JOINED` use the same small closed set of uppercase strings.
@@ -644,7 +649,7 @@ the Pumble UI and re-read. Invite one new member and capture `ro` on the
 **Cleanup:** restore the changed member role; deactivate the invited test
 member.
 
-**Blocks:** `P4` member and role mapping.
+**Affects:** member and role mapping.
 
 ---
 
@@ -662,7 +667,7 @@ member.
 > source: `core/adapters/http/middlewares.ts`), so the Elixir transport must
 > impose its own cap and reject oversized bodies **before** parsing.
 
-**Unknown:** plan 4.3 item 12. Matrix row `U-5`.
+**Unknown:** callback and message size limits. Matrix row `U-5`.
 
 **Hypothesis:** the largest inbound callback is bounded by the largest
 possible message payload, and a message `text` above 100000 characters is
@@ -691,7 +696,7 @@ rejection behavior at the text limit.
 
 **Cleanup:** delete every probe message and every uploaded probe file.
 
-**Blocks:** `P2` body-size rejection, `P8` action payload validation.
+**Affects:** callback body-size rejection and action payload validation.
 
 ---
 
@@ -708,7 +713,7 @@ rejection behavior at the text limit.
 > unavoidable. The conservative rule stands: the console authenticates
 > independently and never trusts a URL parameter for tenancy.
 
-**Unknown:** plan 4.3 item 13. Matrix row `M-12`.
+**Unknown:** app launch-link identity behavior. Matrix row `M-12`.
 
 **Hypothesis:** `listingUrl` opens the add-on console in a browser with no
 Pumble-supplied identity, so the console must authenticate the user
@@ -733,7 +738,7 @@ header on each entry point.
 
 **Cleanup:** none. Reset `listingUrl` and `helpUrl` after the probe.
 
-**Blocks:** `P15` marketplace listing, `P17` certification.
+**Affects:** marketplace listing behavior and live validation.
 
 ---
 
@@ -774,7 +779,7 @@ header on each entry point.
 > what the user sees and whether a retry follows. This overlaps `PR-02`; run
 > the two together. Matrix rows `K-7`, `K-9`.
 
-**Unknown:** the task item "slash/shortcut/modal response ordering". Matrix
+**Unknown:** slash, shortcut, and modal response ordering. Matrix
 contradictions `X-1` and `X-6`, rows `K-7` to `K-9`.
 
 **Hypothesis:** on HTTP transport, exactly one response may be written per
@@ -783,7 +788,7 @@ modal opens, contrary to the example code in the corpus.
 
 **Weakest acceptable conclusion:** for each of the four response strategies
 below, whether the modal opened and whether the user saw an error. The
-transport then implements only the strategy proven to work, and the plan
+transport then implements only the strategy proven to work, and this register
 records the corpus examples as unreliable.
 
 **Setup:** `SETUP-A` to `SETUP-D`. The collector must be able to select the
@@ -807,7 +812,7 @@ records the user-visible outcome, since it cannot be read from the wire.
 **Cleanup:** close all opened modals; delete any messages the strategies
 posted.
 
-**Blocks:** `P2` response contract per callback class, `P7` console modal UI.
+**Affects:** per-class callback responses and console modal behavior.
 
 ---
 
@@ -830,8 +835,8 @@ posted.
 > recorded as matrix `D-2` — so **step 3 tests the port's own behavior, not
 > Pumble's**, and must still be run. Steps 4 to 7 are unaffected.
 
-**Unknown:** the task item "OAuth redirect/error payloads". Matrix row `A-16`,
-section 6.3.
+**Unknown:** OAuth redirect and error payloads. Source-matrix row `A-16`,
+source-matrix section 6.3.
 
 **Hypothesis:** the redirect carries `code` and the `state` value unchanged as
 query parameters, and a denied consent returns an error parameter rather than
@@ -863,7 +868,7 @@ shape for each failure mode.
 **Cleanup:** uninstall any install created by step 1; rotate the sacrificial
 client secret after step 5.
 
-**Blocks:** `P4` OAuth install endpoint and error handling.
+**Affects:** OAuth install endpoint and error handling.
 
 ---
 
@@ -890,7 +895,7 @@ client secret after step 5.
 > events use `APP_EVENT`" remains a guess and must not be coded as fact. This
 > probe's main remaining job is to build the event-name to `messageType` table.
 
-**Unknown:** matrix contradictions `X-3` and `X-5`, section 2.3.
+**Unknown:** source-matrix contradictions `X-3` and `X-5`, section 2.3.
 
 **Hypothesis:** ordinary events use `messageType: 'PUMBLE_EVENT'`, lifecycle
 events use `'APP_EVENT'`, and no callback ever matches two classification
@@ -912,7 +917,7 @@ count of callbacks that matched more than one guard (expected: zero).
 
 **Cleanup:** shared with `PR-01` and `PR-06`.
 
-**Blocks:** `P2` callback classification.
+**Affects:** callback classification.
 
 ---
 
@@ -972,15 +977,15 @@ valid dynamic-menu response.
 **Cleanup:** delete the probe message carrying the menu and any reactions
 added during the probe.
 
-**Blocks:** `P8` reaction actions, `P7` console dynamic pickers.
+**Affects:** reaction actions and console dynamic pickers.
 
 ---
 
 ## Coverage check
 
-### Plan section 4.3 unknowns, one probe each
+### Product unknowns, one probe each
 
-| Plan 4.3 unknown | Probe |
+| Unknown | Probe |
 |---|---|
 | stable unique delivery identities for all callback types | `PR-01` |
 | exact replay behavior | `PR-02` |
@@ -996,7 +1001,7 @@ added during the probe.
 | callback and message size limits | `PR-12` |
 | Marketplace launch-link behavior | `PR-13` |
 
-### P0-T04 minimum topic list
+### Required probe topics
 
 | Required topic | Probe |
 |---|---|
@@ -1034,12 +1039,12 @@ added during the probe.
 | `K-7`, `K-9` (late/missing ack) | `PR-14` | open |
 | `A-16` error shape | `PR-15` | open; request form pinned, `state` gap found |
 | `X-5` | `PR-16` | **resolved by source** at client level; dual-match open |
-| `X-3`, section 2.3 `messageType` mapping | `PR-16` | open |
+| `X-3`, source-matrix section 2.3 `messageType` mapping | `PR-16` | open |
 | `A-6` alternative form, `K-4` minimum fields | `PR-17` | client forms pinned by source; server acceptance open |
 
 Every `PROBE REQUIRED` row in `pumble_source_matrix.md` maps to at least one
-probe. Every probe names its earliest unblocked phase. Rows resolved by source
-keep their probe reference so the audit trail from claim to evidence stays
+probe. Every probe names the component its result affects. Rows resolved by
+source keep their probe reference so claim-to-evidence traceability stays
 intact.
 
 ### Probes and probe steps resolved by source, 2026-08-15

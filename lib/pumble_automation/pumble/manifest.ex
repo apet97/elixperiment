@@ -4,8 +4,8 @@ defmodule PumbleAutomation.Pumble.Manifest do
 
   The manifest is installation configuration, not runtime state. Product
   contract Section 1.2 freezes the manual trigger surface at one slash command,
-  one global shortcut, and one message shortcut, and Section 6 states plainly
-  that these do not change when a user edits a workflow. Nothing in this module
+  one global shortcut, and one message shortcut, and product contract Section 6
+  states plainly that these do not change when a user edits a workflow. Nothing in this module
   is derived from workflow data, and nothing here can be extended at runtime.
 
   ## Why the shortcut carries two names
@@ -29,7 +29,8 @@ defmodule PumbleAutomation.Pumble.Manifest do
   global or message shortcut opened it, so ingress serves the documented union
   of aliases visible in either picker.
 
-  `render/1` produces the JSON-ready map for P17; `to_json/1` encodes it.
+  `render/1` produces the JSON-ready map for manifest validation; `to_json/1`
+  encodes it.
   """
 
   alias PumbleAutomation.Pumble.Payload

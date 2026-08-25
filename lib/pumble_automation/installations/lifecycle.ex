@@ -3,8 +3,8 @@ defmodule PumbleAutomation.Installations.Lifecycle do
   The three ways an installation stops being usable, and what each one erases.
 
   `revoke_user_authorization/3` ends one person's grant. `mark_unauthorized/2`
-  ends the workspace's bot credential. `uninstall/2` ends the tenancy. Plan
-  Section 13 lists the steps; this module is that list, with each list run as one
+  ends the workspace's bot credential. `uninstall/2` ends the tenancy. This
+  module implements the lifecycle steps, with each transition run as one
   transaction so that a half-applied revocation cannot exist.
 
   ## What is deleted, and when
@@ -17,8 +17,8 @@ defmodule PumbleAutomation.Installations.Lifecycle do
   `mark_unauthorized` leaves user grants alone on purpose. A bot token that
   Pumble stopped honouring says nothing about the separate grants individual
   people made, and deleting them would force everyone to re-authorize because of
-  a fault that was not theirs. Plan Section 13 says an unauthorized installation
-  does not delete data; only the affected credential goes.
+  a fault that was not theirs. An unauthorized installation does not delete
+  tenant data; only the affected credential goes.
 
   `uninstall` deletes every credential immediately and schedules the rest for
   erasure after `retention_days/0`, which is the recovery window a reinstall

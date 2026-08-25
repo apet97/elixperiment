@@ -1,6 +1,6 @@
 defmodule PumbleAutomation.Audit.AuditTest do
   @moduledoc """
-  P13-T06: actor vocabulary, flood-limited denied audit, append-only API,
+  Actor vocabulary, flood-limited denied audit, append-only API,
   and tenant-scoped support operations.
   """
 

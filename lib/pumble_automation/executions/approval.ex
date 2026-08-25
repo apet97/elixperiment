@@ -14,7 +14,7 @@ defmodule PumbleAutomation.Executions.Approval do
   that records the decision. Two concurrent clicks serialize on the row; the
   second statement sees `pending` gone and matches nothing. Duplicate valid
   clicks therefore return a conflict rather than a second resume, which is
-  what Section 24 requires.
+  what the approval contract requires.
 
   `:lock_version` is the same optimistic token executions use, so a stale UI
   that still shows pending cannot overwrite a decision it did not see.

@@ -9,8 +9,8 @@ defmodule PumbleAutomation.Ingress.ManualTrigger do
 
   ## Responses
 
-  Picker and not-found replies are built by adapter functions so P17 can
-  replace the HTTP envelope without touching durability. The default picker
+  Picker and not-found replies are built by adapter functions so live callback
+  validation can replace the HTTP envelope without touching durability. The default picker
   is a modal-only envelope (`PR-14` / matrix `X-1`): an ack and a modal are
   mutually exclusive on HTTP, so the picker is not an acknowledgement that
   a run started.

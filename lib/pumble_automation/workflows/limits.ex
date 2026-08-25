@@ -2,11 +2,10 @@ defmodule PumbleAutomation.Workflows.Limits do
   @moduledoc """
   The structural limits every workflow definition obeys.
 
-  The numbers come from Section 31 of the implementation plan and from the
-  validation invariants in Section 15.3. They live here, once, because the
-  decoder, the persistence layer, and every editing primitive must agree on
-  them: a limit that is written down in three places is a limit that can be
-  bypassed by whichever copy drifts first.
+  These values are the canonical validation limits. They live here, once,
+  because the decoder, the persistence layer, and every editing primitive must
+  agree on them: a limit copied into several places can be bypassed when one
+  copy drifts.
 
   Two families of limit are defined:
 
@@ -31,7 +30,7 @@ defmodule PumbleAutomation.Workflows.Limits do
   @max_map_size 64
   @max_json_depth 64
 
-  # Expression bounds beyond Section 31 template source/expansion.
+  # Expression bounds for template source and expansion.
   @max_path_segments 16
   @max_template_references 32
   @max_template_value_bytes 2 * 1024

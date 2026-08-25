@@ -28,10 +28,9 @@ defmodule PumbleAutomation.Connections.Secret do
   ## The fingerprint answers one question
 
   `fingerprint/2` is `sha256("secrets.value:v1:" <> installation_id <> ":" <> value)`.
-  Plan Section 14.5 asks for a value fingerprint; a bare digest of the value
-  would also be an offline oracle against any low-entropy secret, and the
-  tenant salt plus the domain prefix removes that while keeping the only
-  property the application needs, which is "is this the same value as the one
+  A bare digest of the value would be an offline oracle against any low-entropy
+  secret. The tenant salt and domain prefix remove that oracle while preserving
+  the only property the application needs: "is this the same value as the one
   already stored".
 
   ## `key_version` is a copy, not the source of truth
@@ -61,8 +60,8 @@ defmodule PumbleAutomation.Connections.Secret do
 
   @derive {Inspect, except: [:value]}
 
-  # What the value is for. It never changes how the value is stored; it tells a
-  # reviewer and a UI what kind of credential a workflow is about to send.
+  # What the value is for. It never changes how the value is stored; it tells
+  # the UI what kind of credential a workflow is about to send.
   @kinds ~w(api_key bearer_token basic_password signing_key generic)
 
   @name_format ~r/\A[A-Z][A-Z0-9_]{0,63}\z/

@@ -51,7 +51,7 @@ defmodule PumbleAutomation.Installations.OauthStateTest do
       assert length(Enum.uniq(tokens)) == 50
     end
 
-    test "expires ten minutes out, per plan Section 11.1" do
+    test "expires ten minutes out" do
       now = DateTime.utc_now()
       {:ok, _token, state} = OauthStates.create("install", now: now)
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# LiveView / browser acceptance gate (P15-T06).
+# Server-rendered LiveView acceptance gate.
 #
-# The approved runner is Phoenix.LiveViewTest. Wallaby and Playwright are not
-# on the Mix dependency list: they would not add an assertion this harness
-# cannot already make against isolated tenants and fake Pumble.
+# This gate uses Phoenix.LiveViewTest against isolated tenants and fake Pumble.
+# Real-browser checks remain a separate manual boundary in
+# docs/product/ui_acceptance.md.
 #
 # Full offline acceptance (format, Dialyzer, release, secret scan, receipt)
 # is `scripts/verify.sh`. This script is the UI slice that script also runs.

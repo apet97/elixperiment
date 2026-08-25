@@ -77,11 +77,11 @@ defmodule PumbleAutomation.Connections.SafeHttp do
           address: :inet.ip_address()
         }
 
-  @doc "Section 31 HTTP request body cap, in bytes."
+  @doc "HTTP request body cap, in bytes."
   @spec max_request_bytes() :: pos_integer()
   def max_request_bytes, do: Limits.get(:http_request_body_bytes)
 
-  @doc "Section 31 HTTP response body cap, in bytes."
+  @doc "HTTP response body cap, in bytes."
   @spec max_body_bytes() :: pos_integer()
   def max_body_bytes, do: Limits.get(:http_response_body_bytes)
 
@@ -97,7 +97,7 @@ defmodule PumbleAutomation.Connections.SafeHttp do
   @spec timeout_ms() :: pos_integer()
   def timeout_ms, do: Limits.get(:outbound_http_timeout_ms)
 
-  @doc "Section 31 redirect cap: at most this many Location hops."
+  @doc "Redirect cap: at most this many Location hops."
   @spec max_redirects() :: pos_integer()
   def max_redirects, do: min(Limits.get(:redirects), @max_redirects)
 

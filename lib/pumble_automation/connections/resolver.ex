@@ -13,11 +13,11 @@ defmodule PumbleAutomation.Connections.Resolver do
   A `PumbleAutomation.Connections.ResolvedConnection` carries secret *handles*.
   Nothing in this module decrypts anything, and nothing in it can: the
   plaintext path is `PumbleAutomation.Connections.SecretResolver`, which the
-  P10 transport calls per header, immediately before writing it.
+  Safe HTTP transport calls per header, immediately before writing it.
 
   ## A node narrows a path, it never escapes one
 
-  `narrow_path/2` is the whole of that rule and it is pure, so P10 can call it
+  `narrow_path/2` is the whole of that rule and it is pure, so Safe HTTP can call it
   without a database and a test can call it with a string. A node's path is
   appended under the connection's prefix, and the result is refused when the
   node's path is absolute against another origin, climbs with `..`, hides a
@@ -26,13 +26,13 @@ defmodule PumbleAutomation.Connections.Resolver do
   Percent escapes are rejected rather than decoded. `%2e%2e%2f` and `%2f` are
   precisely how a decode-then-check implementation is defeated, and repeating
   the decode until it is stable is a loop with no natural end. A node that
-  needs a value inside a path segment gets it from the P10 request builder,
+  needs a value inside a path segment gets it from the Safe HTTP request builder,
   which encodes *after* this function has approved the shape.
 
-  ## The P10 boundary
+  ## The Safe HTTP boundary
 
   Scheme and shape are enforced here. Address policy — private ranges, DNS
-  rebinding, redirects, and the deny list — is P10 and is not simulated here:
+  rebinding, redirects, and the deny list — belongs to Safe HTTP and is not simulated here:
   a half-enforced network policy reads like a full one and is worse than an
   absent one. `:policy_version` on the row records which generation of the
   policy approved it.

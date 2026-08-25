@@ -3,7 +3,7 @@ defmodule PumbleAutomation.Connections.ResolvedConnection do
   A validated connection, ready to build a request from, carrying no secret.
 
   This is what `PumbleAutomation.Connections.Resolver` returns and what the
-  P10 transport receives. `:secret_headers` holds handles — a header name and
+  Safe HTTP transport receives. `:secret_headers` holds handles — a header name and
   a secret id — and never a value. The transport resolves each handle through
   `PumbleAutomation.Connections.SecretResolver` at the moment it writes the
   header, so a decrypted credential never sits inside a struct that is passed

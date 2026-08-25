@@ -46,11 +46,20 @@ The guard cannot undo those application-side effects.
 | `POST /searchMessages` | HTTP 200 with a `content` array, a Boolean `hasMore` field, and a nonnegative integer `totalElements` field. The request uses only the documented `text` and `in` fields. |
 
 The public reference examples show bare arrays for both message operations.
-Bounded live reads on candidate
-`1b37e1bc7e9fe3518703dd75fdf7bbb6ac5a01bf` returned HTTP 200 with the
-pagination envelopes in this table. No message content or provider ID was
-stored. The script still binds the exact public-reference hash. It reports the
-live response-shape checks as separate proof boundaries. This document does not
+Bounded live reads at `2026-08-25T00:13:32Z` on clean candidate
+`7c6680aa0663417790c4e8e5f61b649d7b0a8eec` returned HTTP 200 with the
+pagination envelopes in this table. The run made 1 public contract read and 4
+authenticated reads. It made no write. No message content or provider ID was
+stored. The script bound the exact candidate, its own SHA-256, the reviewed
+public-reference SHA-256, and the clean worktree before it sent an authenticated
+request. The script SHA-256 was
+`ee2fb54345052b67f8344561491103e9ac19868526a0ff35fe117ac0e91c9f77`.
+
+This result was captured in transient standard output. The existing ignored
+receipt file belongs to an earlier candidate and is not evidence for this run.
+A final exact-candidate run must replace it.
+
+This document does not
 claim that the public examples and the live runtime agree.
 
 The search operation is a read even though it uses HTTP POST. The script
@@ -103,4 +112,5 @@ live workspace write, cleanup, OAuth, callback signatures, event delivery,
 installation lifecycle behavior, deployment, rollback, or Marketplace
 readiness. An API key is not OAuth application credentials. It is not callback-
 signing authority. The bounded live checks created no resource and left no
-residue.
+residue. The [live validation record](live_validation.md) separates this result
+from the temporary runtime and all unproved boundaries.

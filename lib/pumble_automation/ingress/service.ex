@@ -33,8 +33,8 @@ defmodule PumbleAutomation.Ingress.Service do
   One event creates at most `max_executions_per_event/0` runs. Matcher order
   is stable, so the cap is deterministic.
 
-  Plan Section 17.3 forbids any call to Pumble or another external service
-  on this path.
+  The ingress acknowledgement contract forbids any call to Pumble or another
+  external service on this path.
 
   ## Lifecycle callbacks
 

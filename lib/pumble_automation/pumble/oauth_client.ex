@@ -18,7 +18,7 @@ defmodule PumbleAutomation.Pumble.OauthClient do
 
   ## Why the base URL is configuration and never a payload
 
-  Plan Section 12.4 fixes the base URL to a configured value. It is not read
+  The OAuth client contract fixes the base URL to a configured value. It is not read
   from a token claim, a callback parameter, or a redirect: an attacker who can
   choose the host this request goes to gets the client secret. `config/config.exs`
   holds the official host and every environment inherits it.

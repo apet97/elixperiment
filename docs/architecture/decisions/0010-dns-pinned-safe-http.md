@@ -1,7 +1,6 @@
 # ADR-0010: DNS-pinned safe HTTP
 
 **Status:** Accepted
-**Plan decision:** ADR-010 in plan Section 7
 
 ## Context
 
@@ -11,19 +10,15 @@ when it connects, which allows DNS rebinding to reach internal addresses.
 
 ## Evidence
 
-- Plan Section 7, row ADR-010: "DNS-pinned generic HTTP — required to defend against
-  rebinding".
-- Plan Section 26, SSRF algorithm, steps 1 to 15: parse and validate the URI, reject
-  userinfo, resolve A and AAAA, reject blocked addresses, connect to a validated IP
-  tuple, keep the original hostname for SNI and Host, stream with a hard byte cap,
-  and re-resolve and revalidate every redirect.
-- Plan Section 26: blocked headers list, and HTTPS by default with HTTP only by an
-  explicit owner-level override and warning.
-- Plan Section 27, SSRF row: mitigation is resolve, reject, pin, revalidate
-  redirects; proof is IP-range and rebinding tests.
-- Plan Section 31: HTTP request body 256 KiB, response body 1 MiB, redirects 3.
-- Plan Section 8: Mint is the pinned low-level HTTP client; Req is the Pumble client.
-- Plan task P1-T05 invariant: Req is not used to bypass the pinned-IP SSRF transport.
+- `PumbleAutomation.Connections.UrlPolicy`, `IpPolicy`, and `SafeHttp` parse and
+  validate URLs, resolve A and AAAA records, reject blocked addresses, connect to a
+  validated IP, preserve the hostname for SNI and Host, and revalidate redirects.
+- `docs/security/threat_model.md` identifies DNS rebinding and credential leakage;
+  the Safe HTTP security suites cover IP ranges, redirects, headers, and rebinding.
+- `docs/contract/dependency_policy.md` assigns Mint to user-addressed Safe HTTP and
+  Req only to the fixed Pumble API base URL.
+- Product limits cap request bodies at 256 KiB, responses at 1 MiB, and redirects
+  at three.
 
 ## Decision
 
@@ -48,8 +43,7 @@ never used for a user-supplied URL.
 
 ## Consequences
 
-- The transport is hand-written on Mint and needs an adversarial security suite
-  (plan phase P10).
+- The transport is hand-written on Mint and has an adversarial security suite.
 - Some convenience features of a high-level client are unavailable and must be
   implemented, including redirects, timeouts, and body limits.
 - Connection secrets stay isolated from the request rendering path so that no

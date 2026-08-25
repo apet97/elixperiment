@@ -1,9 +1,7 @@
 defmodule PumbleAutomationWeb.Browser.AcceptanceJourneyTest do
   @moduledoc """
-  P15-T06 discoverable LiveView/browser acceptance. The runner is
-  `Phoenix.LiveViewTest` against fake Pumble and isolated tenants. Wallaby and
-  Playwright were not added: they do not buy assertions this harness cannot
-  already make, and no extra hex dependency is approved.
+  Discoverable server-rendered LiveView acceptance against fake Pumble and
+  isolated tenants. Real-browser checks remain outside this offline suite.
   """
 
   use PumbleAutomationWeb.ConnCase, async: false
@@ -325,7 +323,7 @@ defmodule PumbleAutomationWeb.Browser.AcceptanceJourneyTest do
   end
 
   defp canary do
-    "CANARY-P15T06-#{System.unique_integer([:positive])}-#{Base.encode16(:crypto.strong_rand_bytes(8), case: :lower)}"
+    "CANARY-UI-#{System.unique_integer([:positive])}-#{Base.encode16(:crypto.strong_rand_bytes(8), case: :lower)}"
   end
 
   defp log_in(conn, token) do

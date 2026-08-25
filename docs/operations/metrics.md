@@ -35,7 +35,7 @@ Metrics contain no tokens, bodies, signatures, or message text.
 Event names and measurements are stable. Adding a vendor reporter must not
 rename them.
 
-## Section 32
+## Metric catalogue
 
 | Metric | Event | Measurement | Tags | Meaning | Alert candidate |
 |---|---|---|---|---|---|
@@ -65,7 +65,9 @@ Maintenance ticks emit `[:pumble_automation, :maintenance, :run]` (`kind`,
 `status`) and unsafe integrity findings emit
 `[:pumble_automation, :maintenance, :alert]`. Discarded maintenance jobs appear
 in the owner `discarded_jobs` check; uniqueness does not include discarded
-rows, so the next cron tick still inserts. Diagnostic ZIP export is P14-T06.
+rows, so the next cron tick still inserts. The owner diagnostics page also
+creates tenant-scoped, signed, expiring ZIP exports. Export generation and
+cleanup emit structured application logs, not public health-probe fields.
 
 ## Alert candidates (operators)
 

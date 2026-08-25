@@ -99,8 +99,8 @@ defmodule PumbleAutomation.Pumble.Client do
   @doc """
   Builds a client bound to `installation_id`.
 
-  `kind` chooses the credential: `:bot` by default, because plan Section 25
-  makes the bot token the default author of an action, or
+  `kind` chooses the credential: `:bot` by default, because the action contract
+  makes the bot token the default author, or
   `{:user, pumble_user_id}` where the effect must be attributed to a person.
 
   `:correlation_id` travels into telemetry only. It is never sent to Pumble.

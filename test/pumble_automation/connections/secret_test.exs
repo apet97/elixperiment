@@ -3,7 +3,7 @@ defmodule PumbleAutomation.Connections.SecretTest do
   The secret store: write-only, tenant scoped, and safe to delete.
 
   The tests are grouped by the promise they hold, not by the function they
-  call, because the promises are what P5-T07 is: a value that goes in and does
+  call, because the promises are the contract: a value that goes in and does
   not come back out, a rotation that is visible, a tampered ciphertext that
   stops an action instead of degrading it, and a delete that cannot orphan a
   running workflow.

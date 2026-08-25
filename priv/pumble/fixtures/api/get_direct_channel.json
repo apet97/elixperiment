@@ -5,7 +5,7 @@
     "fields_sanitized": true,
     "request_status": "SUPPORTED",
     "response_status": "INFERRED",
-    "note": "participantIds is the caller plus targets, comma-joined. Encoding of the query value is a P17 probe in the ledger.",
+    "note": "participantIds is the caller plus targets, comma-joined. Encoding of the query value remains a live probe.",
     "live_probe": null
   },
   "request": {
