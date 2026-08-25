@@ -301,7 +301,7 @@ defmodule PumbleAutomation.Installations.Service do
     else
       {:error,
        Error.new(:validation, :bot_token_missing,
-         message: "The installation did not grant the bot access it needs."
+         message: "Pumble did not return the bot token required for installation."
        )}
     end
   end

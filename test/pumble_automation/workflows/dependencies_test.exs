@@ -4,8 +4,8 @@ defmodule PumbleAutomation.Workflows.DependenciesTest do
 
   The tests that matter most here are the ones about restraint: a permission
   nobody has proven is needed must never stop an author from activating a
-  workflow, and an installation that has never recorded what it was granted
-  must not be treated as an installation that was granted nothing.
+  workflow, and an installation that has never recorded what it requested must
+  not be treated as an installation that requested nothing.
   """
 
   use ExUnit.Case, async: true
@@ -91,27 +91,29 @@ defmodule PumbleAutomation.Workflows.DependenciesTest do
     end
   end
 
-  describe "comparing what is needed with what was granted" do
-    test "a granted permission raises nothing" do
+  describe "comparing what is needed with the recorded scope request" do
+    test "a requested permission raises nothing locally" do
       issues = check([message_node()], ["messages:write"])
 
       assert issues == []
     end
 
-    test "a permission the workspace does not have blocks" do
+    test "a permission omitted from the recorded request blocks" do
       [issue] = check([message_node()], ["workspace:read"])
 
       assert issue.severity == :error
       assert issue.code == :scope_missing
+      assert issue.message =~ "did not request the messages:write permission"
+      refute issue.message =~ "not granted"
     end
 
-    test "an installation that never recorded its permissions is not blocked" do
+    test "an installation that never recorded its scope request is not blocked" do
       # An empty snapshot is silence, not refusal, and refusing to activate on
       # silence would block every installation that predates the snapshot.
       assert check([message_node()], []) == []
     end
 
-    test "an unproven permission only warns, however little was granted" do
+    test "an unproven permission only warns, however little was requested" do
       issues = check([direct_message_node()], ["messages:write", "channels:write"])
 
       assert Enum.map(issues, & &1.severity) == [:warning]
@@ -130,10 +132,10 @@ defmodule PumbleAutomation.Workflows.DependenciesTest do
       assert length(issues) == 1
     end
 
-    test "a workflow that was fine before a reinstall dropped a permission is blocked now" do
+    test "a workflow is blocked after reinstall drops a requested permission" do
       # The compiled workflow does not change when a workspace is reinstalled
-      # with fewer permissions. The snapshot does, and the answer must follow
-      # the snapshot rather than what was true when the workflow was written.
+      # with fewer requested permissions. The snapshot does, and the answer
+      # must follow it rather than what was true when the workflow was written.
       dependencies = calculate([message_node()])
 
       assert Dependencies.check(dependencies, ["messages:write", "reaction:write"]) == []
@@ -141,7 +143,7 @@ defmodule PumbleAutomation.Workflows.DependenciesTest do
       assert [%{code: :scope_missing}] = Dependencies.check(dependencies, ["reaction:write"])
     end
 
-    test "no message repeats a permission the workspace holds" do
+    test "no message repeats unrelated recorded scope values" do
       marker = "sentinel-#{System.unique_integer([:positive])}"
 
       issues = check([message_node()], [marker])
@@ -277,8 +279,8 @@ defmodule PumbleAutomation.Workflows.DependenciesTest do
     Dependencies.calculate(compiled)
   end
 
-  defp check(steps, granted) do
-    steps |> calculate() |> Dependencies.check(granted)
+  defp check(steps, recorded) do
+    steps |> calculate() |> Dependencies.check(recorded)
   end
 
   defp operations(dependencies), do: Enum.map(dependencies.scope_evidence, & &1.operation)

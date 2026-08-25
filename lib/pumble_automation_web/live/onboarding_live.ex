@@ -85,7 +85,7 @@ defmodule PumbleAutomationWeb.OnboardingLive do
 
     <.banner id="scope-degraded-banner" tone="warn" title="Scopes are reduced">
       Some Pumble operations may fail until an owner reinstalls and reviews the
-      granted scopes.
+      requested permissions.
     </.banner>
 
     <.status_and_setup installation={@installation} />

@@ -103,11 +103,11 @@ defmodule PumbleAutomation.Workflows.Activation do
   @doc """
   Activates a previously stored immutable version of the workflow.
 
-  The version row is not rewritten. Current installation scopes, secrets, and
-  connections are checked against the stored program, and new projections are
-  written to point at it. A secret or permission that was present at first
-  activation and is gone now blocks the switch; the live pointer is left
-  where it was.
+  The version row is not rewritten. The recorded install request, current
+  secrets, and current connections are checked against the stored program, and
+  new projections are written to point at it. A secret that is gone, or a scope
+  omitted from the recorded request, blocks the switch; the live pointer is
+  left where it was.
   """
   @spec reactivate(Scope.t(), Ecto.UUID.t(), pos_integer()) ::
           {:ok, result()} | {:error, Error.t()}

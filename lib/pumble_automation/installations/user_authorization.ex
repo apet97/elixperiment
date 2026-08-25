@@ -2,9 +2,10 @@ defmodule PumbleAutomation.Installations.UserAuthorization do
   @moduledoc """
   One Pumble user's own authorization inside an installation.
 
-  A bot token can do what the app was granted; some actions must instead happen
-  as the person who asked for them. This row holds that person's token, the
-  scopes it was granted, and whether it is still usable.
+  Some actions use the bot token; others must happen as the person who asked for
+  them. This row holds that person's token, the requested-scope snapshot
+  recorded at authorization, and whether the token is still usable. The
+  snapshot is not a provider-granted scope list.
 
   One row per user per installation. The unique index over
   `(installation_id, pumble_user_id)` is what makes "the authorization for this
@@ -64,8 +65,8 @@ defmodule PumbleAutomation.Installations.UserAuthorization do
   Builds an insert or an update.
 
   The scope snapshot is normalized to a sorted, unique, non-blank list, so that
-  a comparison against a later grant is a comparison of sets and not of the
-  order a response happened to use.
+  a comparison against a later request is a comparison of sets and not of
+  configuration order.
   """
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = authorization, attrs) do

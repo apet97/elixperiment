@@ -35,8 +35,8 @@ defmodule PumbleAutomation.Executions.Nodes.Pumble do
   @client_messages %{
     validation: "The Pumble action could not be sent.",
     authentication: "The Pumble credential is no longer usable.",
-    authorization: "This workspace cannot perform that Pumble action.",
-    missing_scope: "This workspace is missing a required Pumble permission.",
+    authorization: "The Pumble action is not authorized.",
+    missing_scope: "The recorded install request omits a required Pumble permission.",
     installation_revoked: "This workspace is no longer authorized.",
     not_found: "The Pumble target does not exist.",
     conflict: "The Pumble target is in a conflicting state.",
@@ -196,7 +196,7 @@ defmodule PumbleAutomation.Executions.Nodes.Pumble do
     Outcome.new(%{
       kind: client_kind(error, class),
       error_class: Atom.to_string(class),
-      message: client_message(class),
+      message: client_message(error, class),
       remote_reference: error.provider_request_id,
       output: client_output(error, input)
     })
@@ -408,7 +408,12 @@ defmodule PumbleAutomation.Executions.Nodes.Pumble do
 
   defp ambiguous_transport_summary?(_summary), do: false
 
-  defp client_message(class) do
+  defp client_message(%ClientError{status: 403}, class)
+       when class in [:authorization, :missing_scope] do
+    "Pumble refused this action. Review the app permissions before starting a new run."
+  end
+
+  defp client_message(_error, class) do
     Map.get(@client_messages, class, "The Pumble action failed.")
   end
 

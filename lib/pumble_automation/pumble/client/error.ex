@@ -28,8 +28,8 @@ defmodule PumbleAutomation.Pumble.Client.Error do
   | other 4xx | `:remote_permanent` | never |
 
   `401` and `403` are never transient. A retry cannot make a revoked token valid
-  or a missing scope granted, and repeating the call only reproduces the failure
-  against a workspace that already refused it.
+  or change a provider permission refusal, and repeating the call only
+  reproduces the failure against a workspace that already refused it.
 
   A `5xx` on a write is `:side_effect_uncertain` rather than `:remote_transient`
   because Pumble publishes no idempotency key on writes (`U-3`, `PR-09`): an

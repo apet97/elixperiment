@@ -200,7 +200,11 @@ defmodule PumbleAutomation.Executions.Nodes.PumbleReactionNodesTest do
   describe "status and timeout windows" do
     test "401 and 403 are permanent; 429 retries; 5xx and timeout pause", context do
       assert_class(context, 401, :permanent_error, "authentication")
-      assert_class(context, 403, :permanent_error, "missing_scope")
+      refused = assert_class(context, 403, :permanent_error, "missing_scope")
+
+      assert refused.message ==
+               "Pumble refused this action. Review the app permissions before starting a new run."
+
       assert_class(context, 404, :permanent_error, "not_found")
       assert_class(context, 429, :retryable_error, "rate_limited")
       assert_class(context, 500, :uncertain, "side_effect_uncertain")
@@ -339,6 +343,7 @@ defmodule PumbleAutomation.Executions.Nodes.PumbleReactionNodesTest do
     assert {:ok, outcome} = run_action(context, add_config(), %{})
     assert outcome.kind == kind
     assert outcome.error_class == error_class
+    outcome
   end
 
   defp stub_add(status, message_id \\ "message1") do

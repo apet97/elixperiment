@@ -6,8 +6,9 @@ defmodule PumbleAutomation.Installations.Credentials do
   `:encrypted_access_token` to make a call with it. A caller names an
   installation and a credential kind; this module reads the row, refuses the
   credential when the installation or the authorization no longer permits its
-  use, and returns the plaintext token together with the scope snapshot that was
-  granted with it.
+  use, and returns the plaintext token together with the requested-scope
+  snapshot recorded at authorization. Pumble's OAuth exchange does not return
+  a provider-granted scope list.
 
   ## Why resolution happens per request
 
@@ -52,7 +53,8 @@ defmodule PumbleAutomation.Installations.Credentials do
   `:actor_id` is the Pumble workspace-user id the token acts as: the bot user id
   for `:bot`, the member's id for `{:user, _}`. `:scopes` is the snapshot this
   application recorded at authorization, which is empty when no scope set was
-  configured — an empty list means "unknown", never "none granted".
+  configured — an empty list means "unknown". A non-empty list records what
+  the application requested; it does not prove what Pumble granted.
   """
   @type t :: %{
           kind: :bot | :user,

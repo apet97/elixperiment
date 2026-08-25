@@ -119,8 +119,10 @@ application, not the vendor SDK's 403).
 ### Symptom
 
 Pumble actions fail permanently with class `authentication` (401) or
-`missing_scope` / `authorization` (403). Onboarding may show a
-scope-degraded workspace. Executions do not retry those classes.
+`missing_scope` / `authorization` (403). A 403 proves that Pumble refused the
+operation; the stored scope snapshot records only what the application
+requested. Executions do not retry those classes. The installation can remain
+active, so later independent runs can fail again until its permissions change.
 
 ### Checks
 
@@ -129,12 +131,15 @@ scope-degraded workspace. Executions do not retry those classes.
 2. Open `/audit` and filter for lifecycle actions.
 3. Open a failing execution at `/executions/:id`. Read the sanitized error
    class. It must not show a token.
+4. Treat the scopes shown in `/settings` as the recorded install request, not as
+   provider-confirmed grants.
 
 ### Safe action
 
-Follow [oauth_revocation.md](oauth_revocation.md). Typical path: reinstall or
-reconnect the user so scopes match `PumbleAutomation.Pumble.Scopes`. Do not
-retry the step from SQL.
+Follow [oauth_revocation.md](oauth_revocation.md). Review the configured scope
+request and the app permissions. If the request changed, reinstall the app so
+the new request is recorded. Start a new run after access works; do not retry
+the failed step from SQL.
 
 ### Stop / escalate
 

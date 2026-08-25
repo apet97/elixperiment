@@ -438,8 +438,8 @@ needs.
 **Weakest acceptable conclusion:** for every operation in matrix section 6.1
 to 6.3 and for every subscribed event, the minimum scope set under which the
 call succeeds and the exact `403` body when it is missing. If a required scope
-cannot be identified, the add-on requests the superset it is currently granted
-and never auto-disables a workflow on a scope inference.
+cannot be identified, the add-on requests the configured superset and never
+auto-disables a workflow on a scope inference.
 
 **Setup:** `SETUP-A`, `SETUP-B`. Use several probe app registrations, each
 declaring a different narrow scope set, so scopes can be varied without

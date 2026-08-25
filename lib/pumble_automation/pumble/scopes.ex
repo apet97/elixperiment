@@ -28,12 +28,14 @@ defmodule PumbleAutomation.Pumble.Scopes do
   ## The gate refuses only what the snapshot proves absent
 
   `check/2` returns a local permanent error before the network only when the
-  operation maps to a named scope *and* the installation's recorded scope set is
-  non-empty *and* that set does not contain the scope. An empty snapshot means
-  "this application never recorded which scopes were granted", which is the
-  default (`config/config.exs` requests no scopes), and it is not evidence of
-  absence. An `:unverified` mapping never gates anything: an unknown mapping
-  must not be able to block a call that would have worked.
+  operation maps to a named scope *and* the installation's recorded request set
+  is non-empty *and* that set does not contain the scope. An empty snapshot
+  means "this application never recorded which scopes it requested", which is
+  the default (`config/config.exs` requests no scopes), and it is not evidence
+  of absence. Presence in this snapshot does not prove that Pumble granted the
+  scope; a provider `403` remains authoritative. An `:unverified` mapping never
+  gates anything: an unknown mapping must not be able to block a call that
+  would have worked.
   """
 
   alias PumbleAutomation.Pumble.Client.Error
@@ -115,25 +117,27 @@ defmodule PumbleAutomation.Pumble.Scopes do
   def scope_of({:unverified, _probe}), do: nil
 
   @doc """
-  Whether `granted` proves `scope` was granted.
+  Whether the recorded request set contains `scope`.
 
   A blank snapshot proves nothing, so it answers `false` here and is handled as
-  "unknown" by `check/2`. Callers must not read this as "not granted".
+  "unknown" by `check/2`. A present value proves only what the application
+  requested, not what Pumble granted.
   """
   @spec has_scope?([String.t()], String.t()) :: boolean()
-  def has_scope?(granted, scope) when is_list(granted) and is_binary(scope) do
-    scope in granted
+  def has_scope?(recorded, scope) when is_list(recorded) and is_binary(scope) do
+    scope in recorded
   end
 
   @doc """
   The pre-network scope gate for `operation` against an installation snapshot.
 
   Returns `:ok` when the call may be attempted, and `{:error, error}` with class
-  `:missing_scope` when the snapshot proves the required scope is absent.
+  `:missing_scope` when the snapshot proves the required scope was not
+  requested.
   """
   @spec check(atom(), [String.t()]) :: :ok | {:error, Error.t()}
-  def check(operation, granted) when is_list(granted) do
-    check_mapping(mapping(operation), granted, operation)
+  def check(operation, recorded) when is_list(recorded) do
+    check_mapping(mapping(operation), recorded, operation)
   end
 
   @doc """
@@ -144,21 +148,21 @@ defmodule PumbleAutomation.Pumble.Scopes do
   carries yet.
   """
   @spec check_mapping(mapping(), [String.t()], atom()) :: :ok | {:error, Error.t()}
-  def check_mapping(mapping, granted, operation \\ nil)
+  def check_mapping(mapping, recorded, operation \\ nil)
 
-  def check_mapping({:unverified, _probe}, _granted, _operation), do: :ok
+  def check_mapping({:unverified, _probe}, _recorded, _operation), do: :ok
   def check_mapping(_mapping, [], _operation), do: :ok
 
-  def check_mapping({:verified, scope}, granted, operation) do
-    gate(scope, granted, operation, nil)
+  def check_mapping({:verified, scope}, recorded, operation) do
+    gate(scope, recorded, operation, nil)
   end
 
-  def check_mapping({:inferred, scope, probe}, granted, operation) do
-    gate(scope, granted, operation, probe)
+  def check_mapping({:inferred, scope, probe}, recorded, operation) do
+    gate(scope, recorded, operation, probe)
   end
 
-  defp gate(scope, granted, operation, probe) do
-    if has_scope?(granted, scope) do
+  defp gate(scope, recorded, operation, probe) do
+    if has_scope?(recorded, scope) do
       :ok
     else
       {:error,
@@ -169,8 +173,8 @@ defmodule PumbleAutomation.Pumble.Scopes do
     end
   end
 
-  defp missing_summary(scope, nil), do: "the installation was not granted #{scope}"
+  defp missing_summary(scope, nil), do: "the installation did not request #{scope}"
 
   defp missing_summary(scope, probe),
-    do: "the installation was not granted #{scope} (mapping unproven, #{probe})"
+    do: "the installation did not request #{scope} (mapping unproven, #{probe})"
 end

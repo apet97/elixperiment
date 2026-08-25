@@ -29,21 +29,23 @@ may show **scope-degraded** or ask the owner to reconnect.
 3. Open `/audit` for `pumble_callback` lifecycle events
    (`APP_UNAUTHORIZED`, `APP_UNINSTALLED`).
 4. Compare required scopes on the workflow version with the stored snapshot.
-   Empty granted snapshot means unknown, not zero grants.
+   An empty requested-scope snapshot means unknown, not zero grants. A non-empty
+   snapshot records what the application requested; it is not provider grant
+   evidence.
 
 ### Safe action
 
 1. For 401: the credential is gone or revoked. Reinstall the app or reconnect
    the user from onboarding. Do not paste a token into IEx.
-2. For 403: the app lacks a scope. Update the Pumble app grant, then
-   reinstall so this application stores the new snapshot. Then reactivate
-   the workflow if activation still blocks.
+2. For 403: Pumble refused the operation. Review the app's requested scopes. If
+   the request changed, reinstall so this application records the new snapshot.
+   Then reactivate the workflow if activation still blocks.
 3. Do not requeue the failed step. Create a new run after credentials work.
 
-### Stop / escalate
+### Stop conditions
 
-- Stop if you are about to change `bot_scopes` in SQL.
-- Escalate Marketplace scope changes to the app owner.
+- Do not change `bot_scopes` in SQL.
+- Marketplace changes are outside this runbook.
 
 ## Uninstall and tenant deletion
 

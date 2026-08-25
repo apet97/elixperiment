@@ -81,9 +81,13 @@ defmodule PumbleAutomationWeb.SettingsLive.Index do
         <:item title="Workspace">{workspace_label(@installation)}</:item>
         <:item title="Status">{@installation.status}</:item>
         <:item title="Workspace id">{@installation.pumble_workspace_id}</:item>
-        <:item title="Bot scopes">{scope_text(@installation.bot_scopes)}</:item>
-        <:item title="User scopes">{scope_text(@installation.user_scopes)}</:item>
+        <:item title="Recorded bot scope request">{scope_text(@installation.bot_scopes)}</:item>
+        <:item title="Recorded user scope request">{scope_text(@installation.user_scopes)}</:item>
       </.list>
+      <p id="settings-scope-note" class="mt-3 text-sm text-muted">
+        These values record what the application requested at installation. They are not
+        provider-confirmed grants.
+      </p>
     </.card>
     """
   end

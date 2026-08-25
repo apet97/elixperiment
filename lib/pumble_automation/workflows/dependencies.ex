@@ -19,15 +19,15 @@ defmodule PumbleAutomation.Workflows.Dependencies do
   tags every operation `:verified`, `:inferred`, or `:unverified`, and that tag
   survives into the answer here:
 
-    * `:verified` and `:inferred` name a scope, so a snapshot that lacks it is
-      a proven problem and blocks;
+    * `:verified` and `:inferred` name a scope, so a recorded request snapshot
+      that lacks it is a proven local configuration problem and blocks;
     * `:unverified` names no scope at all, so nothing can be proven about it
       and it can only warn, naming the probe that would settle it.
 
-  An installation with no recorded scopes is unknown rather than empty-handed,
-  and `Scopes.check/2` already refuses to call that a missing scope. Blocking a
-  workflow because nobody has written down what the workspace granted would be
-  a guess wearing an error's clothes.
+  An installation with no recorded scope request is unknown rather than
+  empty-handed, and `Scopes.check/2` already refuses to call that a missing
+  scope. Presence in the snapshot does not prove a provider grant; Pumble may
+  still refuse the call with `403`.
   """
 
   import Ecto.Query, only: [from: 2]
@@ -145,15 +145,16 @@ defmodule PumbleAutomation.Workflows.Dependencies do
   @doc """
   Compares what the workflow needs with what the installation recorded.
 
-  A proven missing scope is an error and blocks activation. An operation whose
-  scope nobody has established is a warning that names its probe, and never a
-  block. `granted` is the installation's own snapshot; an empty snapshot means
-  nothing was ever recorded, and `Scopes.check/2` treats it as unknown.
+  A required scope omitted from a non-empty request snapshot is an error and
+  blocks activation. An operation whose scope nobody has established is a
+  warning that names its probe, and never a block. `recorded` is the
+  application's requested-scope snapshot; an empty snapshot means nothing was
+  ever recorded, and `Scopes.check/2` treats it as unknown.
   """
   @spec check(t(), [String.t()]) :: [ValidationIssue.t()]
-  def check(%__MODULE__{} = dependencies, granted) when is_list(granted) do
+  def check(%__MODULE__{} = dependencies, recorded) when is_list(recorded) do
     dependencies.scope_evidence
-    |> Enum.flat_map(&scope_issues(&1, granted))
+    |> Enum.flat_map(&scope_issues(&1, recorded))
     |> Enum.uniq()
     |> ValidationIssue.sort()
   end
@@ -296,9 +297,9 @@ defmodule PumbleAutomation.Workflows.Dependencies do
 
   defp scope(operation), do: operation |> Scopes.mapping() |> Scopes.scope_of()
 
-  ## Comparing with what was granted
+  ## Comparing with the recorded scope request
 
-  defp scope_issues(%{evidence: :unverified} = entry, _granted) do
+  defp scope_issues(%{evidence: :unverified} = entry, _recorded) do
     [
       ValidationIssue.warning(
         :scope_unverified,
@@ -308,8 +309,8 @@ defmodule PumbleAutomation.Workflows.Dependencies do
     ]
   end
 
-  defp scope_issues(entry, granted) do
-    case Scopes.check(entry.operation, granted) do
+  defp scope_issues(entry, recorded) do
+    case Scopes.check(entry.operation, recorded) do
       :ok ->
         []
 
@@ -318,7 +319,7 @@ defmodule PumbleAutomation.Workflows.Dependencies do
           ValidationIssue.error(
             :scope_missing,
             "/required_scopes",
-            "This workspace has not granted the #{entry.scope} permission this workflow needs."
+            "This app installation did not request the #{entry.scope} permission this workflow needs."
           )
         ]
     end

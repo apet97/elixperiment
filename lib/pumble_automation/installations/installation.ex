@@ -104,8 +104,9 @@ defmodule PumbleAutomation.Installations.Installation do
   Rejects an attempt to change `:pumble_workspace_id` on a persisted row, a
   status outside `statuses/0`, and a transition outside the documented
   lifecycle. Scope arrays are normalized to a sorted, unique, non-blank list, so
-  that two writes of the same grant produce the same row and a comparison never
-  depends on the order Pumble happened to return.
+  that two writes of the same requested-scope snapshot produce the same row and
+  a comparison never depends on configuration order. These arrays do not prove
+  which scopes Pumble granted.
   """
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = installation, attrs) do

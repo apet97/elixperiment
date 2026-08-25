@@ -265,14 +265,15 @@ defmodule PumbleAutomation.Pumble.OperationsTest do
       assert Scopes.scope(:get_workspace_info) == "workspace:read"
     end
 
-    test "the gate refuses a call the snapshot proves cannot work" do
+    test "the gate refuses a call omitted from the recorded request" do
       assert {:error, error} = Scopes.check(:post_message, ["workspace:read"])
       assert error.class == :missing_scope
-      assert error.body_summary =~ "messages:write"
+      assert error.body_summary =~ "did not request messages:write"
       assert error.body_summary =~ "PR-07"
+      refute error.body_summary =~ "not granted"
     end
 
-    test "the gate passes when the snapshot proves the grant" do
+    test "the gate passes locally when the recorded request contains the scope" do
       assert :ok = Scopes.check(:post_message, ["messages:write"])
     end
 

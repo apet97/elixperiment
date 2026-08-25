@@ -76,7 +76,8 @@ defmodule PumbleAutomationWeb.OnboardingLiveTest do
       {:ok, view, html} = live(log_in(conn, token), ~p"/")
 
       assert has_element?(view, "#onboarding-page[data-state=scope_degraded]")
-      assert has_element?(view, "#scope-degraded-banner")
+      assert has_element?(view, "#scope-degraded-banner", "requested permissions")
+      refute has_element?(view, "#scope-degraded-banner", "granted scopes")
       assert has_element?(view, "#reinstall-action")
       assert has_element?(view, "#installation-status")
       assert has_element?(view, "#connection-status")

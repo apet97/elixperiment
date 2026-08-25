@@ -305,8 +305,8 @@ defmodule PumbleAutomation.Workflows do
   @doc """
   Makes a previously stored immutable version the running program.
 
-  The version row is not rewritten. Current installation scopes, secrets, and
-  connections are checked before the live pointer moves.
+  The version row is not rewritten. The recorded install request, current
+  secrets, and current connections are checked before the live pointer moves.
   """
   @spec reactivate_workflow(Scope.t(), Ecto.UUID.t(), pos_integer()) ::
           {:ok, Activation.result()} | {:error, Error.t()}

@@ -33,6 +33,10 @@ defmodule PumbleAutomationWeb.AdminLiveTest do
       assert has_element?(view, "#settings-uninstall")
       assert has_element?(view, "#settings-manifest")
       assert has_element?(view, "#settings-help")
+      assert has_element?(view, "#settings-installation", "Recorded bot scope request")
+      assert has_element?(view, "#settings-installation", "Recorded user scope request")
+      assert has_element?(view, "#settings-scope-note", "not provider-confirmed grants")
+      refute has_element?(view, "#settings-installation", "Granted bot scopes")
       assert has_element?(view, "#webhooks-empty", "credential rotation")
       assert html =~ installation.status
       assert html =~ Integer.to_string(Lifecycle.retention_days())

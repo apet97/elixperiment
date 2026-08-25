@@ -293,12 +293,12 @@ defmodule PumbleAutomation.Workflows.DeactivationTest do
       assert Repo.aggregate(WorkflowVersion, :count) == 1
     end
 
-    test "a missing current scope blocks reactivation", context do
-      grant_scopes!(context.installation, ["messages:write"])
+    test "an updated requested-scope snapshot can block reactivation", context do
+      record_requested_scopes!(context.installation, ["messages:write"])
       workflow = activatable(context.installation_id, definition([message_node()]))
       {:ok, activated} = Workflows.activate_workflow(context.scope, workflow.id, 0)
 
-      grant_scopes!(Repo.get!(Installation, context.installation_id), ["channels:read"])
+      record_requested_scopes!(Repo.get!(Installation, context.installation_id), ["channels:read"])
 
       assert {:error, %Error{class: :validation, code: :activation_blocked} = error} =
                Workflows.reactivate_workflow(context.scope, workflow.id, 1)
@@ -400,7 +400,7 @@ defmodule PumbleAutomation.Workflows.DeactivationTest do
     Repo.all(from b in TriggerBinding, where: b.workflow_version_id == ^version_id and b.enabled)
   end
 
-  defp grant_scopes!(installation, scopes) do
+  defp record_requested_scopes!(installation, scopes) do
     installation
     |> Installation.changeset(%{bot_scopes: scopes})
     |> Repo.update!()

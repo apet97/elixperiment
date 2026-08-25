@@ -35,8 +35,10 @@ defmodule PumbleAutomation.Pumble.Client do
   ## Every call is refused locally before it is refused remotely
 
   In order: the credential is resolved (a revoked installation stops here), the
-  scope gate runs against the installation's recorded scope snapshot, the
-  payload is validated, and only then does a request reach the network.
+  scope gate runs against the installation's recorded requested-scope snapshot,
+  the payload is validated, and only then does a request reach the network.
+  That snapshot records configuration intent, not provider-confirmed grants;
+  Pumble remains the final authorization boundary.
 
   ## Retry safety
 

@@ -497,8 +497,9 @@ defmodule PumbleAutomation.Workflows.ActivationTest do
       assert is_nil(stored.active_version_id)
     end
 
-    test "a known missing scope writes nothing and returns the full issue list", context do
-      grant_scopes!(context.installation, ["channels:read"])
+    test "a scope omitted from the recorded install request writes nothing and returns the full issue list",
+         context do
+      record_requested_scopes!(context.installation, ["channels:read"])
       workflow = activatable(context.installation_id, definition([message_node()]))
 
       assert {:error, %Error{class: :validation, code: :activation_blocked} = error} =
@@ -614,7 +615,7 @@ defmodule PumbleAutomation.Workflows.ActivationTest do
              )
   end
 
-  defp grant_scopes!(installation, scopes) do
+  defp record_requested_scopes!(installation, scopes) do
     installation
     |> Installation.changeset(%{bot_scopes: scopes})
     |> Repo.update!()
