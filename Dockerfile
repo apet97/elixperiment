@@ -53,8 +53,8 @@ ENV LANG=C.UTF-8 \
 
 RUN apk add --no-cache \
       ca-certificates=20260611-r0 \
-      libcrypto3=3.5.7-r0 \
-      libssl3=3.5.7-r0 \
+      libcrypto3=3.5.8-r0 \
+      libssl3=3.5.8-r0 \
       libstdc++=15.2.0-r5 \
       ncurses-libs=6.6_p20260516-r0 \
       tini=0.19.0-r3 \
