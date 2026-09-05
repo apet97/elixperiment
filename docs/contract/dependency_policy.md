@@ -10,7 +10,7 @@ maintenance checks, and pass the complete verification gate.
 
 ## 1. Current toolchain and primary dependencies
 
-Snapshot date: **2026-08-24**. Exact package resolutions remain in `mix.lock`.
+Snapshot date: **2026-09-05**. Exact package resolutions remain in `mix.lock`.
 
 | Component | Current repository value |
 |---|---|
@@ -23,7 +23,7 @@ Snapshot date: **2026-08-24**. Exact package resolutions remain in `mix.lock`.
 | PostgreSQL | 16 deployment target |
 | Oban | 2.23.1 |
 | Req | 0.7.2 |
-| Mint | 1.9.3 |
+| Mint | 1.10.0 |
 | Credo | 1.7.19 |
 | Dialyxir | 1.4.7 |
 | Sobelow | 0.15.0 |
