@@ -68,7 +68,8 @@ disabled; named indexes are asserted from `pg_indexes`.
 
 ## Receipt
 
-Path: `tmp/offline_acceptance_receipt.json` (gitignored via `/tmp/`).
+Path: `tmp/offline_acceptance_receipt.json` (ignored by the repository-root
+`/tmp/` rule).
 The gate removes any previous receipt before gate 1. The writer validates the
 complete payload and then installs it atomically, so a failed run cannot leave
 an older success at the canonical path.

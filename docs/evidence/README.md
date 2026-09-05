@@ -8,7 +8,7 @@ be used as a substitute for another.
 | Source matrix and fixtures | The reviewed client-side contract and offline behavior | Current server behavior |
 | Automated test and release gate | The exact clean commit named by its receipt | Live API behavior or deployment |
 | Read-only API-key preflight | Bounded reads allowed by one key in one sacrificial workspace | OAuth, callbacks, writes, or installation lifecycle |
-| Temporary runtime check | One local image migrated and probed over local HTTP; public tunnel attempts were separately recorded as HTTP 530 | A registry image, durable environment, restore, rollback, or production behavior |
+| Temporary runtime check | One local image migrated and probed over local HTTP; prior-candidate public tunnel attempts were separately recorded as HTTP 530 | A registry image, durable environment, restore, rollback, or production behavior |
 | Durable deployment receipt | One registry artifact on one durable environment | Marketplace publication |
 
 ## Current references

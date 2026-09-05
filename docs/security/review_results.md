@@ -119,8 +119,10 @@ authority.
 The exact local image migrated a disposable PostgreSQL database and returned
 HTTP 200 for local liveness and readiness. The runtime used numeric UID/GID
 `10001:10001`, a read-only root filesystem, dropped capabilities, and
-`no-new-privileges`. Two account-less public tunnel attempts returned HTTP 530;
-public HTTPS reachability is therefore unproved.
+`no-new-privileges`. Two account-less public tunnel attempts against candidate
+`f83722ee9ee2c82ff5f33a0ed47e6de14e7a9a6a` returned HTTP 530; this is a
+historical negative observation, not a current public probe, so public HTTPS
+reachability remains unproved.
 
 OAuth installation, token exchange, provider-delivered signed callbacks,
 workflow execution, lifecycle delivery, and Pumble action writes remain

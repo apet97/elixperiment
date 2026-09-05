@@ -36,12 +36,13 @@ rollback, traffic switching, and environment smoke tests remain unverified.
 | OCI revision | Exact candidate commit |
 | Running container | Disposable local runtime (removed after validation) |
 | Local liveness and readiness | HTTP 200 and HTTP 200 |
-| Temporary HTTPS tunnel liveness and readiness | **Not proved:** two account-less tunnel attempts returned HTTP 530 |
+| Temporary HTTPS tunnel liveness and readiness | **Not proved:** candidate `f83722ee9ee2c82ff5f33a0ed47e6de14e7a9a6a` negative observation; two account-less tunnel attempts returned HTTP 530 |
 
 The image value is a local Docker image ID. It is not a registry digest. The
 local container proves one temporary test runtime only. The failed public tunnel
-attempts add no public reachability proof. Neither result proves a durable
-deployment or production behavior.
+attempts were recorded against candidate `f83722ee9ee2c82ff5f33a0ed47e6de14e7a9a6a` and add no current public
+reachability proof. Neither result proves a durable deployment or production
+behavior.
 
 ## What this release already implements
 

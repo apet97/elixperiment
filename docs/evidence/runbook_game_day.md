@@ -1,11 +1,14 @@
-# Runbook game-day evidence
+# Historical game-day evidence (not the current candidate)
 
 Date: 2026-08-19. Environment: local non-production (Elixir 1.20.3 / OTP 29 /
 PostgreSQL 16). Starting commit: `ce91140`. Parent commit: `9d5edd2`.
 
-This is the game-day evidence for operational runbooks. Commands ran against
-the local test application, not a production host. Production deploy, backup,
-and image rollback were **not executed or verified**.
+This is a historical operational snapshot. Commands ran against the local
+test application, not a production host. It is retained to show the runbook
+exercise performed on that date; it is not evidence for the current release
+candidate. Current candidate proof is in `docs/engineering/verification.md`
+and `docs/evidence/live_validation.md`. Production deploy, backup, and image
+rollback were **not executed or verified**.
 
 Public support docs stay separate: `docs/operations/local_development.md` is
 the shareable local guide. The other files in `docs/operations/` contain
@@ -43,7 +46,7 @@ failure, rollback.
 | `Rotation.rotate(Installation, :encrypted_bot_token)` | `{:ok, %{scanned: _, rotated: _}}` without printing tokens |
 | `pg_dump --schema-only` of `pumble_automation_test` | exit 0; output has `schema_migrations`; no planted secrets |
 | `Ecto.Migrator.migrations/1` | every shipped migration is `:up` in the test database |
-| `./scripts/verify.sh` | all 9 gates passed; `mix test` 2052 tests + 1 doctest (2053 passed) |
+| `./scripts/verify.sh` | historical snapshot: all 9 gates passed; `mix test` 2052 tests + 1 doctest (2053 passed) |
 
 `mix phx.server` and `curl http://localhost:4000/health/*` are the operator
 commands when a dev server is running. The game-day suite exercises the same

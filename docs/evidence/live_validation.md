@@ -35,9 +35,9 @@ does not have a message-write mode.
 
 ## Temporary local runtime proof
 
-The exact receipt-bound image was exercised with a disposable PostgreSQL 16
-database. Release migrations completed, and both local probes returned HTTP
-200:
+The current offline receipt's candidate-bound container-smoke gate exercised
+the exact receipt-bound image with a disposable PostgreSQL 16 database.
+Release migrations completed, and both local probes returned HTTP 200:
 
 - `GET /health/live` — process liveness;
 - `GET /health/ready` — database, migration, and Oban readiness.
@@ -49,9 +49,11 @@ covered by the offline security and web test gates; no provider callback was
 used for this temporary runtime.
 
 Two account-less Cloudflare quick-tunnel attempts were also made against the
-local port. Both returned HTTP 530, so public HTTPS reachability, stable DNS,
-and provider callback delivery are not claimed. The disposable containers and
-tunnel processes are removed after validation.
+local port for candidate `f83722ee9ee2c82ff5f33a0ed47e6de14e7a9a6a`, before the final dependency-policy
+documentation correction. Both returned HTTP 530. This retained negative
+observation does not constitute a current public probe; public HTTPS
+reachability, stable DNS, and provider callback delivery are not claimed. The
+disposable containers and tunnel processes were removed after validation.
 
 ## Browser and OAuth boundary
 
