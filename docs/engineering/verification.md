@@ -6,10 +6,9 @@ command path. It is not part of `./scripts/verify.sh`.
 
 ## Current offline result
 
-Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` passed all 19 gates
-on 2026-08-25. The run passed 2,335 tests and 1 doctest. Its local image ID is
-`sha256:2120f16478fff70c4c6e0fb8beb05f420b2705a8393995f3ef28ce7486dd7b88`,
-and the OCI revision label equals the candidate commit.
+The latest clean candidate passed all 19 gates. Its test counts, exact commit,
+timestamp, local image ID, and OCI revision label are recorded in
+`tmp/offline_acceptance_receipt.json`.
 
 The image value is a local Docker image ID. It is not a registry digest.
 
@@ -135,11 +134,11 @@ absence. See the
 The API key does not prove OAuth, callback signatures, lifecycle delivery, a
 deployment, or Marketplace readiness.
 
-The isolated run at `2026-08-25T00:13:32Z` passed against the exact candidate.
-It made 1 public contract read and 4 authenticated reads. It made no write and
-created no resource. The result was captured in transient standard output. The
-existing ignored receipt file still belongs to an earlier candidate and must
-not be cited for this run. A final clean-candidate run must replace it.
+The latest isolated run passed against the exact candidate named by the
+receipt. It made 1 public contract read and 4 authenticated reads. It made no
+write and created no resource. The redacted result is recorded in the ignored
+`tmp/live_api_preflight_receipt.json` file, including its candidate SHA and
+timestamp.
 
 See the [live validation record](../evidence/live_validation.md) for the
 temporary runtime proof and all pending live boundaries.

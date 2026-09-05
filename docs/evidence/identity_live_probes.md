@@ -1,6 +1,6 @@
 # Identity behaviors that remain live-probe dependent
 
-Original review date: 2026-08-15. Last evidence update: 2026-08-25.
+Original review date: 2026-08-15. Last evidence update: 2026-09-05.
 Companion files: `pumble_source_matrix.md` and
 `pumble_probe_register.md`.
 
@@ -14,7 +14,7 @@ does not make.
 
 ## Current live status
 
-The 2026-08-25 API-key preflight observed only the separate API-key identity and
+The 2026-09-05 API-key preflight observed only the separate API-key identity and
 read contracts. It did not start or complete OAuth. The private app
 configuration page was observed, but the app remained pending installation.
 

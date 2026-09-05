@@ -12,7 +12,7 @@ verified**; it is not an automated-test result.
 | axe-core or equivalent scan | Not run | No scanner was added |
 | Real Chromium console review | Not verified | Remains outside the offline gate |
 
-## Live browser boundary (2026-08-25)
+## Live browser boundary (historical observation, 2026-08-25)
 
 The private app configuration page was observed in real Chrome. The app was not
 installed. OAuth consent, token exchange, authenticated onboarding, callback

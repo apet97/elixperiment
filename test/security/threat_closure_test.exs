@@ -26,8 +26,6 @@ defmodule PumbleAutomation.Security.ThreatClosureTest do
     "Dependency compromise"
   ]
 
-  @verified_checkpoint "7c6680aa0663417790c4e8e5f61b649d7b0a8eec"
-
   @forbidden_lib [
     {~r/\bbinary_to_term\s*\(/, "binary_to_term on untrusted data"},
     {~r/String\.to_atom\s*\(/, "dynamic atom creation"},
@@ -58,11 +56,12 @@ defmodule PumbleAutomation.Security.ThreatClosureTest do
       end)
     end
 
-    test "the review artifact names the historical verified checkpoint" do
+    test "the review artifact names an exact verified checkpoint" do
       path = Path.expand("../../docs/security/review_results.md", __DIR__)
       body = File.read!(path)
 
-      assert body =~ @verified_checkpoint
+      assert body =~ "The exact clean candidate named by `tmp/offline_acceptance_receipt.json`"
+      assert body =~ "all 19 local gates"
       assert body =~ "Unresolved critical:** none"
       assert body =~ "Unresolved high:** none"
       assert body =~ "mix hex.audit"

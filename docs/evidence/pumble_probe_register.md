@@ -1,6 +1,6 @@
 # Pumble protocol probe register
 
-Original review date: 2026-08-15. Last evidence update: 2026-08-25.
+Original review date: 2026-08-15. Last evidence update: 2026-09-05.
 Companion file: `pumble_source_matrix.md`.
 
 Each probe resolves one unknown. Each probe is bounded: one hypothesis, one
@@ -8,7 +8,7 @@ weakest acceptable conclusion, one action set, one cleanup.
 
 ## Current live status
 
-The 2026-08-25 API-key preflight was separate from these probes. It passed 1
+The 2026-09-05 API-key preflight was separate from these probes. It passed 1
 public contract read and 4 authenticated reads. It made no write and did not
 start OAuth. The private app configuration page was observed, but installation
 remained pending.
@@ -38,7 +38,7 @@ this register.
 6. **`BLOCKED` is a valid state.** If credentials are missing, mark the probe
    `BLOCKED` and keep the conservative assumption named in the probe.
 7. **Current credential status.** OAuth installation did not complete in the
-   2026-08-25 run. Every OAuth-dependent probe remains open. Do not treat the
+   2026-09-05 run. Every OAuth-dependent probe remains open. Do not treat the
    API key as OAuth application credentials or callback-signing authority.
 8. **`RESOLVED BY SOURCE` is a terminal state.** Added 2026-08-15 after the
    public [Pumble Node SDK at commit `36bb7ed`](https://github.com/CAKE-com/pumble-node-sdk/tree/36bb7edf091b9d24b39d6e70302ebbb3a1759fe3)

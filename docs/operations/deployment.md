@@ -18,8 +18,8 @@ A production-like node must boot from `config/runtime.exs`, serve HTTPS, and
 fail ready when the database, schema, or Oban supervisor cannot accept durable
 work.
 
-A temporary test runtime was observed for clean commit
-`7c6680aa0663417790c4e8e5f61b649d7b0a8eec`. A staging or production target
+A temporary test runtime was exercised for the clean candidate named by the
+latest offline receipt. A staging or production target
 is **not** configured in this repository. The exact-candidate gate built and
 tested one local hardened OCI image from digest-pinned base images. The
 repository also contains an explicit release migrator and candidate-bound local
@@ -31,16 +31,17 @@ rollback, traffic switching, and environment smoke tests remain unverified.
 
 | Item | Result |
 | --- | --- |
-| Candidate | Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` |
-| Local image ID | `sha256:2120f16478fff70c4c6e0fb8beb05f420b2705a8393995f3ef28ce7486dd7b88` |
+| Candidate | Exact SHA in `tmp/offline_acceptance_receipt.json` |
+| Local image ID | Exact local image ID in `tmp/offline_acceptance_receipt.json` |
 | OCI revision | Exact candidate commit |
-| Running container | `pumble-wa-app-7c6680a` |
+| Running container | Disposable local runtime named by the temporary-run log |
 | Local liveness and readiness | HTTP 200 and HTTP 200 |
-| Temporary HTTPS tunnel liveness and readiness | HTTP 200 and HTTP 200 |
+| Temporary HTTPS tunnel liveness and readiness | **Not proved:** two account-less tunnel attempts returned HTTP 530 |
 
 The image value is a local Docker image ID. It is not a registry digest. The
-tunnel and container prove one temporary test runtime only. They do not prove a
-durable deployment or production behavior.
+local container proves one temporary test runtime only. The failed public tunnel
+attempts add no public reachability proof. Neither result proves a durable
+deployment or production behavior.
 
 ## What this release already implements
 

@@ -6,21 +6,18 @@ belongs only to the exact commit and artifact named by its receipt.
 
 ## Exact verified checkpoint
 
-Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` passed all 19 local gates in
-`./scripts/verify.sh` on 2026-08-25. The run passed 2,335 tests and 1 doctest,
-strict compilation, Credo, Dialyzer, `mix sobelow --config`, `mix hex.audit`,
-`gitleaks`, release assembly, release migrations, and the hardened container
-smoke.
+The exact clean candidate named by `tmp/offline_acceptance_receipt.json` passed
+all 19 local gates in `./scripts/verify.sh`. The receipt records the tested
+commit, timestamp, test counts, lockfile hash, local image ID, and OCI revision
+label. It also records that live certification was excluded.
 
-The gate built local image
-`sha256:2120f16478fff70c4c6e0fb8beb05f420b2705a8393995f3ef28ce7486dd7b88`.
-Its OCI revision label names the same commit. This is a local Docker image ID,
-not a registry digest.
+The gate includes strict compilation, Credo, Dialyzer, `mix sobelow --config`,
+`mix hex.audit`, `gitleaks`, release assembly, release migrations, and hardened
+container smoke.
 
-The repository changed after that checkpoint. Those later changes require a
-new clean commit and a fresh receipt before they inherit any completion claim.
-The current `tmp/offline_acceptance_receipt.json`, when produced by a clean
-`./scripts/verify.sh` run, is the authoritative local result.
+The image value in the receipt is a local Docker image ID, not a registry
+digest. The receipt is the authoritative local result; a receipt from a
+different commit must not inherit this review.
 
 ## Source boundaries reviewed
 
@@ -112,20 +109,22 @@ deployment.
 
 ## Live and deployment evidence at the checkpoint
 
-The bounded API-key preflight passed at `2026-08-25T00:13:32Z`. It made one
-public contract read and four authenticated reads. It bound the exact commit,
-script, reviewed public contract, clean worktree, and sacrificial workspace. It
-made no write and created no resource. The successful result was captured in
-transient standard output; the ignored receipt file still belonged to an older
-candidate and was not treated as current evidence.
+The candidate-bound API-key preflight receipt records one public contract read
+and four authenticated reads. It bound the exact commit, script, reviewed
+public contract, clean worktree, and sacrificial workspace. It made no write
+and created no resource. The API key is not an OAuth client credential,
+application signing secret, callback-signing authority, or Marketplace
+authority.
 
-The exact local image ran behind a temporary HTTPS tunnel. Local and tunneled
-liveness and readiness returned HTTP 200. This proves one temporary test
-runtime only.
+The exact local image migrated a disposable PostgreSQL database and returned
+HTTP 200 for local liveness and readiness. The runtime used numeric UID/GID
+`10001:10001`, a read-only root filesystem, dropped capabilities, and
+`no-new-privileges`. Two account-less public tunnel attempts returned HTTP 530;
+public HTTPS reachability is therefore unproved.
 
-At that checkpoint, OAuth installation, token exchange, signed callback
-delivery, workflow execution, lifecycle delivery, and Pumble action writes were
-not proved. No registry artifact, durable platform, stable DNS, managed TLS,
+OAuth installation, token exchange, provider-delivered signed callbacks,
+workflow execution, lifecycle delivery, and Pumble action writes remain
+unproved. No registry artifact, durable platform, stable DNS, managed TLS,
 restore, rollback, traffic switch, staging deployment, production deployment,
 or Marketplace submission was proved. No Marketplace submission was started.
 

@@ -22,11 +22,11 @@ The proof boundaries are deliberately separate:
 
 | Boundary | Current evidence |
 | --- | --- |
-| Offline candidate | **Passed.** Clean commit `7c6680aa0663417790c4e8e5f61b649d7b0a8eec` passed all 19 gates: 2,335 tests and 1 doctest. |
-| Read-only Pumble API | **Passed.** The 2026-08-25 preflight made 1 public contract read and 4 authenticated reads in one sacrificial workspace. It made no write and created no resource. |
-| Temporary test deployment | **Passed within its limited scope.** The exact local image ran behind a temporary HTTPS tunnel. Liveness and readiness returned HTTP 200. This is not durable deployment proof. |
-| OAuth installation | **Pending.** The private app configuration page was observed, but installation did not complete. No token-exchange bytes were observed. |
-| Signed callbacks and workflow execution | **Pending.** The implementation and offline fixtures passed. No live callback or workflow action is proved. |
+| Offline candidate | **Passed.** The latest `./scripts/verify.sh` receipt reports all 19 gates, test counts, and 1 doctest. Its exact tested commit and local image ID are fields in the ignored receipt under `tmp/`. |
+| Read-only Pumble API | **Passed.** The latest candidate-bound preflight receipt reports 1 public contract read and 4 authenticated reads in one sacrificial workspace. It made no write and created no resource. |
+| Temporary test deployment | **Passed locally within its limited scope.** The exact image migrated a disposable PostgreSQL database and returned HTTP 200 for both local liveness and readiness. Two account-less public tunnel attempts returned HTTP 530, so no public endpoint is claimed. This is not durable deployment proof. |
+| OAuth installation | **Unproved.** The private app configuration page was observed, but installation did not complete. No token-exchange bytes were observed, and no OAuth application credentials were available for this run. |
+| Signed callbacks and workflow execution | **Unproved live.** The implementation and offline route fixtures passed. No provider-delivered callback or live workflow action is proved. |
 | Pumble writes | **Unverified.** The API-key harness has no write mode. |
 | Durable deployment | **Unverified.** No registry digest, durable platform, stable DNS, managed TLS, restore, rollback, or traffic switch is proved. |
 | Marketplace publication | **Not submitted.** No submission was started. |
@@ -175,7 +175,7 @@ Build and exercise the image with:
 ./scripts/container-smoke.sh
 ```
 
-A temporary test runtime was observed for the exact candidate. No staging host,
+A temporary test runtime was exercised for the exact candidate. No staging host,
 production host, container registry, stable DNS zone, managed TLS setup, or
 durable deployment platform is configured or proved. The
 [deployment](docs/operations/deployment.md),
