@@ -34,7 +34,7 @@ rollback, traffic switching, and environment smoke tests remain unverified.
 | Candidate | Exact SHA in `tmp/offline_acceptance_receipt.json` |
 | Local image ID | Exact local image ID in `tmp/offline_acceptance_receipt.json` |
 | OCI revision | Exact candidate commit |
-| Running container | Disposable local runtime named by the temporary-run log |
+| Running container | Disposable local runtime (removed after validation) |
 | Local liveness and readiness | HTTP 200 and HTTP 200 |
 | Temporary HTTPS tunnel liveness and readiness | **Not proved:** two account-less tunnel attempts returned HTTP 530 |
 
